@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'dart:typed_data';
 import '../models/photo_item.dart';
 import '../providers/photo_provider.dart';
 
