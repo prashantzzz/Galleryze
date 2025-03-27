@@ -1176,6 +1176,8 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     color: #1565c0;
                 }}
             </style>
+            <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+            <script src="/supabase_client.js"></script>
             <script src="/new_galleryze_script.js"></script>
         </head>
         <body>
@@ -1396,7 +1398,35 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             /* Photo Grid */
             .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; padding: 16px; flex-grow: 1; padding-bottom: 70px; }
             .photo-item { aspect-ratio: 1/1; position: relative; cursor: pointer; }
-            .photo-placeholder { background-color: #e0e0e0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; color: #999; border-radius: 8px; overflow: hidden; }
+            .photo-placeholder { 
+                background-color: #f0f0f0; 
+                width: 100%; 
+                height: 100%; 
+                display: flex; 
+                justify-content: center; 
+                align-items: center; 
+                color: #777; 
+                border-radius: 8px; 
+                overflow: hidden; 
+                font-size: 0px; 
+                background-image: linear-gradient(135deg, #f5f7fa 0%, #e4e8ed 100%);
+                box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
+                position: relative;
+            }
+            
+            .photo-placeholder::before {
+                content: '';
+                position: absolute;
+                width: 60%;
+                height: 60%;
+                background-color: rgba(255,255,255,0.7);
+                border-radius: 4px;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 0 24 24' width='24' fill='%23999'%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 32px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            }
             .favorite-btn { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; border-radius: 50%; background-color: rgba(0, 0, 0, 0.3); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: all 0.2s; z-index: 2; }
             .favorite-btn i { color: white; font-size: 18px; }
             .favorite-btn.active i { color: #f44336; }
@@ -1419,7 +1449,15 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             /* Photo Details Modal */
             .photo-details-content { display: flex; flex-direction: column; }
             .photo-details-preview { margin-bottom: 20px; }
-            .photo-details-preview .photo-placeholder { height: 200px; width: 100%; }
+            .photo-details-preview .photo-placeholder { 
+                height: 200px; 
+                width: 100%; 
+                background-image: linear-gradient(135deg, #f5f7fa 0%, #e4e8ed 100%);
+            }
+            .photo-details-preview .photo-placeholder::before {
+                width: 40%;
+                height: 40%;
+            }
             .photo-details-info { display: flex; flex-direction: column; gap: 10px; }
             .photo-detail-item { padding: 8px 0; border-bottom: 1px solid #eee; }
             .photo-detail-item:last-child { border-bottom: none; }
