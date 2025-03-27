@@ -7,7 +7,8 @@ const supabaseUrl = window.SUPABASE_URL;
 const supabaseKey = window.SUPABASE_KEY;
 
 // Create a single supabase client for interacting with your database
-const supabase = supabaseClient.createClient(supabaseUrl, supabaseKey);
+// The global supabase object is available from the CDN
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 // Authentication functions
 // Create a global object to expose functions

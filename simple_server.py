@@ -126,15 +126,34 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             
             # Process login request
             email = data.get('email')
-            password = data.get('password')
+            user_id = data.get('userId')
+            supabase_token = data.get('supabaseToken')
             
-            # Here we would authenticate with Supabase
-            # For now, just return a success message and set a cookie
+            # Verify that we have user ID and token from Supabase
+            if not user_id or not supabase_token:
+                self.send_response(HTTPStatus.BAD_REQUEST)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "success": False, 
+                    "message": "Missing user credentials"
+                }).encode())
+                return
+                
+            # In a production app, we would verify the token with Supabase
+            # For this demo, we'll trust the token and set a session
             self.send_response(HTTPStatus.OK)
             self.send_header('Content-type', 'application/json')
-            self.send_header('Set-Cookie', 'session=authenticated; Path=/')
+            
+            # Store user ID and token in session cookie
+            session_data = f"{user_id}:{supabase_token}"
+            self.send_header('Set-Cookie', f'session={session_data}; Path=/')
+            
             self.end_headers()
-            self.wfile.write(json.dumps({"success": True, "message": "Logged in successfully"}).encode())
+            self.wfile.write(json.dumps({
+                "success": True, 
+                "message": "Logged in successfully"
+            }).encode())
         elif self.path == '/api/signup':
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
@@ -143,17 +162,38 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             # Process signup request
             name = data.get('name')
             email = data.get('email')
-            password = data.get('password')
+            user_id = data.get('userId')
+            
+            # Verify we have necessary data
+            if not name or not email or not user_id:
+                self.send_response(HTTPStatus.BAD_REQUEST)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "success": False, 
+                    "message": "Missing required signup information"
+                }).encode())
+                return
             
             # Set default subscription to 'free'
             subscription_plan = 'free'
             
-            # Here we would register with Supabase and store the user's name and subscription plan
-            # For now, just return a success message
+            # In a production app, we would store user metadata (name, subscription_plan) in Supabase
+            # Also create entries in the profiles table or similar
+            
             self.send_response(HTTPStatus.OK)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            self.wfile.write(json.dumps({"success": True, "message": "Signed up successfully"}).encode())
+            self.wfile.write(json.dumps({
+                "success": True, 
+                "message": "Signed up successfully", 
+                "user": {
+                    "id": user_id,
+                    "name": name,
+                    "email": email,
+                    "subscription_plan": subscription_plan
+                }
+            }).encode())
         elif self.path == '/api/logout':
             # Process logout request
             self.send_response(HTTPStatus.OK)
@@ -264,8 +304,10 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
         if cookie_str:
             cookie = cookies.SimpleCookie()
             cookie.load(cookie_str)
-            if 'session' in cookie and cookie['session'].value == 'authenticated':
-                return True
+            if 'session' in cookie and cookie['session'].value:
+                # In a production app, we would verify the Supabase token here
+                # For now, just check that we have a non-empty session
+                return len(cookie['session'].value) > 0
         return False
     
     def get_user_info(self):
@@ -665,24 +707,40 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     const password = document.getElementById('password').value;
                     
                     try {{
-                        const response = await fetch('/api/login', {{
-                            method: 'POST',
-                            headers: {{
-                                'Content-Type': 'application/json'
-                            }},
-                            body: JSON.stringify({{ email, password }})
-                        }});
+                        // Use Supabase authentication
+                        const {{ data, error }} = await galleryzeApi.signIn(email, password);
                         
-                        const result = await response.json();
+                        if (error) {{
+                            throw error;
+                        }}
                         
-                        if (result.success) {{
-                            window.location.href = '/';
+                        if (data && data.user) {{
+                            // Successfully signed in with Supabase, now create a server session
+                            const response = await fetch('/api/login', {{
+                                method: 'POST',
+                                headers: {{
+                                    'Content-Type': 'application/json'
+                                }},
+                                body: JSON.stringify({{ 
+                                    email, 
+                                    userId: data.user.id,
+                                    supabaseToken: data.session.access_token 
+                                }})
+                            }});
+                            
+                            const result = await response.json();
+                            
+                            if (result.success) {{
+                                window.location.href = '/';
+                            }} else {{
+                                alert(result.message || 'Failed to login');
+                            }}
                         }} else {{
-                            alert(result.message || 'Failed to login');
+                            alert('Login failed. Please check your credentials.');
                         }}
                     }} catch (error) {{
                         console.error('Login error:', error);
-                        alert('Login failed. Please try again.');
+                        alert(error.message || 'Login failed. Please try again.');
                     }}
                 }}
             </script>
@@ -795,25 +853,41 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     }}
                     
                     try {{
-                        const response = await fetch('/api/signup', {{
-                            method: 'POST',
-                            headers: {{
-                                'Content-Type': 'application/json'
-                            }},
-                            body: JSON.stringify({{ name, email, password }})
-                        }});
+                        // Register with Supabase Authentication
+                        const {{ data, error }} = await galleryzeApi.signUp(email, password);
                         
-                        const result = await response.json();
+                        if (error) {{
+                            throw error;
+                        }}
                         
-                        if (result.success) {{
-                            alert('Account created successfully! Please log in.');
-                            window.location.href = '/login';
+                        if (data && data.user) {{
+                            // After successful signup, store additional user metadata (name, subscription plan)
+                            const response = await fetch('/api/signup', {{
+                                method: 'POST',
+                                headers: {{
+                                    'Content-Type': 'application/json'
+                                }},
+                                body: JSON.stringify({{ 
+                                    name, 
+                                    email, 
+                                    userId: data.user.id 
+                                }})
+                            }});
+                            
+                            const result = await response.json();
+                            
+                            if (result.success) {{
+                                alert('Account created successfully! Please check your email to confirm your account, then log in.');
+                                window.location.href = '/login';
+                            }} else {{
+                                alert(result.message || 'Account created but failed to save profile data.');
+                            }}
                         }} else {{
-                            alert(result.message || 'Failed to create account');
+                            alert('Failed to create account. Please try again.');
                         }}
                     }} catch (error) {{
                         console.error('Signup error:', error);
-                        alert('Signup failed. Please try again.');
+                        alert(error.message || 'Signup failed. Please try again.');
                     }}
                 }}
             </script>
@@ -952,6 +1026,10 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             <script>
                 async function handleLogout() {{
                     try {{
+                        // First sign out from Supabase
+                        await galleryzeApi.signOut();
+                        
+                        // Then clear session on server
                         const response = await fetch('/api/logout', {{
                             method: 'POST',
                             headers: {{
@@ -1121,6 +1199,10 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                 <script>
                     async function handleLogout() {{
                         try {{
+                            // First sign out from Supabase
+                            await galleryzeApi.signOut();
+                            
+                            // Then clear session on server
                             const response = await fetch('/api/logout', {{
                                 method: 'POST',
                                 headers: {{
