@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:photo_manager/photo_manager.dart';
+// Removed photo_manager import for web compatibility
 import 'dart:typed_data';
 import '../models/photo_item.dart';
 import '../providers/photo_provider.dart';
@@ -31,10 +31,7 @@ class _PhotoTileState extends State<PhotoTile> {
   }
 
   void _loadThumbnail() {
-    _thumbnailFuture = widget.photo.asset.thumbnailDataWithSize(
-      const ThumbnailSize(300, 300),
-      quality: 80,
-    );
+    _thumbnailFuture = widget.photo.thumbData;
   }
 
   @override
@@ -189,13 +186,7 @@ class _PhotoTileState extends State<PhotoTile> {
                     controller: scrollController,
                     children: [
                       FutureBuilder<Uint8List?>(
-                        future: widget.photo.asset.thumbnailDataWithSize(
-                          ThumbnailSize(
-                            MediaQuery.of(context).size.width.toInt(),
-                            (MediaQuery.of(context).size.width * 1.2).toInt(),
-                          ),
-                          quality: 90,
-                        ),
+                        future: widget.photo.thumbData,
                         builder: (context, snapshot) {
                           if (snapshot.connectionState == ConnectionState.done && 
                               snapshot.data != null) {

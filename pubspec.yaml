@@ -10,7 +10,6 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.5
   provider: ^6.0.5
-  photo_manager: ^2.7.0
   cached_network_image: ^3.2.3
   path_provider: ^2.1.0
   shared_preferences: ^2.2.0

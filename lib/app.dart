@@ -1,59 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'providers/photo_provider.dart';
+import 'providers/category_provider.dart';
 import 'screens/home_screen.dart';
-import 'screens/category_screen.dart';
-import 'screens/account_screen.dart';
-import 'widgets/bottom_nav_bar.dart';
 
-class GalleryzeApp extends StatefulWidget {
+class GalleryzeApp extends StatelessWidget {
   const GalleryzeApp({Key? key}) : super(key: key);
 
   @override
-  _GalleryzeAppState createState() => _GalleryzeAppState();
-}
-
-class _GalleryzeAppState extends State<GalleryzeApp> {
-  int _currentIndex = 0;
-  
-  final List<Widget> _screens = [
-    const HomeScreen(),
-    const CategoryScreen(),
-    const AccountScreen(),
-  ];
-
-  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Galleryze',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: Colors.white,
-        fontFamily: 'Roboto',
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        appBarTheme: const AppBarTheme(
-          color: Colors.white,
-          elevation: 0,
-          iconTheme: IconThemeData(color: Colors.black),
-          titleTextStyle: TextStyle(
-            color: Colors.black,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => PhotoProvider()),
+        ChangeNotifierProvider(create: (_) => CategoryProvider()),
+      ],
+      child: MaterialApp(
+        title: 'Galleryze',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            elevation: 0,
           ),
         ),
-      ),
-      home: Scaffold(
-        body: IndexedStack(
-          index: _currentIndex,
-          children: _screens,
-        ),
-        bottomNavigationBar: BottomNavBar(
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
-        ),
+        home: const HomeScreen(),
       ),
     );
   }

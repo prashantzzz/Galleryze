@@ -7,103 +7,79 @@ class CategoryProvider extends ChangeNotifier {
   
   // Initialize with default categories
   CategoryProvider() {
-    _initializeDefaultCategories();
+    _loadCategories();
   }
-
-  void _initializeDefaultCategories() {
-    _categories = [
+  
+  void _loadCategories() {
+    // In a real app, these might be loaded from SharedPreferences
+    _categories = Category.getDefaultCategories();
+    
+    // Add a few custom categories for demonstration
+    _categories.addAll([
+      Category(
+        id: 'vacation',
+        name: 'Vacation',
+        icon: Icons.beach_access,
+        color: Colors.orange,
+      ),
+      Category(
+        id: 'family',
+        name: 'Family',
+        icon: Icons.family_restroom,
+        color: Colors.green,
+      ),
       Category(
         id: 'food',
         name: 'Food',
         icon: Icons.restaurant,
-        isEditable: false,
-        isDefault: true,
+        color: Colors.amber,
       ),
-      Category(
-        id: 'people',
-        name: 'People',
-        icon: Icons.people,
-        isEditable: false,
-        isDefault: true,
-      ),
-      Category(
-        id: 'pets',
-        name: 'Pets',
-        icon: Icons.pets,
-        isEditable: false,
-        isDefault: true,
-      ),
-      Category(
-        id: 'docs',
-        name: 'Docs',
-        icon: Icons.description,
-        isEditable: false,
-        isDefault: true,
-      ),
-      Category(
-        id: 'nature',
-        name: 'Nature',
-        icon: Icons.nature,
-        isEditable: false,
-        isDefault: true,
-      ),
-    ];
-  }
-
-  // Add a new custom category
-  void addCategory(String name, IconData icon) {
-    final newCategory = Category.create(
-      name: name,
-      icon: icon,
-      isEditable: true,
-      isDefault: false,
-    );
-    
-    _categories.add(newCategory);
+    ]);
     notifyListeners();
   }
-
+  
+  // Add a new category
+  void addCategory(Category category) {
+    // Check if category with the same ID already exists
+    if (_categories.any((c) => c.id == category.id)) {
+      return;
+    }
+    
+    _categories.add(category);
+    notifyListeners();
+    // In a real app, save categories to SharedPreferences
+  }
+  
   // Update an existing category
-  void updateCategory(String id, {String? name, IconData? icon}) {
-    final index = _categories.indexWhere((category) => category.id == id);
-    
-    if (index != -1 && _categories[index].isEditable) {
-      if (name != null) {
-        _categories[index].name = name;
+  void updateCategory(Category updatedCategory) {
+    final index = _categories.indexWhere((c) => c.id == updatedCategory.id);
+    if (index != -1) {
+      // Don't allow editing default categories
+      if (_categories[index].isDefault) {
+        return;
       }
-      
-      if (icon != null) {
-        _categories[index].icon = icon;
-      }
-      
+      _categories[index] = updatedCategory;
       notifyListeners();
+      // In a real app, save categories to SharedPreferences
     }
   }
-
+  
   // Delete a category
-  void deleteCategory(String id) {
-    final index = _categories.indexWhere((category) => category.id == id);
-    
-    if (index != -1 && _categories[index].isEditable && !_categories[index].isDefault) {
-      _categories.removeAt(index);
-      notifyListeners();
+  void deleteCategory(String categoryId) {
+    // Don't allow deleting default categories
+    if (_categories.any((c) => c.id == categoryId && c.isDefault)) {
+      return;
     }
+    
+    _categories.removeWhere((c) => c.id == categoryId);
+    notifyListeners();
+    // In a real app, save categories to SharedPreferences
   }
-
+  
   // Get a category by ID
   Category? getCategoryById(String id) {
     try {
-      return _categories.firstWhere((category) => category.id == id);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  // Get a category by name
-  Category? getCategoryByName(String name) {
-    try {
-      return _categories.firstWhere((category) => 
-          category.name.toLowerCase() == name.toLowerCase());
+      return _categories.firstWhere((c) => c.id == id);
     } catch (e) {
       return null;
     }

@@ -1,6 +1,4 @@
-import 'dart:typed_data';
-
-/// Web implementation that mimics AssetEntity from photo_manager package
+/// Entity representing an image asset
 class WebAssetEntity {
   final String id;
   final String title;
@@ -23,19 +21,6 @@ class WebAssetEntity {
     this.mimeType,
     required this.url,
   });
-
-  // Methods to mimic AssetEntity
-  Future<Uint8List?> get thumbData async {
-    // This would normally fetch a thumbnail from the web
-    // For demonstration purposes, this would be handled by the WebPhotoService
-    return null;
-  }
-
-  Future<Uint8List?> get fullData async {
-    // This would normally fetch the full image data from the web
-    // For demonstration purposes, this would be handled by the WebPhotoService
-    return null;
-  }
 
   // Create a sample WebAssetEntity with demo data
   factory WebAssetEntity.sample({
