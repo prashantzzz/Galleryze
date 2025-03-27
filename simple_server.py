@@ -1,46 +1,214 @@
 import http.server
 import socketserver
 import os
-from http import HTTPStatus
+import json
+import urllib.parse
+from http import HTTPStatus, cookies
 
 class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
-        if self.path == '/' or self.path == '/home':
+        # Check if requesting login or signup page
+        if self.path == '/login':
             self.send_response(HTTPStatus.OK)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
-            self.wfile.write(self.get_home_page("all").encode())
-        elif self.path == '/favorites':
+            self.wfile.write(self.get_login_page().encode())
+        elif self.path == '/signup':
             self.send_response(HTTPStatus.OK)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
-            self.wfile.write(self.get_home_page("favorites").encode())
-        elif self.path == '/categories':
-            self.send_response(HTTPStatus.OK)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write(self.get_categories_page().encode())
-        elif self.path == '/new_galleryze_script.js':
-            # Serve our JavaScript file
+            self.wfile.write(self.get_signup_page().encode())
+        # Check if user is logged in (has valid session cookie)
+        elif self.path == '/supabase_client.js':
             self.send_response(HTTPStatus.OK)
             self.send_header('Content-type', 'application/javascript')
             self.end_headers()
-            with open('new_galleryze_script.js', 'rb') as file:
+            with open('supabase_client.js', 'rb') as file:
                 self.wfile.write(file.read())
-        elif self.path.startswith('/filter/'):
-            # Handle filtering by category
-            category = self.path.split('/')[2]
-            self.send_response(HTTPStatus.OK)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write(self.get_home_page(category).encode())
-        elif self.path == '/settings':
-            self.send_response(HTTPStatus.OK)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write(self.get_settings_page().encode())
+        elif self.is_authenticated() or self.path == '/new_galleryze_script.js':
+            # Serve app content for authenticated users
+            if self.path == '/' or self.path == '/home':
+                self.send_response(HTTPStatus.OK)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(self.get_home_page("all").encode())
+            elif self.path == '/favorites':
+                self.send_response(HTTPStatus.OK)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(self.get_home_page("favorites").encode())
+            elif self.path == '/categories':
+                self.send_response(HTTPStatus.OK)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(self.get_categories_page().encode())
+            elif self.path == '/new_galleryze_script.js':
+                # Serve our JavaScript file
+                self.send_response(HTTPStatus.OK)
+                self.send_header('Content-type', 'application/javascript')
+                self.end_headers()
+                with open('new_galleryze_script.js', 'rb') as file:
+                    self.wfile.write(file.read())
+            elif self.path.startswith('/filter/'):
+                # Handle filtering by category
+                category = self.path.split('/')[2]
+                self.send_response(HTTPStatus.OK)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(self.get_home_page(category).encode())
+            elif self.path == '/settings':
+                self.send_response(HTTPStatus.OK)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(self.get_settings_page().encode())
+            elif self.path == '/profile':
+                self.send_response(HTTPStatus.OK)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(self.get_profile_page().encode())
+            elif self.path == '/api/user':
+                # Get current user info
+                self.send_response(HTTPStatus.OK)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"user": self.get_user_info()}).encode())
+            elif self.path == '/api/favorites':
+                # Get user's favorites
+                if not self.is_authenticated():
+                    self.send_response(HTTPStatus.UNAUTHORIZED)
+                    self.send_header('Content-type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": False, "message": "Not authenticated"}).encode())
+                    return
+                
+                # Here we would fetch from Supabase, but for now return dummy data
+                user_info = self.get_user_info()
+                self.send_response(HTTPStatus.OK)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                # Mock favorites for photo2 and photo5
+                self.wfile.write(json.dumps({
+                    "success": True, 
+                    "favorites": [
+                        {"user_id": user_info["id"], "photo_id": "photo2", "is_favorite": True},
+                        {"user_id": user_info["id"], "photo_id": "photo5", "is_favorite": True}
+                    ]
+                }).encode())
+            else:
+                self.send_error(HTTPStatus.NOT_FOUND, "Page not found")
         else:
-            self.send_error(HTTPStatus.NOT_FOUND, "Page not found")
+            # Redirect unauthenticated users to login page
+            self.send_response(HTTPStatus.FOUND)
+            self.send_header('Location', '/login')
+            self.end_headers()
+    
+    def do_POST(self):
+        # Handle API endpoints
+        if self.path == '/api/login':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            # Process login request
+            email = data.get('email')
+            password = data.get('password')
+            
+            # Here we would authenticate with Supabase
+            # For now, just return a success message and set a cookie
+            self.send_response(HTTPStatus.OK)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Set-Cookie', 'session=authenticated; Path=/')
+            self.end_headers()
+            self.wfile.write(json.dumps({"success": True, "message": "Logged in successfully"}).encode())
+        elif self.path == '/api/signup':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            # Process signup request
+            email = data.get('email')
+            password = data.get('password')
+            
+            # Here we would register with Supabase
+            # For now, just return a success message
+            self.send_response(HTTPStatus.OK)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({"success": True, "message": "Signed up successfully"}).encode())
+        elif self.path == '/api/logout':
+            # Process logout request
+            self.send_response(HTTPStatus.OK)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Set-Cookie', 'session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT')
+            self.end_headers()
+            self.wfile.write(json.dumps({"success": True, "message": "Logged out successfully"}).encode())
+        elif self.path == '/api/categories':
+            # Only process if user is authenticated
+            if not self.is_authenticated():
+                self.send_response(HTTPStatus.UNAUTHORIZED)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "message": "Not authenticated"}).encode())
+                return
+                
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            # Save category data
+            photo_id = data.get('photoId')
+            categories = data.get('categories')
+            
+            # Here we would save to Supabase database
+            # For now, just return a success message
+            self.send_response(HTTPStatus.OK)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({"success": True, "message": "Categories saved successfully"}).encode())
+        elif self.path == '/api/favorites':
+            # Only process if user is authenticated
+            if not self.is_authenticated():
+                self.send_response(HTTPStatus.UNAUTHORIZED)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "message": "Not authenticated"}).encode())
+                return
+                
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            # Get favorite data
+            photo_id = data.get('photoId')
+            is_favorite = data.get('isFavorite')
+            
+            # Here we would save to Supabase database
+            # For now, just return a success message
+            self.send_response(HTTPStatus.OK)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({"success": True, "message": "Favorite status saved successfully"}).encode())
+        else:
+            self.send_error(HTTPStatus.NOT_FOUND, "Endpoint not found")
+    
+    def is_authenticated(self):
+        # Check if the user has a valid session cookie
+        cookie_str = self.headers.get('Cookie')
+        if cookie_str:
+            cookie = cookies.SimpleCookie()
+            cookie.load(cookie_str)
+            if 'session' in cookie and cookie['session'].value == 'authenticated':
+                return True
+        return False
+    
+    def get_user_info(self):
+        # This would normally fetch user info from Supabase
+        # For now, just return dummy data
+        return {
+            "id": "1",
+            "email": "user@example.com",
+            "name": "Test User"
+        }
     
     def get_home_page(self, filter_type="all"):
         # Set which chip should be selected based on filter
@@ -324,6 +492,435 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
         </html>
         """
     
+    def get_login_page(self):
+        styles = self.get_styles()
+        return f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Galleryze - Login</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                {styles}
+                
+                .auth-container {{
+                    max-width: 400px;
+                    margin: 50px auto;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                    background: #fff;
+                }}
+                
+                .form-group {{
+                    margin-bottom: 20px;
+                }}
+                
+                .form-group label {{
+                    display: block;
+                    margin-bottom: 5px;
+                    font-weight: 500;
+                }}
+                
+                .form-group input {{
+                    width: 100%;
+                    padding: 10px;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    font-size: 16px;
+                }}
+                
+                .auth-btn {{
+                    width: 100%;
+                    padding: 12px;
+                    background: #4a6bdf;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    font-size: 16px;
+                    cursor: pointer;
+                    transition: background 0.2s;
+                }}
+                
+                .auth-btn:hover {{
+                    background: #3451b2;
+                }}
+                
+                .auth-footer {{
+                    text-align: center;
+                    margin-top: 20px;
+                }}
+                
+                .auth-footer a {{
+                    color: #4a6bdf;
+                    text-decoration: none;
+                }}
+            </style>
+            <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+            <script src="/supabase_client.js"></script>
+            <script>
+                async function handleLogin(event) {{
+                    event.preventDefault();
+                    
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('password').value;
+                    
+                    try {{
+                        const response = await fetch('/api/login', {{
+                            method: 'POST',
+                            headers: {{
+                                'Content-Type': 'application/json'
+                            }},
+                            body: JSON.stringify({{ email, password }})
+                        }});
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {{
+                            window.location.href = '/';
+                        }} else {{
+                            alert(result.message || 'Failed to login');
+                        }}
+                    }} catch (error) {{
+                        console.error('Login error:', error);
+                        alert('Login failed. Please try again.');
+                    }}
+                }}
+            </script>
+        </head>
+        <body>
+            <nav class="top-nav">
+                <h1>Galleryze</h1>
+            </nav>
+            
+            <div class="auth-container">
+                <h2>Log In</h2>
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" required>
+                    </div>
+                    <button type="submit" class="auth-btn">Log In</button>
+                </form>
+                <div class="auth-footer">
+                    Don't have an account? <a href="/signup">Sign Up</a>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+    
+    def get_signup_page(self):
+        styles = self.get_styles()
+        return f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Galleryze - Sign Up</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                {styles}
+                
+                .auth-container {{
+                    max-width: 400px;
+                    margin: 50px auto;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                    background: #fff;
+                }}
+                
+                .form-group {{
+                    margin-bottom: 20px;
+                }}
+                
+                .form-group label {{
+                    display: block;
+                    margin-bottom: 5px;
+                    font-weight: 500;
+                }}
+                
+                .form-group input {{
+                    width: 100%;
+                    padding: 10px;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    font-size: 16px;
+                }}
+                
+                .auth-btn {{
+                    width: 100%;
+                    padding: 12px;
+                    background: #4a6bdf;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    font-size: 16px;
+                    cursor: pointer;
+                    transition: background 0.2s;
+                }}
+                
+                .auth-btn:hover {{
+                    background: #3451b2;
+                }}
+                
+                .auth-footer {{
+                    text-align: center;
+                    margin-top: 20px;
+                }}
+                
+                .auth-footer a {{
+                    color: #4a6bdf;
+                    text-decoration: none;
+                }}
+            </style>
+            <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+            <script src="/supabase_client.js"></script>
+            <script>
+                async function handleSignup(event) {{
+                    event.preventDefault();
+                    
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('password').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+                    
+                    if (password !== confirmPassword) {{
+                        alert('Passwords do not match');
+                        return;
+                    }}
+                    
+                    try {{
+                        const response = await fetch('/api/signup', {{
+                            method: 'POST',
+                            headers: {{
+                                'Content-Type': 'application/json'
+                            }},
+                            body: JSON.stringify({{ email, password }})
+                        }});
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {{
+                            alert('Account created successfully! Please log in.');
+                            window.location.href = '/login';
+                        }} else {{
+                            alert(result.message || 'Failed to create account');
+                        }}
+                    }} catch (error) {{
+                        console.error('Signup error:', error);
+                        alert('Signup failed. Please try again.');
+                    }}
+                }}
+            </script>
+        </head>
+        <body>
+            <nav class="top-nav">
+                <h1>Galleryze</h1>
+            </nav>
+            
+            <div class="auth-container">
+                <h2>Sign Up</h2>
+                <form id="signupForm" onsubmit="handleSignup(event)">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" required minlength="6">
+                    </div>
+                    <button type="submit" class="auth-btn">Sign Up</button>
+                </form>
+                <div class="auth-footer">
+                    Already have an account? <a href="/login">Log In</a>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+    
+    def get_profile_page(self):
+        user_info = self.get_user_info()
+        styles = self.get_styles()
+        name = user_info['name']
+        email = user_info['email']
+        first_initial = name[0].upper()
+        
+        return f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Galleryze - Profile</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                {styles}
+                
+                .profile-container {{
+                    max-width: 600px;
+                    margin: 20px auto;
+                    padding: 20px;
+                    background: #fff;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                }}
+                
+                .profile-header {{
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 20px;
+                }}
+                
+                .profile-avatar {{
+                    width: 80px;
+                    height: 80px;
+                    border-radius: 50%;
+                    background: #e0e0e0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 32px;
+                    color: #666;
+                    margin-right: 20px;
+                }}
+                
+                .profile-info h2 {{
+                    margin: 0 0 5px 0;
+                }}
+                
+                .profile-email {{
+                    color: #666;
+                    margin: 0;
+                }}
+                
+                .profile-stats {{
+                    display: flex;
+                    margin: 20px 0;
+                    border-top: 1px solid #eee;
+                    border-bottom: 1px solid #eee;
+                    padding: 15px 0;
+                }}
+                
+                .stat-item {{
+                    flex: 1;
+                    text-align: center;
+                }}
+                
+                .stat-value {{
+                    font-size: 24px;
+                    font-weight: bold;
+                    margin-bottom: 5px;
+                }}
+                
+                .stat-label {{
+                    color: #666;
+                    font-size: 14px;
+                }}
+                
+                .action-button {{
+                    padding: 10px 15px;
+                    background: #f5f5f5;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    margin-right: 10px;
+                }}
+                
+                .logout-button {{
+                    padding: 10px 15px;
+                    background: #ff4d4f;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                }}
+            </style>
+            <script src="/new_galleryze_script.js"></script>
+            <script>
+                async function handleLogout() {{
+                    try {{
+                        const response = await fetch('/api/logout', {{
+                            method: 'POST',
+                            headers: {{
+                                'Content-Type': 'application/json'
+                            }}
+                        }});
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {{
+                            window.location.href = '/login';
+                        }} else {{
+                            alert(result.message || 'Failed to logout');
+                        }}
+                    }} catch (error) {{
+                        console.error('Logout error:', error);
+                        alert('Logout failed. Please try again.');
+                    }}
+                }}
+            </script>
+        </head>
+        <body>
+            <nav class="top-nav">
+                <h1>Galleryze</h1>
+            </nav>
+            
+            <div class="profile-container">
+                <div class="profile-header">
+                    <div class="profile-avatar">{first_initial}</div>
+                    <div class="profile-info">
+                        <h2>{name}</h2>
+                        <p class="profile-email">{email}</p>
+                    </div>
+                </div>
+                
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">128</div>
+                        <div class="stat-label">Photos</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">5</div>
+                        <div class="stat-label">Categories</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">24</div>
+                        <div class="stat-label">Favorites</div>
+                    </div>
+                </div>
+                
+                <div>
+                    <button class="action-button">Edit Profile</button>
+                    <button class="action-button">Change Password</button>
+                    <button class="logout-button" onclick="handleLogout()">Log Out</button>
+                </div>
+            </div>
+            
+            <div class="bottom-nav">
+                <a href="/" class="nav-item" title="Home">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="currentColor"><path d="M0 0h24v24H0z" fill="none"/><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                </a>
+                <a href="/categories" class="nav-item" title="Categories">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="currentColor"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 2l-5.5 9h11z"/><circle cx="17.5" cy="17.5" r="4.5"/><path d="M3 13.5h8v8H3z"/></svg>
+                </a>
+                <a href="/settings" class="nav-item active" title="Settings">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="currentColor"><path d="M0 0h24v24H0z" fill="none"/><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                </a>
+            </div>
+        </body>
+        </html>
+        """
+        
     def get_settings_page(self):
         return f"""
         <!DOCTYPE html>

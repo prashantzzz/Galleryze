@@ -1,20 +1,45 @@
-// Save the favorites to localStorage so they persist
-function toggleFavorite(element, photoId) {
+// User state management
+let currentUser = null;
+
+// Fetch current user info when page loads
+async function fetchCurrentUser() {
+    try {
+        const response = await fetch('/api/user');
+        const data = await response.json();
+        
+        if (data.user) {
+            currentUser = data.user;
+            console.log('Current user:', currentUser);
+            return currentUser;
+        }
+    } catch (error) {
+        console.error('Error fetching user:', error);
+    }
+    return null;
+}
+
+// Initialize user data when page loads
+document.addEventListener('DOMContentLoaded', async () => {
+    await fetchCurrentUser();
+    
+    // Once we have the user, fetch their favorites
+    if (currentUser) {
+        await syncFavorites();
+    }
+});
+
+// Save favorites to server using API
+async function toggleFavorite(element, photoId) {
     element.classList.toggle('active');
     const photoItem = element.closest('.photo-item');
+    const isFavorite = element.classList.contains('active');
     
-    if (element.classList.contains('active')) {
+    if (isFavorite) {
         element.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="#f44336"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
         photoItem.setAttribute('data-favorite', 'true');
-        
-        // Store favorite status
-        localStorage.setItem('photo_' + photoId + '_favorite', 'true');
     } else {
         element.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg>';
         photoItem.setAttribute('data-favorite', 'false');
-        
-        // Remove favorite status
-        localStorage.removeItem('photo_' + photoId + '_favorite');
         
         // If we're in favorites view, hide this item
         const currentFilter = document.querySelector('.current-filter').getAttribute('data-filter');
@@ -23,7 +48,86 @@ function toggleFavorite(element, photoId) {
         }
     }
     
+    // Optimistically update UI (above) but also save to server
+    if (currentUser) {
+        try {
+            // Use our server API endpoint that will connect to Supabase
+            const response = await fetch('/api/favorites', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    photoId: photoId,
+                    isFavorite: isFavorite
+                })
+            });
+            
+            const result = await response.json();
+            if (!result.success) {
+                console.error('Failed to save favorite:', result.message);
+                // Revert UI change on error
+                element.classList.toggle('active');
+                photoItem.setAttribute('data-favorite', !isFavorite);
+            }
+        } catch (error) {
+            console.error('Error saving favorite:', error);
+            // Fallback to localStorage if server save fails
+            if (isFavorite) {
+                localStorage.setItem('photo_' + photoId + '_favorite', 'true');
+            } else {
+                localStorage.removeItem('photo_' + photoId + '_favorite');
+            }
+        }
+    } else {
+        // Fallback to localStorage if not logged in
+        if (isFavorite) {
+            localStorage.setItem('photo_' + photoId + '_favorite', 'true');
+        } else {
+            localStorage.removeItem('photo_' + photoId + '_favorite');
+        }
+    }
+    
     return false;
+}
+
+// Sync favorites from server
+async function syncFavorites() {
+    if (!currentUser) return;
+    
+    try {
+        const response = await fetch('/api/favorites');
+        const data = await response.json();
+        
+        if (data.favorites) {
+            // Update UI for each favorite
+            data.favorites.forEach(fav => {
+                const photoItem = document.querySelector(`.photo-item[data-id="${fav.photo_id}"]`);
+                if (photoItem) {
+                    const favBtn = photoItem.querySelector('.favorite-btn');
+                    photoItem.setAttribute('data-favorite', 'true');
+                    favBtn.classList.add('active');
+                    favBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="#f44336"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error syncing favorites:', error);
+        
+        // Fallback to localStorage
+        const photoItems = document.querySelectorAll('.photo-item');
+        photoItems.forEach(item => {
+            const photoId = item.getAttribute('data-id');
+            const isFavorite = localStorage.getItem('photo_' + photoId + '_favorite') === 'true';
+            
+            if (isFavorite) {
+                const favBtn = item.querySelector('.favorite-btn');
+                item.setAttribute('data-favorite', 'true');
+                favBtn.classList.add('active');
+                favBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="#f44336"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+            }
+        });
+    }
 }
 
 // Category modal functions
