@@ -733,57 +733,123 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             <style>
                 {styles}
                 
+                body {{
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    margin: 0;
+                    padding: 0;
+                    height: 100vh;
+                    background: linear-gradient(45deg, #f8f9fa, #ffefd5);
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    align-items: center;
+                }}
+                
+                .logo-container {{
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    margin-top: 60px;
+                }}
+                
+                .app-logo {{
+                    width: 80px;
+                    height: 80px;
+                    border-radius: 20px;
+                    background-color: #222;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    overflow: hidden;
+                    margin-bottom: 15px;
+                }}
+                
+                .app-logo img {{
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }}
+                
+                .app-name {{
+                    font-size: 24px;
+                    font-weight: 600;
+                    color: #333;
+                    margin: 0;
+                }}
+                
                 .auth-container {{
+                    width: 90%;
                     max-width: 400px;
-                    margin: 50px auto;
-                    padding: 20px;
-                    border-radius: 8px;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                    background: #fff;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 20px;
                 }}
                 
                 .form-group {{
-                    margin-bottom: 20px;
-                }}
-                
-                .form-group label {{
-                    display: block;
-                    margin-bottom: 5px;
-                    font-weight: 500;
+                    position: relative;
                 }}
                 
                 .form-group input {{
                     width: 100%;
-                    padding: 10px;
-                    border: 1px solid #ddd;
-                    border-radius: 4px;
+                    padding: 16px;
+                    border: 1px solid #e0e0e0;
+                    border-radius: 8px;
                     font-size: 16px;
+                    background-color: #fff;
+                    box-sizing: border-box;
                 }}
                 
-                .auth-btn {{
+                .form-group input::placeholder {{
+                    color: #aaa;
+                }}
+                
+                .primary-btn {{
                     width: 100%;
-                    padding: 12px;
-                    background: #4a6bdf;
+                    padding: 16px;
+                    background: #222;
                     color: white;
                     border: none;
-                    border-radius: 4px;
+                    border-radius: 50px;
                     font-size: 16px;
+                    font-weight: 600;
                     cursor: pointer;
                     transition: background 0.2s;
+                    margin-top: 10px;
                 }}
                 
-                .auth-btn:hover {{
-                    background: #3451b2;
+                .primary-btn:hover {{
+                    background: #333;
                 }}
                 
-                .auth-footer {{
+                .secondary-btn {{
+                    width: 100%;
+                    padding: 16px;
+                    background: transparent;
+                    color: #333;
+                    border: 1px solid #ddd;
+                    border-radius: 50px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    margin-top: 10px;
+                }}
+                
+                .secondary-btn:hover {{
+                    background: #f5f5f5;
+                }}
+                
+                .footer {{
                     text-align: center;
-                    margin-top: 20px;
+                    margin-bottom: 20px;
+                    color: #666;
+                    font-size: 14px;
                 }}
                 
-                .auth-footer a {{
-                    color: #4a6bdf;
+                .footer a {{
+                    color: #333;
                     text-decoration: none;
+                    font-weight: 600;
                 }}
             </style>
             <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -835,26 +901,31 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             </script>
         </head>
         <body>
-            <nav class="top-nav">
-                <h1>Galleryze</h1>
-            </nav>
+            <div class="logo-container">
+                <div class="app-logo">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60">
+                        <path d="M70 40 L90 65 L50 90 L10 65 L30 40 Z" fill="#555" />
+                        <circle cx="70" cy="30" r="15" fill="#ff7043" />
+                    </svg>
+                </div>
+                <h1 class="app-name">Galleryze</h1>
+            </div>
             
             <div class="auth-container">
-                <h2>Log In</h2>
                 <form id="loginForm" onsubmit="handleLogin(event)">
                     <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" required>
+                        <input type="email" id="email" placeholder="Username, email or mobile number" required>
                     </div>
                     <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" required>
+                        <input type="password" id="password" placeholder="Password" required>
                     </div>
-                    <button type="submit" class="auth-btn">Log In</button>
+                    <button type="submit" class="primary-btn">Log in</button>
                 </form>
-                <div class="auth-footer">
-                    Don't have an account? <a href="/signup">Sign Up</a>
-                </div>
+                <a href="/signup" class="secondary-btn" style="display: block; text-align: center; text-decoration: none;">Create new account</a>
+            </div>
+            
+            <div class="footer">
+                Developed by <a href="#">pAssist</a>
             </div>
         </body>
         </html>
@@ -872,57 +943,124 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             <style>
                 {styles}
                 
+                body {{
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    margin: 0;
+                    padding: 0;
+                    height: 100vh;
+                    background: linear-gradient(45deg, #f8f9fa, #ffefd5);
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    align-items: center;
+                }}
+                
+                .logo-container {{
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    margin-top: 60px;
+                }}
+                
+                .app-logo {{
+                    width: 80px;
+                    height: 80px;
+                    border-radius: 20px;
+                    background-color: #222;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    overflow: hidden;
+                    margin-bottom: 15px;
+                }}
+                
+                .app-logo img {{
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }}
+                
+                .app-name {{
+                    font-size: 24px;
+                    font-weight: 600;
+                    color: #333;
+                    margin: 0;
+                }}
+                
                 .auth-container {{
+                    width: 90%;
                     max-width: 400px;
-                    margin: 50px auto;
-                    padding: 20px;
-                    border-radius: 8px;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                    background: #fff;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 20px;
                 }}
                 
                 .form-group {{
-                    margin-bottom: 20px;
-                }}
-                
-                .form-group label {{
-                    display: block;
-                    margin-bottom: 5px;
-                    font-weight: 500;
+                    position: relative;
+                    margin-bottom: 15px;
                 }}
                 
                 .form-group input {{
                     width: 100%;
-                    padding: 10px;
-                    border: 1px solid #ddd;
-                    border-radius: 4px;
+                    padding: 16px;
+                    border: 1px solid #e0e0e0;
+                    border-radius: 8px;
                     font-size: 16px;
+                    background-color: #fff;
+                    box-sizing: border-box;
                 }}
                 
-                .auth-btn {{
+                .form-group input::placeholder {{
+                    color: #aaa;
+                }}
+                
+                .primary-btn {{
                     width: 100%;
-                    padding: 12px;
-                    background: #4a6bdf;
+                    padding: 16px;
+                    background: #222;
                     color: white;
                     border: none;
-                    border-radius: 4px;
+                    border-radius: 50px;
                     font-size: 16px;
+                    font-weight: 600;
                     cursor: pointer;
                     transition: background 0.2s;
+                    margin-top: 10px;
                 }}
                 
-                .auth-btn:hover {{
-                    background: #3451b2;
+                .primary-btn:hover {{
+                    background: #333;
                 }}
                 
-                .auth-footer {{
+                .secondary-btn {{
+                    width: 100%;
+                    padding: 16px;
+                    background: transparent;
+                    color: #333;
+                    border: 1px solid #ddd;
+                    border-radius: 50px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    margin-top: 10px;
+                }}
+                
+                .secondary-btn:hover {{
+                    background: #f5f5f5;
+                }}
+                
+                .footer {{
                     text-align: center;
-                    margin-top: 20px;
+                    margin-bottom: 20px;
+                    color: #666;
+                    font-size: 14px;
                 }}
                 
-                .auth-footer a {{
-                    color: #4a6bdf;
+                .footer a {{
+                    color: #333;
                     text-decoration: none;
+                    font-weight: 600;
                 }}
             </style>
             <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -982,34 +1120,37 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             </script>
         </head>
         <body>
-            <nav class="top-nav">
-                <h1>Galleryze</h1>
-            </nav>
+            <div class="logo-container">
+                <div class="app-logo">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60">
+                        <path d="M70 40 L90 65 L50 90 L10 65 L30 40 Z" fill="#555" />
+                        <circle cx="70" cy="30" r="15" fill="#ff7043" />
+                    </svg>
+                </div>
+                <h1 class="app-name">Galleryze</h1>
+            </div>
             
             <div class="auth-container">
-                <h2>Sign Up</h2>
                 <form id="signupForm" onsubmit="handleSignup(event)">
                     <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" required>
+                        <input type="text" id="name" placeholder="Full Name" required>
                     </div>
                     <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" required>
+                        <input type="email" id="email" placeholder="Email" required>
                     </div>
                     <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" required minlength="6">
+                        <input type="password" id="password" placeholder="Password" required minlength="6">
                     </div>
                     <div class="form-group">
-                        <label for="confirmPassword">Confirm Password</label>
-                        <input type="password" id="confirmPassword" required minlength="6">
+                        <input type="password" id="confirmPassword" placeholder="Confirm Password" required minlength="6">
                     </div>
-                    <button type="submit" class="auth-btn">Sign Up</button>
+                    <button type="submit" class="primary-btn">Sign Up</button>
                 </form>
-                <div class="auth-footer">
-                    Already have an account? <a href="/login">Log In</a>
-                </div>
+                <a href="/login" class="secondary-btn" style="display: block; text-align: center; text-decoration: none;">Back to Login</a>
+            </div>
+            
+            <div class="footer">
+                Developed by <a href="#">pAssist</a>
             </div>
         </body>
         </html>
