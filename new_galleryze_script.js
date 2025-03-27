@@ -177,6 +177,79 @@ function applyCurrentFilter() {
     }
 }
 
+// Sort photos by date or size
+function toggleSortOptions() {
+    const sortOptionsDiv = document.getElementById('sort-options');
+    if (sortOptionsDiv.style.display === 'none' || !sortOptionsDiv.style.display) {
+        sortOptionsDiv.style.display = 'block';
+    } else {
+        sortOptionsDiv.style.display = 'none';
+    }
+}
+
+function sortPhotos(method, direction) {
+    const photoGrid = document.querySelector('.photo-grid');
+    if (!photoGrid) return;
+    
+    const photos = Array.from(photoGrid.querySelectorAll('.photo-item'));
+    
+    // Close sort options
+    document.getElementById('sort-options').style.display = 'none';
+    
+    // Update sort button to show current sort
+    updateSortButtonText(method, direction);
+    
+    // If we're sorting by date
+    if (method === 'date') {
+        photos.sort((a, b) => {
+            const dateA = a.getAttribute('data-date') ? new Date(a.getAttribute('data-date')) : new Date(0);
+            const dateB = b.getAttribute('data-date') ? new Date(b.getAttribute('data-date')) : new Date(0);
+            
+            return direction === 'asc' ? dateA - dateB : dateB - dateA;
+        });
+    } 
+    // If we're sorting by size
+    else if (method === 'size') {
+        photos.sort((a, b) => {
+            const sizeA = parseInt(a.getAttribute('data-size') || '0');
+            const sizeB = parseInt(b.getAttribute('data-size') || '0');
+            
+            return direction === 'asc' ? sizeA - sizeB : sizeB - sizeA;
+        });
+    }
+    
+    // Remove all photos and re-append them in the sorted order
+    photos.forEach(photo => photoGrid.appendChild(photo));
+    
+    // Save sort preferences
+    localStorage.setItem('sort_method', method);
+    localStorage.setItem('sort_direction', direction);
+    
+    // Apply current filter after sorting
+    applyCurrentFilter();
+}
+
+function updateSortButtonText(method, direction) {
+    const sortButton = document.querySelector('.sort-btn');
+    if (!sortButton) return;
+    
+    // Update icon based on sort direction
+    const directionIcon = direction === 'asc' ? 
+        '<path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"/>' : 
+        '<path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"/>';
+    
+    // Set the text
+    sortButton.setAttribute('title', `Sorted by ${method} (${direction === 'asc' ? 'Oldest First' : 'Newest First'})`);
+    
+    // Set the icon SVG based on method and direction
+    sortButton.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="#666">
+            <path d="M0 0h24v24H0z" fill="none"/>
+            ${directionIcon}
+        </svg>
+    `;
+}
+
 // Apply filter when the page loads
 window.addEventListener('DOMContentLoaded', function() {
     const currentFilterEl = document.querySelector('.current-filter');
