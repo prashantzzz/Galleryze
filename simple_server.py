@@ -1362,30 +1362,44 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
         email = user_info['email']
         subscription_plan = user_info['subscription_plan']
         
-        # Capitalize first letter of subscription plan for display
-        display_subscription = subscription_plan.capitalize()
-        
         return f"""
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Galleryze - Settings</title>
+            <title>Galleryze - Profile</title>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <style>
                 {self.get_styles()}
                 
-                .user-profile-section {{
-                    background: #fff;
-                    border-radius: 8px;
-                    padding: 20px;
-                    margin-bottom: 20px;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                /* Status Bar */
+                .status-bar {{
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 5px 15px;
+                    font-size: 12px;
+                    background-color: #f8f8f8;
+                    color: #333;
                 }}
                 
-                .user-profile-header {{
+                /* Profile Page Specific Styles */
+                .profile-header {{
+                    padding: 20px;
+                    background-color: #ffffff;
+                }}
+                
+                .profile-header h1 {{
+                    font-size: 28px;
+                    font-weight: bold;
+                    margin-bottom: 20px;
+                }}
+                
+                .user-profile-section {{
                     display: flex;
                     align-items: center;
+                    padding: 15px 0;
+                    background-color: #f8f8f8;
+                    border-radius: 8px;
                     margin-bottom: 15px;
                 }}
                 
@@ -1399,35 +1413,179 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     justify-content: center;
                     font-size: 24px;
                     color: #666;
-                    margin-right: 15px;
+                    margin: 0 15px;
+                }}
+                
+                .user-details {{
+                    flex: 1;
                 }}
                 
                 .user-details h3 {{
+                    font-size: 18px;
                     margin: 0 0 5px 0;
+                    font-weight: bold;
                 }}
                 
                 .user-email {{
                     color: #666;
                     margin: 0;
-                }}
-                
-                .subscription-badge {{
-                    display: inline-block;
-                    background: #f0f0f0;
-                    padding: 4px 8px;
-                    border-radius: 4px;
                     font-size: 14px;
-                    margin-top: 8px;
                 }}
                 
-                .subscription-badge.free {{
-                    background: #e8f5e9;
-                    color: #2e7d32;
+                /* Rewards Row */
+                .rewards-row {{
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 20px;
                 }}
                 
-                .subscription-badge.pro {{
-                    background: #e3f2fd;
-                    color: #1565c0;
+                .reward-box {{
+                    flex: 1;
+                    background-color: white;
+                    border-radius: 8px;
+                    padding: 15px 10px;
+                    text-align: center;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                    margin: 0 5px;
+                }}
+                
+                .reward-box svg {{
+                    margin-bottom: 5px;
+                }}
+                
+                .reward-value {{
+                    font-size: 18px;
+                    font-weight: bold;
+                    margin: 5px 0;
+                }}
+                
+                .reward-label {{
+                    font-size: 12px;
+                    color: #666;
+                    margin: 0;
+                }}
+                
+                /* Settings Sections */
+                .settings-section {{
+                    background-color: white;
+                    border-radius: 8px;
+                    margin-bottom: 16px;
+                    padding: 15px;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                }}
+                
+                .section-header {{
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 12px;
+                }}
+                
+                .section-header svg {{
+                    margin-right: 10px;
+                    width: 22px;
+                    height: 22px;
+                }}
+                
+                .section-header h2 {{
+                    font-size: 17px;
+                    font-weight: 600;
+                    margin: 0;
+                }}
+                
+                .setting-item {{
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 12px 0;
+                    border-bottom: 1px solid #f0f0f0;
+                }}
+                
+                .setting-item:last-child {{
+                    border-bottom: none;
+                }}
+                
+                .setting-info {{
+                    flex-grow: 1;
+                }}
+                
+                .setting-info h3 {{
+                    font-size: 16px;
+                    margin: 0 0 4px 0;
+                    font-weight: 500;
+                }}
+                
+                .setting-info p {{
+                    font-size: 13px;
+                    color: #999;
+                    margin: 0;
+                }}
+                
+                .setting-control {{
+                    margin-left: 15px;
+                }}
+                
+                /* Switch */
+                .switch {{
+                    position: relative;
+                    display: inline-block;
+                    width: 48px;
+                    height: 24px;
+                }}
+                
+                .switch input {{
+                    opacity: 0;
+                    width: 0;
+                    height: 0;
+                }}
+                
+                .slider {{
+                    position: absolute;
+                    cursor: pointer;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background-color: #ccc;
+                    transition: .4s;
+                    border-radius: 24px;
+                }}
+                
+                .slider:before {{
+                    position: absolute;
+                    content: "";
+                    height: 18px;
+                    width: 18px;
+                    left: 3px;
+                    bottom: 3px;
+                    background-color: white;
+                    transition: .4s;
+                    border-radius: 50%;
+                }}
+                
+                input:checked + .slider {{
+                    background-color: #2196F3;
+                }}
+                
+                input:checked + .slider:before {{
+                    transform: translateX(24px);
+                }}
+                
+                /* Form Controls */
+                select {{
+                    padding: 8px 12px;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    background-color: white;
+                    min-width: 100px;
+                }}
+                
+                .btn-clear-cache {{
+                    background-color: #f5f5f5;
+                    color: #333;
+                    padding: 8px 15px;
+                    border-radius: 4px;
+                    border: none;
+                    font-size: 14px;
                 }}
             </style>
             <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1435,23 +1593,132 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             <script src="/new_galleryze_script.js"></script>
         </head>
         <body>
-            <nav class="top-nav">
-                <h1>Settings</h1>
-            </nav>
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <span>9:41</span>
+                <div>
+                    <span>●●●</span>
+                    <span>📶</span>
+                    <span>🔋</span>
+                </div>
+            </div>
+            
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <h1>Profile</h1>
+            </div>
             
             <div class="content">
+                <!-- User Profile Section -->
                 <div class="user-profile-section">
-                    <div class="user-profile-header">
-                        <div class="user-avatar">{name[0].upper()}</div>
-                        <div class="user-details">
-                            <h3>{name}</h3>
-                            <p class="user-email">{email}</p>
-                            <span class="subscription-badge {subscription_plan}">{display_subscription} Plan</span>
+                    <div class="user-avatar">{name[0].upper()}</div>
+                    <div class="user-details">
+                        <h3>{name}</h3>
+                        <p class="user-email">{email}</p>
+                    </div>
+                </div>
+                
+                <!-- Rewards Row -->
+                <div class="rewards-row">
+                    <div class="reward-box">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#666">
+                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.45 4.73L5.82 21 12 17.27z"/>
+                        </svg>
+                        <div class="reward-value">6</div>
+                        <p class="reward-label">My Rewards</p>
+                    </div>
+                    <div class="reward-box">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#666">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                        </svg>
+                        <div class="reward-value">6/203</div>
+                        <p class="reward-label">Daily points</p>
+                    </div>
+                    <div class="reward-box">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#666">
+                            <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                        </svg>
+                        <div class="reward-value">0 days</div>
+                        <p class="reward-label">Daily streak</p>
+                    </div>
+                </div>
+                
+                <!-- Appearance Section -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#2196F3">
+                            <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+                        </svg>
+                        <h2>Appearance</h2>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>Dark Mode</h3>
+                            <p>Enable dark mode</p>
+                        </div>
+                        <div class="setting-control">
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider"></span>
+                            </label>
                         </div>
                     </div>
-                    <button class="btn-secondary">Edit Profile</button>
-                    <button class="btn-danger" onclick="handleLogout()">Sign Out</button>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>Grid Size</h3>
+                            <p>Adjust photo grid density</p>
+                        </div>
+                        <div class="setting-control">
+                            <select>
+                                <option>Small</option>
+                                <option selected>Medium</option>
+                                <option>Large</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
+                
+                <!-- Storage Section -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#2196F3">
+                            <path d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"/>
+                        </svg>
+                        <h2>Storage</h2>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>Cache Size</h3>
+                            <p>Manage app cache</p>
+                        </div>
+                        <div class="setting-control">
+                            <button class="btn-clear-cache">Clear Cache</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Privacy Section -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#2196F3">
+                            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                        </svg>
+                        <h2>Privacy</h2>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>App Lock</h3>
+                            <p>Secure your photos with a PIN</p>
+                        </div>
+                        <div class="setting-control">
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
                 <script>
                     async function handleLogout() {{
                         try {{
@@ -1482,138 +1749,18 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                         }}
                     }}
                 </script>
-                
-                <p class="subheader">App Settings</p>
-                
-                <div class="settings-section">
-                    <div class="section-header">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#2196f3">
-                            <path d="M12 22C6.49 22 2 17.51 2 12S6.49 2 12 2s10 4.04 10 9c0 3.31-2.69 6-6 6h-1.77c-.28 0-.5.22-.5.5 0 .12.05.23.13.33.41.47.64 1.06.64 1.67A2.5 2.5 0 0 1 12 22zm0-18c-4.41 0-8 3.59-8 8s3.59 8 8 8c.28 0 .5-.22.5-.5a.54.54 0 0 0-.14-.35c-.41-.46-.63-1.05-.63-1.65a2.5 2.5 0 0 1 2.5-2.5H16c2.21 0 4-1.79 4-4 0-3.86-3.59-7-8-7z"/>
-                            <circle cx="6.5" cy="11.5" r="1.5" fill="#2196f3"/>
-                            <circle cx="9.5" cy="7.5" r="1.5" fill="#2196f3"/>
-                            <circle cx="14.5" cy="7.5" r="1.5" fill="#2196f3"/>
-                            <circle cx="17.5" cy="11.5" r="1.5" fill="#2196f3"/>
-                        </svg>
-                        <h2>Appearance</h2>
-                    </div>
-                    <hr>
-                    <div class="setting-item">
-                        <div class="setting-info">
-                            <h3>Dark Mode</h3>
-                            <p>Enable dark mode</p>
-                        </div>
-                        <div class="setting-control">
-                            <label class="switch">
-                                <input type="checkbox">
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="setting-item">
-                        <div class="setting-info">
-                            <h3>Grid Size</h3>
-                            <p>Adjust photo grid density</p>
-                        </div>
-                        <div class="setting-control">
-                            <select>
-                                <option>Small</option>
-                                <option selected>Medium</option>
-                                <option>Large</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="settings-section">
-                    <div class="section-header">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#2196f3">
-                            <path d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"/>
-                        </svg>
-                        <h2>Storage</h2>
-                    </div>
-                    <hr>
-                    <div class="setting-item">
-                        <div class="setting-info">
-                            <h3>Cache Size</h3>
-                            <p>Manage app cache</p>
-                        </div>
-                        <div class="setting-control">
-                            <button class="btn-secondary">Clear Cache</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="settings-section">
-                    <div class="section-header">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#2196f3">
-                            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
-                        </svg>
-                        <h2>Privacy</h2>
-                    </div>
-                    <hr>
-                    <div class="setting-item">
-                        <div class="setting-info">
-                            <h3>App Lock</h3>
-                            <p>Secure your photos with a PIN</p>
-                        </div>
-                        <div class="setting-control">
-                            <label class="switch">
-                                <input type="checkbox">
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="settings-section">
-                    <div class="section-header">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#2196f3">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-                        </svg>
-                        <h2>About</h2>
-                    </div>
-                    <hr>
-                    <div class="setting-item">
-                        <div class="setting-info">
-                            <h3>Version</h3>
-                            <p>Current app version</p>
-                        </div>
-                        <div class="setting-control">
-                            <span class="version">v1.0.0</span>
-                        </div>
-                    </div>
-                    <div class="setting-item">
-                        <div class="setting-info">
-                            <h3>Feedback</h3>
-                            <p>Send feedback to developers</p>
-                        </div>
-                        <div class="setting-control">
-                            <button class="btn-secondary">Send</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="pro-card">
-                    <div class="pro-header">
-                        <div class="pro-avatar">PRO</div>
-                        <div class="pro-info">
-                            <h2>Upgrade to PRO</h2>
-                            <p>Get unlimited categories, cloud sync and more</p>
-                        </div>
-                    </div>
-                    <button class="btn-primary full-width">Upgrade Now</button>
-                </div>
             </div>
             
+            <!-- Bottom Navigation -->
             <div class="bottom-nav">
                 <a href="/" class="nav-item" title="Home">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="currentColor"><path d="M0 0h24v24H0z" fill="none"/><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="currentColor"><path d="M0 0h24v24H0z" fill="none"/><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
                 </a>
                 <a href="/categories" class="nav-item" title="Categories">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="currentColor"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 2l-5.5 9h11z"/><circle cx="17.5" cy="17.5" r="4.5"/><path d="M3 13.5h8v8H3z"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="currentColor"><path d="M0 0h24v24H0z" fill="none"/><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg>
                 </a>
                 <a href="/settings" class="nav-item active" title="Settings">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="currentColor"><path d="M0 0h24v24H0z" fill="none"/><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="currentColor"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                 </a>
             </div>
         </body>
