@@ -254,6 +254,29 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps({"success": True, "message": "Favorite status saved successfully"}).encode())
+        elif self.path == '/api/check-email':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            # Get email data
+            email = data.get('email')
+            
+            # For demo purposes, simulate checking if email exists
+            # In a real app, this would query the database
+            # Here, we'll say any email with "user" in it exists, others don't
+            exists = False
+            if email and "user" in email.lower():
+                exists = True
+            
+            self.send_response(HTTPStatus.OK)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "success": True,
+                "exists": exists
+            }).encode())
+            
         elif self.path == '/api/categories/create':
             # Only process if user is authenticated
             if not self.is_authenticated():
