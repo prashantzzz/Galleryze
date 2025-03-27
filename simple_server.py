@@ -292,6 +292,78 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     "id": str(hash(category_name) % 10000)  # Simple hash for demo purposes
                 }
             }).encode())
+        elif self.path == '/api/categories/update':
+            # Only process if user is authenticated
+            if not self.is_authenticated():
+                self.send_response(HTTPStatus.UNAUTHORIZED)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "message": "Not authenticated"}).encode())
+                return
+                
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            # Get category data
+            category_id = data.get('categoryId')
+            category_name = data.get('categoryName')
+            
+            # Validate the category name and ID
+            if not category_id or not category_name or len(category_name.strip()) == 0:
+                self.send_response(HTTPStatus.BAD_REQUEST)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "message": "Category ID and name are required"}).encode())
+                return
+            
+            # Here we would update in Supabase database
+            # For now, just return a success message
+            self.send_response(HTTPStatus.OK)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "success": True, 
+                "message": "Category updated successfully", 
+                "category": {
+                    "name": category_name, 
+                    "id": category_id
+                }
+            }).encode())
+        elif self.path == '/api/categories/delete':
+            # Only process if user is authenticated
+            if not self.is_authenticated():
+                self.send_response(HTTPStatus.UNAUTHORIZED)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "message": "Not authenticated"}).encode())
+                return
+                
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            # Get category ID
+            category_id = data.get('categoryId')
+            
+            # Validate the category ID
+            if not category_id:
+                self.send_response(HTTPStatus.BAD_REQUEST)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "message": "Category ID is required"}).encode())
+                return
+            
+            # Here we would delete from Supabase database
+            # For now, just return a success message
+            self.send_response(HTTPStatus.OK)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "success": True, 
+                "message": "Category deleted successfully", 
+                "categoryId": category_id
+            }).encode())
         # No else here, as we've already handled all of our API endpoints
         else:
             self.send_error(HTTPStatus.NOT_FOUND, "Endpoint not found")
@@ -646,7 +718,7 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                         <div class="category-badge">Default</div>
                     </div>
                     
-                    <div class="category-item">
+                    <div class="category-item" data-id="trip-1001">
                         <div class="category-icon orange">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
                                 <path d="M13.127 14.56l1.43-1.43 6.44 6.443L19.57 21l-6.44-6.44zM17.42 8.83l2.86-2.86c-3.95-3.95-10.35-3.96-14.3-.02 3.93-1.3 8.31-.25 11.44 2.88zM5.95 5.98c-3.94 3.95-3.93 10.35.02 14.3l2.86-2.86C5.7 14.29 4.65 9.91 5.95 5.98zM5.97 5.96l-.01.01c-.38 3.01 1.17 6.88 4.3 10.02l5.73-5.73c-3.13-3.13-7.01-4.68-10.02-4.3z"/>
@@ -654,12 +726,12 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                         </div>
                         <div class="category-name">Trip</div>
                         <div class="category-actions">
-                            <button class="icon-btn small"><i>edit</i></button>
-                            <button class="icon-btn small"><i>delete</i></button>
+                            <button class="icon-btn small" onclick="openEditCategoryModal('Trip', 'trip-1001')"><i>edit</i></button>
+                            <button class="icon-btn small" onclick="deleteCategory('trip-1001', 'Trip')"><i>delete</i></button>
                         </div>
                     </div>
                     
-                    <div class="category-item">
+                    <div class="category-item" data-id="family-1002">
                         <div class="category-icon green">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
                                 <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A2.01 2.01 0 0018.06 7h-.12a2 2 0 00-1.9 1.37l-.02.06L12.5 18h1v6h6.5zm-2.5-22a3.5 3.5 0 100 7 3.5 3.5 0 000-7zM10 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A2.01 2.01 0 0012.06 7h-.12a2 2 0 00-1.9 1.37l-.02.06L6.5 18h1v6h6.5zM3.5 12c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 8v-5h8v5H18v-6.5l-1.8-5.5c-.13-.39-.44-.71-.82-.87-.38-.17-.81-.16-1.19.01l-.46.18c-.19.07-.34.21-.42.39L10 16.5V22H7.5z"/>
@@ -667,12 +739,12 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                         </div>
                         <div class="category-name">Family</div>
                         <div class="category-actions">
-                            <button class="icon-btn small"><i>edit</i></button>
-                            <button class="icon-btn small"><i>delete</i></button>
+                            <button class="icon-btn small" onclick="openEditCategoryModal('Family', 'family-1002')"><i>edit</i></button>
+                            <button class="icon-btn small" onclick="deleteCategory('family-1002', 'Family')"><i>delete</i></button>
                         </div>
                     </div>
                     
-                    <div class="category-item">
+                    <div class="category-item" data-id="food-1003">
                         <div class="category-icon amber">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
                                 <path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/>
@@ -680,12 +752,12 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                         </div>
                         <div class="category-name">Food</div>
                         <div class="category-actions">
-                            <button class="icon-btn small"><i>edit</i></button>
-                            <button class="icon-btn small"><i>delete</i></button>
+                            <button class="icon-btn small" onclick="openEditCategoryModal('Food', 'food-1003')"><i>edit</i></button>
+                            <button class="icon-btn small" onclick="deleteCategory('food-1003', 'Food')"><i>delete</i></button>
                         </div>
                     </div>
                     
-                    <div class="category-item">
+                    <div class="category-item" data-id="nature-1004">
                         <div class="category-icon green">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
                                 <path d="M8.55 12c-1.07-.71-2.25-1.27-3.53-1.61 1.28.34 2.46.9 3.53 1.61zm10.43-1.61c-1.29.34-2.49.91-3.57 1.64 1.08-.73 2.28-1.3 3.57-1.64zm-3.49-.76c-.18-2.79-1.31-5.51-3.43-7.63-2.14 2.14-3.32 4.86-3.55 7.63 1.28.68 2.46 1.56 3.49 2.63 1.03-1.06 2.21-1.94 3.49-2.63zm-6.5 2.65c-.14-.1-.3-.19-.45-.29.15.11.31.19.45.29zm6.42-.25c-.13.09-.27.16-.4.26.13-.1.27-.17.4-.26zM12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
@@ -693,8 +765,8 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                         </div>
                         <div class="category-name">Nature</div>
                         <div class="category-actions">
-                            <button class="icon-btn small"><i>edit</i></button>
-                            <button class="icon-btn small"><i>delete</i></button>
+                            <button class="icon-btn small" onclick="openEditCategoryModal('Nature', 'nature-1004')"><i>edit</i></button>
+                            <button class="icon-btn small" onclick="deleteCategory('nature-1004', 'Nature')"><i>delete</i></button>
                         </div>
                     </div>
                 </div>

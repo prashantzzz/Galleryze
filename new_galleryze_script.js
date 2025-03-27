@@ -159,6 +159,142 @@ function closeCreateCategoryModal() {
     }
 }
 
+// Edit Category Functions
+function openEditCategoryModal(categoryName, categoryId) {
+    // Create modal if it doesn't exist
+    let modal = document.getElementById('editCategoryModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'editCategoryModal';
+        modal.className = 'modal';
+        
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Edit Category</h2>
+                    <button class="modal-close" onclick="closeEditCategoryModal()">&times;</button>
+                </div>
+                <div class="form-group">
+                    <label for="editCategoryName">Category Name</label>
+                    <input type="text" id="editCategoryName" placeholder="Enter category name..." required>
+                    <input type="hidden" id="editCategoryId">
+                </div>
+                <button class="action-btn" onclick="updateCategory()">Update Category</button>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+    }
+    
+    // Fill in form fields
+    document.getElementById('editCategoryName').value = categoryName;
+    document.getElementById('editCategoryId').value = categoryId;
+    
+    // Show modal
+    modal.style.display = 'flex';
+}
+
+function closeEditCategoryModal() {
+    const modal = document.getElementById('editCategoryModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+async function updateCategory() {
+    const categoryName = document.getElementById('editCategoryName').value.trim();
+    const categoryId = document.getElementById('editCategoryId').value;
+    
+    if (!categoryName) {
+        alert('Please enter a category name');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/categories/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+                categoryId,
+                categoryName 
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Update category name in UI
+            const categoryItem = document.querySelector(`.category-item[data-id="${categoryId}"]`);
+            if (categoryItem) {
+                const nameElement = categoryItem.querySelector('.category-name');
+                if (nameElement) {
+                    nameElement.textContent = categoryName;
+                }
+            }
+            
+            // Update category filter chip
+            const categoryChip = document.querySelector(`.chip[onclick="navigateToFilter('${result.category.name}')"]`);
+            if (categoryChip) {
+                categoryChip.textContent = categoryName;
+                categoryChip.setAttribute('onclick', `navigateToFilter('${categoryName}')`);
+            }
+            
+            // Close the modal
+            closeEditCategoryModal();
+            
+            // Reload the page to reflect changes
+            window.location.reload();
+        } else {
+            alert(`Failed to update category: ${result.message}`);
+        }
+    } catch (error) {
+        console.error('Error updating category:', error);
+        alert('An error occurred while updating the category. Please try again.');
+    }
+}
+
+async function deleteCategory(categoryId, categoryName) {
+    if (!confirm(`Are you sure you want to delete the category "${categoryName}"?`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/categories/delete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ categoryId })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Remove category from UI
+            const categoryItem = document.querySelector(`.category-item[data-id="${categoryId}"]`);
+            if (categoryItem) {
+                categoryItem.remove();
+            }
+            
+            // Remove category filter chip
+            const categoryChip = document.querySelector(`.chip[onclick="navigateToFilter('${categoryName}')"]`);
+            if (categoryChip) {
+                categoryChip.remove();
+            }
+            
+            // Reload the page to reflect changes
+            window.location.reload();
+        } else {
+            alert(`Failed to delete category: ${result.message}`);
+        }
+    } catch (error) {
+        console.error('Error deleting category:', error);
+        alert('An error occurred while deleting the category. Please try again.');
+    }
+}
+
 async function createNewCategory() {
     const categoryName = document.getElementById('newCategoryName').value.trim();
     
@@ -348,8 +484,33 @@ function saveCategories() {
     // Update photo item with categories
     photoItem.setAttribute('data-categories', selectedCategories.join(','));
     
-    // Save to localStorage
-    localStorage.setItem('photo_' + photoId + '_categories', selectedCategories.join(','));
+    if (currentUser) {
+        // Save to server if user is logged in
+        fetch('/api/categories', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                photoId: photoId,
+                categories: selectedCategories
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (!result.success) {
+                console.error('Failed to save categories:', result.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error saving categories:', error);
+            // Fallback to localStorage if server save fails
+            localStorage.setItem('photo_' + photoId + '_categories', selectedCategories.join(','));
+        });
+    } else {
+        // Save to localStorage if not logged in
+        localStorage.setItem('photo_' + photoId + '_categories', selectedCategories.join(','));
+    }
     
     // Close modal
     closeCategoryModal();
