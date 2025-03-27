@@ -88,6 +88,7 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
                 <span class="chip" onclick="navigateToFilter('Vacation')">Vacation</span>
                 <span class="chip" onclick="navigateToFilter('Family')">Family</span>
                 <span class="chip" onclick="navigateToFilter('Food')">Food</span>
+                <span class="chip" onclick="navigateToFilter('Nature')">Nature</span>
                 <span class="chip">+ Add</span>
             </div>
             <div class="current-filter" data-filter="${filter_type}" style="display:none;"></div>
@@ -171,7 +172,43 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
                         <input type="checkbox" id="category-Food" class="category-checkbox" data-category="Food">
                         <label for="category-Food">Food</label>
                     </div>
+                    <div class="category-option">
+                        <input type="checkbox" id="category-Nature" class="category-checkbox" data-category="Nature">
+                        <label for="category-Nature">Nature</label>
+                    </div>
                     <button class="action-btn" onclick="saveCategories()">Save Categories</button>
+                </div>
+            </div>
+            
+            <!-- Photo Details Modal -->
+            <div class="modal" id="photoDetailsModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Photo Details</h2>
+                        <button class="modal-close" onclick="closePhotoDetailsModal()">&times;</button>
+                    </div>
+                    <div class="photo-details-content">
+                        <div class="photo-details-preview">
+                            <div class="photo-placeholder" id="photoDetailsPreview"></div>
+                        </div>
+                        <div class="photo-details-info">
+                            <div class="photo-detail-item">
+                                <strong>ID:</strong> <span id="photoDetailsId"></span>
+                            </div>
+                            <div class="photo-detail-item">
+                                <strong>Date:</strong> <span id="photoDetailsDate"></span>
+                            </div>
+                            <div class="photo-detail-item">
+                                <strong>Size:</strong> <span id="photoDetailsSize"></span> KB
+                            </div>
+                            <div class="photo-detail-item">
+                                <strong>Categories:</strong> <span id="photoDetailsCategories"></span>
+                            </div>
+                            <div class="photo-detail-item">
+                                <strong>Favorite:</strong> <span id="photoDetailsFavorite"></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </body>
@@ -251,6 +288,17 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
                             <i>restaurant</i>
                         </div>
                         <div class="category-name">Food</div>
+                        <div class="category-actions">
+                            <button class="icon-btn small"><i>edit</i></button>
+                            <button class="icon-btn small"><i>delete</i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="category-item">
+                        <div class="category-icon green">
+                            <i>eco</i>
+                        </div>
+                        <div class="category-name">Nature</div>
                         <div class="category-actions">
                             <button class="icon-btn small"><i>edit</i></button>
                             <button class="icon-btn small"><i>delete</i></button>
@@ -441,8 +489,8 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
             .sort-option { padding: 12px 16px; cursor: pointer; }
             .sort-option:hover { background-color: #f5f5f5; }
             
-            .bottom-nav { display: flex; justify-content: space-around; background-color: white; box-shadow: 0 -2px 4px rgba(0,0,0,0.1); padding: 12px 0; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 100; }
-            .nav-item { display: flex; justify-content: center; align-items: center; color: #999; text-decoration: none; padding: 16px; }
+            .bottom-nav { display: flex; justify-content: space-around; background-color: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 -2px 8px rgba(0,0,0,0.07); padding: 8px 0; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 100; border-top: 1px solid rgba(255, 255, 255, 0.3); }
+            .nav-item { display: flex; justify-content: center; align-items: center; color: #999; text-decoration: none; padding: 10px; }
             .nav-item.active { color: #2196f3; }
             .nav-item svg { margin: 0; }
             
@@ -485,6 +533,14 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
             .category-option:last-child { border-bottom: none; }
             .category-checkbox { margin-right: 10px; }
             .action-btn { background-color: #2196f3; color: white; border: none; border-radius: 4px; padding: 10px 15px; cursor: pointer; font-weight: 500; width: 100%; margin-top: 15px; }
+            
+            /* Photo Details Modal */
+            .photo-details-content { display: flex; flex-direction: column; }
+            .photo-details-preview { margin-bottom: 20px; }
+            .photo-details-preview .photo-placeholder { height: 200px; width: 100%; }
+            .photo-details-info { display: flex; flex-direction: column; gap: 10px; }
+            .photo-detail-item { padding: 8px 0; border-bottom: 1px solid #eee; }
+            .photo-detail-item:last-child { border-bottom: none; }
             
             /* Content Area */
             .content { padding: 16px; margin-bottom: 80px; }

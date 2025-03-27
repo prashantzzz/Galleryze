@@ -106,7 +106,7 @@ function navigateToFilter(filter) {
         if (currentFilterEl) {
             currentFilterEl.setAttribute('data-filter', 'favorites');
         }
-    } else if (['Recent', 'Vacation', 'Family', 'Food'].includes(filter)) {
+    } else if (['Recent', 'Vacation', 'Family', 'Food', 'Nature'].includes(filter)) {
         // Find and select the clicked chip
         const clickedChip = document.querySelector(`.chip[onclick="navigateToFilter('${filter}')"]`);
         if (clickedChip) {
@@ -172,7 +172,7 @@ function applyCurrentFilter() {
             const isFavorite = item.getAttribute('data-favorite') === 'true';
             item.style.display = isFavorite ? '' : 'none';
         });
-    } else if (currentFilter !== 'all' && ['Recent', 'Vacation', 'Family', 'Food'].includes(currentFilter)) {
+    } else if (currentFilter !== 'all' && ['Recent', 'Vacation', 'Family', 'Food', 'Nature'].includes(currentFilter)) {
         filterByCategory(currentFilter);
     }
 }
@@ -250,6 +250,39 @@ function updateSortButtonText(method, direction) {
     `;
 }
 
+// Photo details modal functions
+function openPhotoDetailsModal(photoId) {
+    const modal = document.getElementById('photoDetailsModal');
+    const photoItem = document.querySelector(`.photo-item[data-id="${photoId}"]`);
+    
+    if (!modal || !photoItem) return;
+    
+    // Fill in photo details
+    document.getElementById('photoDetailsId').innerText = photoId;
+    document.getElementById('photoDetailsDate').innerText = photoItem.getAttribute('data-date') || 'Unknown';
+    document.getElementById('photoDetailsSize').innerText = photoItem.getAttribute('data-size') || '0';
+    document.getElementById('photoDetailsCategories').innerText = photoItem.getAttribute('data-categories') || 'None';
+    document.getElementById('photoDetailsFavorite').innerText = photoItem.getAttribute('data-favorite') === 'true' ? 'Yes' : 'No';
+    
+    // Set preview
+    const preview = document.getElementById('photoDetailsPreview');
+    if (preview) {
+        preview.innerText = photoItem.querySelector('.photo-placeholder').innerText;
+    }
+    
+    // Show modal
+    modal.style.display = 'flex';
+    
+    return false;
+}
+
+function closePhotoDetailsModal() {
+    const modal = document.getElementById('photoDetailsModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
 // Apply filter when the page loads
 window.addEventListener('DOMContentLoaded', function() {
     const currentFilterEl = document.querySelector('.current-filter');
@@ -275,6 +308,11 @@ window.addEventListener('DOMContentLoaded', function() {
         if (savedCategories) {
             item.setAttribute('data-categories', savedCategories);
         }
+        
+        // Add click handler for the photo item to show details
+        item.querySelector('.photo-placeholder').addEventListener('click', function() {
+            openPhotoDetailsModal(photoId);
+        });
     });
     
     // If we're on the favorites page (URL contains /favorites), set the filter properly
