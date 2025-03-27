@@ -2,9 +2,9 @@
 // Using script version for browser
 // Note: in a production setup, we would use a proper frontend build system
 
-// These values should be replaced with actual values from your Supabase project
-const supabaseUrl = 'your_supabase_url'; 
-const supabaseKey = 'your_supabase_key';
+// Values loaded from environment variables via server injection
+const supabaseUrl = window.SUPABASE_URL; 
+const supabaseKey = window.SUPABASE_KEY;
 
 // Create a single supabase client for interacting with your database
 const supabase = supabaseClient.createClient(supabaseUrl, supabaseKey);

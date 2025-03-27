@@ -4,6 +4,10 @@ import os
 import json
 import urllib.parse
 from http import HTTPStatus, cookies
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -20,9 +24,20 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(self.get_signup_page().encode())
         # Check if user is logged in (has valid session cookie)
         elif self.path == '/supabase_client.js':
+            # Read Supabase client JS and inject environment variables
             self.send_response(HTTPStatus.OK)
             self.send_header('Content-type', 'application/javascript')
             self.end_headers()
+            
+            # Inject Supabase credentials from environment variables
+            supabase_vars = f"""
+// Supabase environment variables
+window.SUPABASE_URL = '{os.environ.get('SUPABASE_URL')}';
+window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
+"""
+            # Write the environment variables first, then the content of the file
+            self.wfile.write(supabase_vars.encode())
+            
             with open('supabase_client.js', 'rb') as file:
                 self.wfile.write(file.read())
         elif self.is_authenticated() or self.path == '/new_galleryze_script.js':
