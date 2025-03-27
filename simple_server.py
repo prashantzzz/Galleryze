@@ -1791,11 +1791,9 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             
             /* Photo Grid */
             .photo-grid { 
-                display: grid; 
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px; 
+                column-count: 2;
+                column-gap: 12px; 
                 padding: 16px; 
-                flex-grow: 1; 
                 padding-bottom: 70px; 
                 max-width: 1200px;
                 margin: 0 auto;
@@ -1804,16 +1802,22 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             /* Responsive grid - 2 columns on mobile, 3-4 on larger screens */
             @media (min-width: 768px) {
                 .photo-grid {
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 16px;
+                    column-count: 3;
+                    column-gap: 16px;
                 }
             }
             
             @media (min-width: 1024px) {
                 .photo-grid {
-                    grid-template-columns: repeat(4, 1fr);
-                    gap: 20px;
+                    column-count: 4;
+                    column-gap: 20px;
                 }
+            }
+
+            .photo-item {
+                break-inside: avoid;
+                margin-bottom: 12px;
+                display: block;
             }
             
             .photo-item { 
