@@ -454,7 +454,7 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
             .chip:hover { background-color: #e0e0e0; transition: background-color 0.2s; }
             
             /* Photo Grid */
-            .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; padding: 16px; flex-grow: 1; margin-bottom: 60px; }
+            .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; padding: 16px; flex-grow: 1; margin-bottom: 80px; }
             .photo-item { aspect-ratio: 1/1; position: relative; cursor: pointer; }
             .photo-placeholder { background-color: #e0e0e0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; color: #999; border-radius: 8px; overflow: hidden; }
             .favorite-btn { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; border-radius: 50%; background-color: rgba(0, 0, 0, 0.3); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: all 0.2s; z-index: 2; }
@@ -477,7 +477,7 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
             .action-btn { background-color: #2196f3; color: white; border: none; border-radius: 4px; padding: 10px 15px; cursor: pointer; font-weight: 500; width: 100%; margin-top: 15px; }
             
             /* Content Area */
-            .content { padding: 16px; margin-bottom: 60px; }
+            .content { padding: 16px; margin-bottom: 80px; }
             .subheader { margin-bottom: 16px; }
             
             /* Category List */

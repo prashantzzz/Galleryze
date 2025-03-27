@@ -82,14 +82,31 @@ function saveCategories() {
 
 // Navigate to different filters
 function navigateToFilter(filter) {
+    // Remove selection from all chips first
+    document.querySelectorAll('.chip').forEach(chip => {
+        chip.classList.remove('selected');
+    });
+    
     if (filter === 'favorites') {
-        window.location.href = '/favorites';
-    } else if (['Recent', 'Vacation', 'Family', 'Food'].includes(filter)) {
-        // For category filters, we stay on the same page but filter items
-        document.querySelectorAll('.chip').forEach(chip => {
-            chip.classList.remove('selected');
+        // Select the favorites chip
+        const favoritesChip = document.querySelector(`.chip[onclick="navigateToFilter('favorites')"]`);
+        if (favoritesChip) {
+            favoritesChip.classList.add('selected');
+        }
+        
+        // Show only favorite items
+        const photoItems = document.querySelectorAll('.photo-item');
+        photoItems.forEach(item => {
+            const isFavorite = item.getAttribute('data-favorite') === 'true';
+            item.style.display = isFavorite ? '' : 'none';
         });
         
+        // Update current filter
+        const currentFilterEl = document.querySelector('.current-filter');
+        if (currentFilterEl) {
+            currentFilterEl.setAttribute('data-filter', 'favorites');
+        }
+    } else if (['Recent', 'Vacation', 'Family', 'Food'].includes(filter)) {
         // Find and select the clicked chip
         const clickedChip = document.querySelector(`.chip[onclick="navigateToFilter('${filter}')"]`);
         if (clickedChip) {
@@ -98,7 +115,23 @@ function navigateToFilter(filter) {
         
         filterByCategory(filter);
     } else {
-        window.location.href = '/';
+        // All photos - select the "all" chip
+        const allChip = document.querySelector(`.chip[onclick="navigateToFilter('all')"]`);
+        if (allChip) {
+            allChip.classList.add('selected');
+        }
+        
+        // Show all items
+        const photoItems = document.querySelectorAll('.photo-item');
+        photoItems.forEach(item => {
+            item.style.display = '';
+        });
+        
+        // Update current filter
+        const currentFilterEl = document.querySelector('.current-filter');
+        if (currentFilterEl) {
+            currentFilterEl.setAttribute('data-filter', 'all');
+        }
     }
 }
 
@@ -119,11 +152,18 @@ function filterByCategory(category) {
     });
     
     // Set data-filter attribute for the current filter
-    document.querySelector('.current-filter').setAttribute('data-filter', category);
+    const currentFilterEl = document.querySelector('.current-filter');
+    if (currentFilterEl) {
+        currentFilterEl.setAttribute('data-filter', category);
+    }
 }
 
 function applyCurrentFilter() {
-    const currentFilter = document.querySelector('.current-filter').getAttribute('data-filter');
+    const currentFilterEl = document.querySelector('.current-filter');
+    // Check if the element exists before trying to get attribute
+    if (!currentFilterEl) return;
+    
+    const currentFilter = currentFilterEl.getAttribute('data-filter');
     
     if (currentFilter === 'favorites') {
         // Show only favorites
@@ -139,7 +179,8 @@ function applyCurrentFilter() {
 
 // Apply filter when the page loads
 window.addEventListener('DOMContentLoaded', function() {
-    const currentFilter = document.querySelector('.current-filter').getAttribute('data-filter');
+    const currentFilterEl = document.querySelector('.current-filter');
+    const currentFilter = currentFilterEl ? currentFilterEl.getAttribute('data-filter') : 'all';
     
     // Load favorite statuses from localStorage
     const photoItems = document.querySelectorAll('.photo-item');
@@ -151,7 +192,7 @@ window.addEventListener('DOMContentLoaded', function() {
         item.setAttribute('data-favorite', isFavorite ? 'true' : 'false');
         
         const favBtn = item.querySelector('.favorite-btn');
-        if (isFavorite) {
+        if (isFavorite && favBtn) {
             favBtn.classList.add('active');
             favBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="#f44336"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
         }
@@ -163,6 +204,31 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Apply current filter
-    applyCurrentFilter();
+    // If we're on the favorites page (URL contains /favorites), set the filter properly
+    if (window.location.pathname.includes('/favorites')) {
+        // Select favorites chip
+        const favoritesChip = document.querySelector(`.chip[onclick="navigateToFilter('favorites')"]`);
+        if (favoritesChip) {
+            // Remove selection from all chips
+            document.querySelectorAll('.chip').forEach(chip => {
+                chip.classList.remove('selected');
+            });
+            
+            favoritesChip.classList.add('selected');
+        }
+        
+        // Set current filter
+        if (currentFilterEl) {
+            currentFilterEl.setAttribute('data-filter', 'favorites');
+        }
+        
+        // Show only favorite items
+        photoItems.forEach(item => {
+            const isFavorite = item.getAttribute('data-favorite') === 'true';
+            item.style.display = isFavorite ? '' : 'none';
+        });
+    } else {
+        // Apply current filter
+        applyCurrentFilter();
+    }
 });
