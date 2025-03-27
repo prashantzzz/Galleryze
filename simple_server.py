@@ -20,6 +20,11 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-type', 'text/html')
             self.end_headers()
             self.wfile.write(self.get_settings_page().encode())
+        elif self.path == '/share':
+            self.send_response(HTTPStatus.OK)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            self.wfile.write(self.get_share_page().encode())
         else:
             self.send_error(HTTPStatus.NOT_FOUND, "Page not found")
     
