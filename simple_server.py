@@ -378,14 +378,54 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             </nav>
             
             <div class="category-filter">
-                <span class="chip ${all_selected}" onclick="navigateToFilter('all')">All Photos</span>
-                <span class="chip ${favorites_selected}" onclick="navigateToFilter('favorites')">Favorites</span>
-                <span class="chip" onclick="navigateToFilter('Recent')">Recent</span>
-                <span class="chip" onclick="navigateToFilter('Vacation')">Vacation</span>
-                <span class="chip" onclick="navigateToFilter('Family')">Family</span>
-                <span class="chip" onclick="navigateToFilter('Food')">Food</span>
-                <span class="chip" onclick="navigateToFilter('Nature')">Nature</span>
-                <span class="chip add-chip" onclick="openCreateCategoryModal()">+ Add</span>
+                <span class="chip ${all_selected}" onclick="navigateToFilter('all')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
+                        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                    </svg>
+                    All Photos
+                </span>
+                <span class="chip ${favorites_selected}" onclick="navigateToFilter('favorites')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    Favorites
+                </span>
+                <span class="chip" onclick="navigateToFilter('Recent')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
+                        <path d="M13 3a9 9 0 00-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0013 21a9 9 0 000-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+                    </svg>
+                    Recent
+                </span>
+                <span class="chip" onclick="navigateToFilter('Vacation')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
+                        <path d="M13.127 14.56l1.43-1.43 6.44 6.443L19.57 21l-6.44-6.44zM17.42 8.83l2.86-2.86c-3.95-3.95-10.35-3.96-14.3-.02 3.93-1.3 8.31-.25 11.44 2.88zM5.95 5.98c-3.94 3.95-3.93 10.35.02 14.3l2.86-2.86C5.7 14.29 4.65 9.91 5.95 5.98zM5.97 5.96l-.01.01c-.38 3.01 1.17 6.88 4.3 10.02l5.73-5.73c-3.13-3.13-7.01-4.68-10.02-4.3z"/>
+                    </svg>
+                    Vacation
+                </span>
+                <span class="chip" onclick="navigateToFilter('Family')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
+                        <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A2.01 2.01 0 0018.06 7h-.12a2 2 0 00-1.9 1.37l-.02.06L12.5 18h1v6h6.5zm-2.5-22a3.5 3.5 0 100 7 3.5 3.5 0 000-7zM10 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A2.01 2.01 0 0012.06 7h-.12a2 2 0 00-1.9 1.37l-.02.06L6.5 18h1v6h6.5zM3.5 12c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 8v-5h8v5H18v-6.5l-1.8-5.5c-.13-.39-.44-.71-.82-.87-.38-.17-.81-.16-1.19.01l-.46.18c-.19.07-.34.21-.42.39L10 16.5V22H7.5z"/>
+                    </svg>
+                    Family
+                </span>
+                <span class="chip" onclick="navigateToFilter('Food')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
+                        <path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/>
+                    </svg>
+                    Food
+                </span>
+                <span class="chip" onclick="navigateToFilter('Nature')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
+                        <path d="M8.55 12c-1.07-.71-2.25-1.27-3.53-1.61 1.28.34 2.46.9 3.53 1.61zm10.43-1.61c-1.29.34-2.49.91-3.57 1.64 1.08-.73 2.28-1.3 3.57-1.64zm-3.49-.76c-.18-2.79-1.31-5.51-3.43-7.63-2.14 2.14-3.32 4.86-3.55 7.63 1.28.68 2.46 1.56 3.49 2.63 1.03-1.06 2.21-1.94 3.49-2.63zm-6.5 2.65c-.14-.1-.3-.19-.45-.29.15.11.31.19.45.29zm6.42-.25c-.13.09-.27.16-.4.26.13-.1.27-.17.4-.26zM12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
+                    </svg>
+                    Nature
+                </span>
+                <span class="chip add-chip" onclick="openCreateCategoryModal()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
+                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                    </svg>
+                    Add
+                </span>
             </div>
             <div class="current-filter" data-filter="${filter_type}" style="display:none;"></div>
             
@@ -566,7 +606,9 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                 <div class="category-list">
                     <div class="category-item">
                         <div class="category-icon blue">
-                            <i>photo_library</i>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                <path d="M22 16V4c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2zm-11-4l2.03 2.71L16 11l4 5H8l3-4zM2 6v14c0 1.1.9 2 2 2h14v-2H4V6H2z"/>
+                            </svg>
                         </div>
                         <div class="category-name">All Photos</div>
                         <div class="category-badge">Default</div>
@@ -574,7 +616,9 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     
                     <div class="category-item">
                         <div class="category-icon red">
-                            <i>favorite</i>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
                         </div>
                         <div class="category-name">Favorites</div>
                         <div class="category-badge">Default</div>
@@ -582,7 +626,10 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     
                     <div class="category-item">
                         <div class="category-icon purple">
-                            <i>access_time</i>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+                                <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
                         </div>
                         <div class="category-name">Recent</div>
                         <div class="category-badge">Default</div>
@@ -590,7 +637,9 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     
                     <div class="category-item">
                         <div class="category-icon orange">
-                            <i>beach_access</i>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                <path d="M13.127 14.56l1.43-1.43 6.44 6.443L19.57 21l-6.44-6.44zM17.42 8.83l2.86-2.86c-3.95-3.95-10.35-3.96-14.3-.02 3.93-1.3 8.31-.25 11.44 2.88zM5.95 5.98c-3.94 3.95-3.93 10.35.02 14.3l2.86-2.86C5.7 14.29 4.65 9.91 5.95 5.98zM5.97 5.96l-.01.01c-.38 3.01 1.17 6.88 4.3 10.02l5.73-5.73c-3.13-3.13-7.01-4.68-10.02-4.3z"/>
+                            </svg>
                         </div>
                         <div class="category-name">Vacation</div>
                         <div class="category-actions">
@@ -601,7 +650,9 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     
                     <div class="category-item">
                         <div class="category-icon green">
-                            <i>family_restroom</i>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A2.01 2.01 0 0018.06 7h-.12a2 2 0 00-1.9 1.37l-.02.06L12.5 18h1v6h6.5zm-2.5-22a3.5 3.5 0 100 7 3.5 3.5 0 000-7zM10 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A2.01 2.01 0 0012.06 7h-.12a2 2 0 00-1.9 1.37l-.02.06L6.5 18h1v6h6.5zM3.5 12c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 8v-5h8v5H18v-6.5l-1.8-5.5c-.13-.39-.44-.71-.82-.87-.38-.17-.81-.16-1.19.01l-.46.18c-.19.07-.34.21-.42.39L10 16.5V22H7.5z"/>
+                            </svg>
                         </div>
                         <div class="category-name">Family</div>
                         <div class="category-actions">
@@ -612,7 +663,9 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     
                     <div class="category-item">
                         <div class="category-icon amber">
-                            <i>restaurant</i>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                <path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/>
+                            </svg>
                         </div>
                         <div class="category-name">Food</div>
                         <div class="category-actions">
@@ -623,7 +676,9 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     
                     <div class="category-item">
                         <div class="category-icon green">
-                            <i>eco</i>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                <path d="M8.55 12c-1.07-.71-2.25-1.27-3.53-1.61 1.28.34 2.46.9 3.53 1.61zm10.43-1.61c-1.29.34-2.49.91-3.57 1.64 1.08-.73 2.28-1.3 3.57-1.64zm-3.49-.76c-.18-2.79-1.31-5.51-3.43-7.63-2.14 2.14-3.32 4.86-3.55 7.63 1.28.68 2.46 1.56 3.49 2.63 1.03-1.06 2.21-1.94 3.49-2.63zm-6.5 2.65c-.14-.1-.3-.19-.45-.29.15.11.31.19.45.29zm6.42-.25c-.13.09-.27.16-.4.26.13-.1.27-.17.4-.26zM12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
+                            </svg>
                         </div>
                         <div class="category-name">Nature</div>
                         <div class="category-actions">
@@ -1271,7 +1326,13 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                 
                 <div class="settings-section">
                     <div class="section-header">
-                        <i>color_lens</i>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#2196f3">
+                            <path d="M12 22C6.49 22 2 17.51 2 12S6.49 2 12 2s10 4.04 10 9c0 3.31-2.69 6-6 6h-1.77c-.28 0-.5.22-.5.5 0 .12.05.23.13.33.41.47.64 1.06.64 1.67A2.5 2.5 0 0 1 12 22zm0-18c-4.41 0-8 3.59-8 8s3.59 8 8 8c.28 0 .5-.22.5-.5a.54.54 0 0 0-.14-.35c-.41-.46-.63-1.05-.63-1.65a2.5 2.5 0 0 1 2.5-2.5H16c2.21 0 4-1.79 4-4 0-3.86-3.59-7-8-7z"/>
+                            <circle cx="6.5" cy="11.5" r="1.5" fill="#2196f3"/>
+                            <circle cx="9.5" cy="7.5" r="1.5" fill="#2196f3"/>
+                            <circle cx="14.5" cy="7.5" r="1.5" fill="#2196f3"/>
+                            <circle cx="17.5" cy="11.5" r="1.5" fill="#2196f3"/>
+                        </svg>
                         <h2>Appearance</h2>
                     </div>
                     <hr>
@@ -1304,7 +1365,9 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                 
                 <div class="settings-section">
                     <div class="section-header">
-                        <i>storage</i>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#2196f3">
+                            <path d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"/>
+                        </svg>
                         <h2>Storage</h2>
                     </div>
                     <hr>
@@ -1321,7 +1384,9 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                 
                 <div class="settings-section">
                     <div class="section-header">
-                        <i>lock</i>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#2196f3">
+                            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                        </svg>
                         <h2>Privacy</h2>
                     </div>
                     <hr>
@@ -1341,7 +1406,9 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                 
                 <div class="settings-section">
                     <div class="section-header">
-                        <i>info</i>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#2196f3">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                        </svg>
                         <h2>About</h2>
                     </div>
                     <hr>
@@ -1512,6 +1579,7 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             .category-list { display: flex; flex-direction: column; gap: 16px; }
             .category-item { display: flex; align-items: center; background-color: white; padding: 16px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
             .category-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; margin-right: 16px; }
+            .category-icon i, .category-icon svg { color: white; }
             .blue { background-color: #2196f3; }
             .red { background-color: #f44336; }
             .purple { background-color: #9c27b0; }
@@ -1525,7 +1593,7 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             /* Settings */
             .settings-section { background-color: white; border-radius: 8px; margin-bottom: 16px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
             .section-header { display: flex; align-items: center; margin-bottom: 8px; }
-            .section-header i { margin-right: 8px; color: #2196f3; }
+            .section-header i, .section-header svg { margin-right: 8px; color: #2196f3; }
             hr { border: none; border-top: 1px solid #eee; margin: 8px 0 16px; }
             .setting-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
             .setting-item:last-child { margin-bottom: 0; }
