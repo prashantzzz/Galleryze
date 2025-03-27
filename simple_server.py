@@ -401,12 +401,7 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     </svg>
                     Liked
                 </span>
-                <span class="chip" onclick="navigateToFilter('Recent')">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
-                        <path d="M13 3a9 9 0 00-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0013 21a9 9 0 000-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
-                    </svg>
-                    Recent
-                </span>
+
                 <span class="chip" onclick="navigateToFilter('Trip')">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
                         <path d="M13.127 14.56l1.43-1.43 6.44 6.443L19.57 21l-6.44-6.44zM17.42 8.83l2.86-2.86c-3.95-3.95-10.35-3.96-14.3-.02 3.93-1.3 8.31-.25 11.44 2.88zM5.95 5.98c-3.94 3.95-3.93 10.35.02 14.3l2.86-2.86C5.7 14.29 4.65 9.91 5.95 5.98zM5.97 5.96l-.01.01c-.38 3.01 1.17 6.88 4.3 10.02l5.73-5.73c-3.13-3.13-7.01-4.68-10.02-4.3z"/>
@@ -520,8 +515,7 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     </div>
                     <div id="currentPhotoId" style="display: none;"></div>
                     <div class="category-option">
-                        <input type="checkbox" id="category-Recent" class="category-checkbox" data-category="Recent">
-                        <label for="category-Recent">Recent</label>
+
                     </div>
                     <div class="category-option">
                         <input type="checkbox" id="category-Vacation" class="category-checkbox" data-category="Vacation">
@@ -635,16 +629,7 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                         <div class="category-badge">Default</div>
                     </div>
                     
-                    <div class="category-item">
-                        <div class="category-icon purple">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
-                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
-                                <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
-                            </svg>
-                        </div>
-                        <div class="category-name">Recent</div>
-                        <div class="category-badge">Default</div>
-                    </div>
+
                     
                     <div class="category-item">
                         <div class="category-icon orange">
@@ -1813,8 +1798,32 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             .chip:hover { background-color: #e0e0e0; transition: background-color 0.2s; }
             
             /* Photo Grid */
-            .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; padding: 16px; flex-grow: 1; padding-bottom: 70px; }
-            .photo-item { aspect-ratio: 1/1; position: relative; cursor: pointer; }
+            .photo-grid { 
+                display: grid; 
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+                grid-auto-rows: 0;
+                grid-auto-flow: dense;
+                gap: 8px; 
+                padding: 16px; 
+                flex-grow: 1; 
+                padding-bottom: 70px; 
+            }
+            .photo-item { 
+                position: relative; 
+                cursor: pointer;
+                grid-row-end: span 1;
+            }
+            /* Create different aspect ratios */
+            .photo-item:nth-child(3n+1) { 
+                aspect-ratio: 1/1; /* Square */
+            }
+            .photo-item:nth-child(3n+2) { 
+                aspect-ratio: 4/3; /* Landscape */
+            }
+            .photo-item:nth-child(3n+3) { 
+                aspect-ratio: 3/4; /* Portrait */
+                grid-row-end: span 2;
+            }
             .photo-placeholder { 
                 background-color: #f0f0f0; 
                 width: 100%; 
@@ -1826,9 +1835,23 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                 border-radius: 8px; 
                 overflow: hidden; 
                 font-size: 14px; 
+                position: relative;
+            }
+            
+            /* Different gradients for different aspect ratios */
+            .photo-item:nth-child(3n+1) .photo-placeholder {
                 background-image: linear-gradient(120deg, #e0f2f1 0%, #b2dfdb 50%, #80cbc4 100%);
                 box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
-                position: relative;
+            }
+            
+            .photo-item:nth-child(3n+2) .photo-placeholder {
+                background-image: linear-gradient(135deg, #dcedc8 0%, #aed581 50%, #8bc34a 100%);
+                box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
+            }
+            
+            .photo-item:nth-child(3n+3) .photo-placeholder {
+                background-image: linear-gradient(135deg, #bbdefb 0%, #64b5f6 50%, #2196f3 100%);
+                box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
             }
             
             .photo-placeholder::before {
