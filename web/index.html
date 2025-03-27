@@ -33,7 +33,36 @@
   <link rel="manifest" href="manifest.json">
 
   <!-- This script loads Flutter's web bootstrap -->
-  <script src="flutter.js" defer></script>
+  <script>
+    // Define a base URL for Flutter assets
+    window.flutterWebRenderer = "html";
+    var serviceWorkerVersion = null;
+    var scriptLoaded = false;
+    
+    // Add Flutter script with error handling
+    function loadFlutterScript() {
+      var scriptTag = document.createElement('script');
+      scriptTag.src = "flutter.js";
+      scriptTag.type = "application/javascript";
+      
+      scriptTag.onload = function() {
+        scriptLoaded = true;
+        console.log("Flutter.js loaded successfully");
+      };
+      
+      scriptTag.onerror = function(error) {
+        console.error("Error loading Flutter.js:", error);
+        // Show error in UI
+        document.querySelector('.app-name').textContent = "Error loading Flutter";
+        document.querySelector('.spinner').style.borderTop = "4px solid red";
+      };
+      
+      document.head.appendChild(scriptTag);
+    }
+    
+    // Load the Flutter script
+    loadFlutterScript();
+  </script>
 </head>
 <body>
   <div id="loading">
@@ -76,14 +105,52 @@
     </div>
   </div>
   <script>
+    // Function to check if flutter is loaded and initialize the app
+    function checkFlutterAndInit() {
+      console.log("Checking Flutter init status, scriptLoaded:", scriptLoaded);
+      
+      if (scriptLoaded && typeof flutter !== 'undefined') {
+        console.log("Flutter detected, initializing app...");
+        initFlutterApp();
+      } else {
+        console.log("Flutter not ready yet, waiting...");
+        // Check again after a short delay
+        setTimeout(checkFlutterAndInit, 100);
+      }
+    }
+    
+    // Function to initialize Flutter app
+    function initFlutterApp() {
+      try {
+        console.log("Starting Flutter initialization...");
+        flutter.loader.load({
+          onEntrypointLoaded: async function(engineInitializer) {
+            try {
+              console.log("Flutter engine initializer loaded");
+              const appRunner = await engineInitializer.initializeEngine();
+              console.log("Flutter engine initialized");
+              await appRunner.runApp();
+              console.log("Flutter app started");
+              // Remove loading screen
+              document.getElementById('loading').remove();
+            } catch (innerError) {
+              console.error("Error during Flutter initialization:", innerError);
+              document.querySelector('.app-name').textContent = "Error starting app";
+              document.querySelector('.spinner').style.borderTop = "4px solid red";
+            }
+          }
+        });
+      } catch (error) {
+        console.error("Error in Flutter loader:", error);
+        document.querySelector('.app-name').textContent = "Error loading app";
+        document.querySelector('.spinner').style.borderTop = "4px solid red";
+      }
+    }
+    
+    // Start checking for Flutter when the page is loaded
     window.addEventListener('load', function() {
-      flutter.loader.load({
-        onEntrypointLoaded: async function(engineInitializer) {
-          const appRunner = await engineInitializer.initializeEngine();
-          await appRunner.runApp();
-          document.getElementById('loading').remove();
-        }
-      });
+      console.log("Page loaded, checking for Flutter...");
+      checkFlutterAndInit();
     });
   </script>
 </body>
