@@ -4,6 +4,8 @@ import '../models/category.dart';
 import '../providers/photo_provider.dart';
 import '../providers/category_provider.dart';
 import '../widgets/photo_grid.dart';
+import 'categories_screen.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -48,8 +50,51 @@ class _HomeScreenState extends State<HomeScreen> {
     final categoryProvider = Provider.of<CategoryProvider>(context);
     final categories = categoryProvider.categories;
 
+    // Based on selected tab index, determine which screen to show
+    Widget currentScreen;
+    
+    switch (_currentIndex) {
+      case 1:
+        // Import at the top of the file first
+        return CategoriesScreen();
+      case 2:
+        // Import at the top of the file first
+        return SettingsScreen();
+      case 0:
+      default:
+        currentScreen = _buildHomeScreen(photoProvider, categories);
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
+      body: currentScreen,
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.category),
+            label: 'Categories',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildHomeScreen(PhotoProvider photoProvider, List<Category> categories) {
+    return Scaffold(
       appBar: AppBar(
         title: const Text(
           'Galleryze',
@@ -148,40 +193,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       photoProvider.addPhotoToCategory(photoId, categoryId);
                     },
                   ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-
-          // Handle navigation
-          switch (index) {
-            case 0: // Home
-              break;
-            case 1: // Categories
-              // Add categories management screen
-              break;
-            case 2: // Settings
-              // Add settings screen
-              break;
-          }
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.category),
-            label: 'Categories',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
           ),
         ],
       ),
