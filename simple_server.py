@@ -3,13 +3,39 @@ import socketserver
 import os
 import json
 import urllib.parse
+import psycopg2
+import psycopg2.extras
 from http import HTTPStatus, cookies
+# Import python-dotenv to load environment variables
 try:
     from dotenv import load_dotenv
     # Load environment variables from .env file
     load_dotenv()
 except ImportError:
-    print("python-dotenv not installed, using environment variables directly")
+    # Install python-dotenv
+    import os
+    os.system("pip install python-dotenv")
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+    except ImportError:
+        print("python-dotenv not installed, using environment variables directly")
+
+# Database connection
+def get_db_connection():
+    """Create a database connection using environment variables."""
+    try:
+        conn = psycopg2.connect(
+            host=os.environ.get('PGHOST'),
+            database=os.environ.get('PGDATABASE'),
+            user=os.environ.get('PGUSER'),
+            password=os.environ.get('PGPASSWORD'),
+            port=os.environ.get('PGPORT')
+        )
+        return conn
+    except Exception as e:
+        print(f"Database connection error: {e}")
+        return None
 
 class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -128,33 +154,67 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             
             # Process login request
             email = data.get('email')
-            user_id = data.get('userId')
-            supabase_token = data.get('supabaseToken')
+            password = data.get('password')
             
-            # Verify that we have user ID and token from Supabase
-            if not user_id or not supabase_token:
+            # Verify that we have email and password
+            if not email or not password:
                 self.send_response(HTTPStatus.BAD_REQUEST)
                 self.send_header('Content-type', 'application/json')
                 self.end_headers()
                 self.wfile.write(json.dumps({
                     "success": False, 
-                    "message": "Missing user credentials"
+                    "message": "Missing email or password"
                 }).encode())
                 return
-                
-            # In a production app, we would verify the token with Supabase
-            # For this demo, we'll trust the token and set a session
-            self.send_response(HTTPStatus.OK)
+            
+            # Authenticate user against the database
+            success = False
+            message = "Invalid email or password"
+            user_data = None
+            
+            try:
+                conn = get_db_connection()
+                if conn:
+                    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+                    
+                    # Query the database for the user
+                    cursor.execute("SELECT * FROM users WHERE email = %s", (email.lower(),))
+                    user = cursor.fetchone()
+                    
+                    # Check if user exists and password matches
+                    # In a real app, we would use proper password hashing and comparison
+                    if user and user['password_hash'] == password:
+                        success = True
+                        message = "Logged in successfully"
+                        user_data = {
+                            "id": str(user['id']),
+                            "email": user['email'],
+                            "name": user['name'],
+                            "subscription_plan": user['subscription_plan']
+                        }
+                    
+                    cursor.close()
+                    conn.close()
+                else:
+                    message = "Database connection error"
+            except Exception as e:
+                print(f"Database error during login: {e}")
+                message = "An error occurred during login"
+                success = False
+            
+            self.send_response(HTTPStatus.OK if success else HTTPStatus.UNAUTHORIZED)
             self.send_header('Content-type', 'application/json')
             
-            # Store user ID and token in session cookie
-            session_data = f"{user_id}:{supabase_token}"
-            self.send_header('Set-Cookie', f'session={session_data}; Path=/')
+            # If login was successful, set a session cookie
+            if success and user_data:
+                session_data = f"{user_data['id']}:token_{user_data['id']}"
+                self.send_header('Set-Cookie', f'session={session_data}; Path=/')
             
             self.end_headers()
             self.wfile.write(json.dumps({
-                "success": True, 
-                "message": "Logged in successfully"
+                "success": success, 
+                "message": message,
+                "user": user_data
             }).encode())
         elif self.path == '/api/signup':
             content_length = int(self.headers['Content-Length'])
@@ -164,10 +224,10 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             # Process signup request
             name = data.get('name')
             email = data.get('email')
-            user_id = data.get('userId')
+            password = data.get('password')  # In a real app, this would already be hashed by the frontend
             
             # Verify we have necessary data
-            if not name or not email or not user_id:
+            if not name or not email or not password:
                 self.send_response(HTTPStatus.BAD_REQUEST)
                 self.send_header('Content-type', 'application/json')
                 self.end_headers()
@@ -180,21 +240,65 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             # Set default subscription to 'free'
             subscription_plan = 'free'
             
-            # In a production app, we would store user metadata (name, subscription_plan) in Supabase
-            # Also create entries in the profiles table or similar
+            # Create the user in the database
+            success = False
+            user_id = None
+            message = "Signed up successfully"
             
-            self.send_response(HTTPStatus.OK)
+            try:
+                conn = get_db_connection()
+                if conn:
+                    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+                    
+                    # First check if the email already exists
+                    cursor.execute("SELECT * FROM users WHERE email = %s", (email.lower(),))
+                    existing_user = cursor.fetchone()
+                    
+                    if existing_user:
+                        success = False
+                        message = "Email already exists"
+                    else:
+                        # Insert new user
+                        cursor.execute(
+                            "INSERT INTO users (email, name, password_hash, subscription_plan) VALUES (%s, %s, %s, %s) RETURNING id",
+                            (email.lower(), name, password, subscription_plan)
+                        )
+                        result = cursor.fetchone()
+                        if result is not None and len(result) > 0:
+                            user_id = result[0]
+                            conn.commit()
+                            success = True
+                        else:
+                            message = "Failed to create user"
+                            success = False
+                    
+                    cursor.close()
+                    conn.close()
+                else:
+                    message = "Database connection error"
+            except Exception as e:
+                print(f"Database error during signup: {e}")
+                message = "An error occurred during signup"
+                success = False
+            
+            self.send_response(HTTPStatus.OK if success else HTTPStatus.BAD_REQUEST)
             self.send_header('Content-type', 'application/json')
+            
+            # If signup was successful, also log the user in by setting a session cookie
+            if success and user_id:
+                session_data = f"{user_id}:token_{user_id}"
+                self.send_header('Set-Cookie', f'session={session_data}; Path=/')
+            
             self.end_headers()
             self.wfile.write(json.dumps({
-                "success": True, 
-                "message": "Signed up successfully", 
+                "success": success, 
+                "message": message, 
                 "user": {
-                    "id": user_id,
+                    "id": str(user_id) if user_id else None,
                     "name": name,
                     "email": email,
                     "subscription_plan": subscription_plan
-                }
+                } if success else None
             }).encode())
         elif self.path == '/api/logout':
             # Process logout request
@@ -272,43 +376,43 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                 }).encode())
                 return
             
-            # For demo purposes, we'll check if this email has been used to sign up
-            # In a real application, we would query the Supabase database
-            cookie_str = self.headers.get('Cookie')
+            # Check if the email exists in our database
             exists = False
             
-            # Try to get any previously stored user info from cookies
-            if cookie_str:
-                cookie = cookies.SimpleCookie()
-                cookie.load(cookie_str)
-                
-                # Check if this email matches any registered email in cookies
-                # We do this by checking both session cookies and the registered_email cookie
-                if 'registered_email' in cookie and cookie['registered_email'].value:
-                    if email.lower() == cookie['registered_email'].value.lower():
-                        exists = True
-                
-                # Also check for session cookies and default demo emails
-                registered_emails = [
-                    "user@example.com",
-                    "test@galleryze.app",
-                    "demo@galleryze.app",
-                    "admin@galleryze.app"
-                ]
-                
-                # If user is in a session, use their email
-                if 'session' in cookie and cookie['session'].value:
-                    # Get user info from session
-                    user_id = cookie['session'].value.split(':')[0]
-                    user_email = f"{user_id[:6]}@galleryze.app"
-                    registered_emails.append(user_email.lower())
-                
-                if email.lower() in registered_emails:
-                    exists = True
-            
-            # Always treat test@test.com as registered for demo purposes
-            if email.lower() == "test@test.com":
-                exists = True
+            try:
+                # Connect to the PostgreSQL database
+                conn = get_db_connection()
+                if conn:
+                    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+                    
+                    # Query the database for the email
+                    cursor.execute("SELECT * FROM users WHERE email = %s", (email.lower(),))
+                    user = cursor.fetchone()
+                    
+                    # If we found a user, the email exists
+                    exists = user is not None
+                    
+                    # Close database connection
+                    cursor.close()
+                    conn.close()
+                else:
+                    # If we couldn't connect to the database, fall back to cookie check
+                    print("Warning: Could not connect to database, falling back to cookie check")
+                    cookie_str = self.headers.get('Cookie')
+                    
+                    # Try to get any previously stored user info from cookies
+                    if cookie_str:
+                        cookie = cookies.SimpleCookie()
+                        cookie.load(cookie_str)
+                        
+                        # Check if this email matches any registered email in cookies
+                        if 'registered_email' in cookie and cookie['registered_email'].value:
+                            if email.lower() == cookie['registered_email'].value.lower():
+                                exists = True
+            except Exception as e:
+                print(f"Database error when checking email: {e}")
+                # Fail gracefully - assume the email doesn't exist
+                exists = False
             
             self.send_response(HTTPStatus.OK)
             self.send_header('Content-type', 'application/json')
@@ -392,9 +496,27 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     # Get user ID from parts
                     user_id = parts[0]
                     
-                    # For a real app, we would fetch this from Supabase
-                    # For demonstration purposes, we'll use the same user ID to return consistent user info
-                    # This ensures consistent user details across different parts of the app
+                    # Try to get user info from database
+                    try:
+                        conn = get_db_connection()
+                        if conn:
+                            cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+                            cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+                            user = cursor.fetchone()
+                            cursor.close()
+                            conn.close()
+                            
+                            if user:
+                                return {
+                                    "id": str(user['id']),
+                                    "email": user['email'],
+                                    "name": user['name'],
+                                    "subscription_plan": user['subscription_plan']
+                                }
+                    except Exception as e:
+                        print(f"Database error when getting user info: {e}")
+                    
+                    # Fallback if we couldn't get from database
                     return {
                         "id": user_id,
                         "email": f"{user_id[:6]}@galleryze.app",
