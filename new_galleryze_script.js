@@ -25,6 +25,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Once we have the user, fetch their favorites
     if (currentUser) {
         await syncFavorites();
+        
+        // Make sure all photos are shown by default
+        const photoItems = document.querySelectorAll('.photo-item');
+        photoItems.forEach(item => {
+            item.style.display = '';
+        });
+        
+        // Select the "All Photos" chip by default
+        const allChip = document.querySelector('.chip[onclick="navigateToFilter(\'all\')"]');
+        if (allChip) {
+            allChip.classList.add('selected');
+        }
     }
 });
 

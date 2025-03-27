@@ -317,20 +317,24 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                 # Session cookie is in format userId:token
                 parts = cookie['session'].value.split(':')
                 if len(parts) >= 1:
-                    # In a real app, we would fetch this info from Supabase
-                    # But for this demo we'll return a better user name
+                    # Get user ID from parts
+                    user_id = parts[0]
+                    
+                    # For a real app, we would fetch this from Supabase
+                    # For demonstration purposes, we'll use the same user ID to return consistent user info
+                    # This ensures consistent user details across different parts of the app
                     return {
-                        "id": parts[0],
-                        "email": "example@galleryze.app",
-                        "name": "John Photographer",
+                        "id": user_id,
+                        "email": f"{user_id[:6]}@galleryze.app",
+                        "name": f"User {user_id[:6]}",
                         "subscription_plan": "free"
                     }
         
         # Fallback to default user data
         return {
-            "id": "1",
-            "email": "user@example.com",
-            "name": "Test User",
+            "id": "guest",
+            "email": "guest@example.com",
+            "name": "Guest User",
             "subscription_plan": "free"
         }
     
