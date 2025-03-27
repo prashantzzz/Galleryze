@@ -51,7 +51,7 @@ class PhotoProvider extends ChangeNotifier {
 
   // Get photos by category
   List<PhotoItem> getPhotosByCategory(String category) {
-    if (category == 'favorites') {
+    if (category == 'Favorites') {
       return _photos.where((photo) => photo.isFavorite).toList();
     }
     return _photos.where((photo) => photo.isInCategory(category)).toList();

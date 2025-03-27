@@ -1,64 +1,42 @@
-import 'dart:math';
-
-/// A web-specific implementation that mimics the behavior of AssetEntity from photo_manager
-/// for compatibility between mobile and web platforms.
+/// Entity representing an image asset
 class WebAssetEntity {
   final String id;
-  final String url; // URL to the image (local or remote)
+  final String title;
   final DateTime createDateTime;
-  final int size; // Size in bytes
+  final DateTime modifiedDateTime;
   final int width;
   final int height;
+  final int size; // in bytes
+  final String? mimeType;
+  final String url;
 
-  const WebAssetEntity({
+  WebAssetEntity({
     required this.id,
-    required this.url,
+    required this.title,
     required this.createDateTime,
-    required this.size,
+    required this.modifiedDateTime,
     required this.width,
     required this.height,
+    required this.size,
+    this.mimeType,
+    required this.url,
   });
 
-  // Create a mock web asset with a default image
-  factory WebAssetEntity.demo({
+  // Create a sample WebAssetEntity with demo data
+  factory WebAssetEntity.sample({
     required String id,
-    String? imageUrl,
+    required String url,
   }) {
-    final random = Random();
-    final now = DateTime.now();
-    final daysAgo = random.nextInt(365);
-    
     return WebAssetEntity(
       id: id,
-      url: imageUrl ?? 'https://picsum.photos/seed/$id/800/600', // Use Lorem Picsum for demo images
-      createDateTime: now.subtract(Duration(days: daysAgo)),
-      size: random.nextInt(5000000) + 500000, // Random size between 500KB and 5MB
+      title: 'Sample Image $id',
+      createDateTime: DateTime.now().subtract(Duration(days: int.parse(id))),
+      modifiedDateTime: DateTime.now().subtract(Duration(hours: int.parse(id))),
       width: 800,
       height: 600,
+      size: 1024 * 1024 * 2, // 2MB
+      mimeType: 'image/jpeg',
+      url: url,
     );
-  }
-  
-  // Create from JSON for storage/retrieval
-  factory WebAssetEntity.fromJson(Map<String, dynamic> json) {
-    return WebAssetEntity(
-      id: json['id'] as String,
-      url: json['url'] as String,
-      createDateTime: DateTime.parse(json['createDateTime'] as String),
-      size: json['size'] as int,
-      width: json['width'] as int,
-      height: json['height'] as int,
-    );
-  }
-
-  // Convert to JSON for storage
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'url': url,
-      'createDateTime': createDateTime.toIso8601String(),
-      'size': size,
-      'width': width,
-      'height': height,
-    };
   }
 }

@@ -33,9 +33,9 @@ class WebPhotoService {
     
     // Create photo items with web asset entities
     for (int i = 0; i < sampleImageUrls.length; i++) {
-      final WebAssetEntity webAsset = WebAssetEntity.demo(
+      final WebAssetEntity webAsset = WebAssetEntity.sample(
         id: i.toString(),
-        imageUrl: sampleImageUrls[i],
+        url: sampleImageUrls[i],
       );
       
       photos.add(PhotoItem(webAsset: webAsset));

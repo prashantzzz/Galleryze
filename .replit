@@ -13,10 +13,10 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Flutter Web Server"
+args = "Flutter App Server"
 
 [[workflows.workflow]]
-name = "Flutter Web Server"
+name = "Flutter App Server"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -27,7 +27,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "flutter run -d web-server --web-port=5000 --web-hostname=0.0.0.0 --web-renderer=html --no-web-resources-cdn"
+args = "flutter run -d web-server --web-port=5000 --web-hostname=0.0.0.0"
 waitForPort = 5000
 
 [deployment]
@@ -40,3 +40,7 @@ externalPort = 80
 [[ports]]
 localPort = 8080
 externalPort = 8080
+
+[[ports]]
+localPort = 43661
+externalPort = 3000
