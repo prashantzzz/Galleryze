@@ -4,6 +4,8 @@ import '../models/category.dart';
 import '../providers/photo_provider.dart';
 import '../providers/category_provider.dart';
 import '../widgets/photo_grid.dart';
+import 'categories_screen.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -44,6 +46,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Change screens based on the current navigation index
+    if (_currentIndex == 1) {
+      return const CategoriesScreen();
+    } else if (_currentIndex == 2) {
+      return const SettingsScreen();
+    }
+    
+    // Home screen (index 0)
     final photoProvider = Provider.of<PhotoProvider>(context);
     final categoryProvider = Provider.of<CategoryProvider>(context);
     final categories = categoryProvider.categories;
@@ -157,18 +167,6 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() {
             _currentIndex = index;
           });
-
-          // Handle navigation
-          switch (index) {
-            case 0: // Home
-              break;
-            case 1: // Categories
-              // Add categories management screen
-              break;
-            case 2: // Settings
-              // Add settings screen
-              break;
-          }
         },
         items: const [
           BottomNavigationBarItem(

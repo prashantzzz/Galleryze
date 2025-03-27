@@ -1,4 +1,4 @@
-modules = ["flutter"]
+modules = ["flutter", "python-3.11"]
 
 [nix]
 channel = "stable-24_05"
@@ -13,10 +13,10 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Flutter App Server"
+args = "Web Demo Server"
 
 [[workflows.workflow]]
-name = "Flutter App Server"
+name = "Web Demo Server"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -27,7 +27,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "flutter run -d web-server --web-port=5000 --web-hostname=0.0.0.0"
+args = "cd /home/runner/workspace && python3 simple_server.py"
 waitForPort = 5000
 
 [deployment]
@@ -40,7 +40,3 @@ externalPort = 80
 [[ports]]
 localPort = 8080
 externalPort = 8080
-
-[[ports]]
-localPort = 43661
-externalPort = 3000
