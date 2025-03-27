@@ -262,15 +262,64 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             # Get email data
             email = data.get('email')
             
-            # For demo purposes, simulate checking if email exists
-            # In a real app, this would query the database
-            # Here, we'll say any email with "user" in it exists, others don't
+            if not email:
+                self.send_response(HTTPStatus.BAD_REQUEST)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "success": False,
+                    "message": "Email is required"
+                }).encode())
+                return
+            
+            # For demo purposes, we'll check if this email has been used to sign up
+            # In a real application, we would query the Supabase database
+            cookie_str = self.headers.get('Cookie')
             exists = False
-            if email and "user" in email.lower():
+            
+            # Try to get any previously stored user info from cookies
+            if cookie_str:
+                cookie = cookies.SimpleCookie()
+                cookie.load(cookie_str)
+                
+                # Check if this email matches any registered email in cookies
+                # We do this by checking both session cookies and the registered_email cookie
+                if 'registered_email' in cookie and cookie['registered_email'].value:
+                    if email.lower() == cookie['registered_email'].value.lower():
+                        exists = True
+                
+                # Also check for session cookies and default demo emails
+                registered_emails = [
+                    "user@example.com",
+                    "test@galleryze.app",
+                    "demo@galleryze.app",
+                    "admin@galleryze.app"
+                ]
+                
+                # If user is in a session, use their email
+                if 'session' in cookie and cookie['session'].value:
+                    # Get user info from session
+                    user_id = cookie['session'].value.split(':')[0]
+                    user_email = f"{user_id[:6]}@galleryze.app"
+                    registered_emails.append(user_email.lower())
+                
+                if email.lower() in registered_emails:
+                    exists = True
+            
+            # Always treat test@test.com as registered for demo purposes
+            if email.lower() == "test@test.com":
                 exists = True
             
             self.send_response(HTTPStatus.OK)
             self.send_header('Content-type', 'application/json')
+            
+            # For any new signup, store the email in a cookie for future logins
+            register_cookie = cookies.SimpleCookie()
+            if not exists:
+                register_cookie['registered_email'] = email
+                register_cookie['registered_email']['path'] = '/'
+                register_cookie['registered_email']['max-age'] = 31536000  # 1 year
+                self.send_header('Set-Cookie', register_cookie['registered_email'].OutputString())
             self.end_headers()
             self.wfile.write(json.dumps({
                 "success": True,
