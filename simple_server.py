@@ -34,6 +34,18 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
             <style>
                 {self.get_styles()}
             </style>
+            <script>
+                function toggleFavorite(element) {{
+                    element.classList.toggle('active');
+                    if (element.classList.contains('active')) {{
+                        element.innerHTML = '<i>favorite</i>';
+                    }} else {{
+                        element.innerHTML = '<i>favorite_border</i>';
+                    }}
+                    // In a real app, this would send an API request to update the backend
+                    return false;
+                }}
+            </script>
         </head>
         <body>
             <nav class="top-nav">
@@ -55,14 +67,38 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
             </div>
             
             <div class="photo-grid">
-                <div class="photo-item"><div class="photo-placeholder">Photo 1</div></div>
-                <div class="photo-item"><div class="photo-placeholder">Photo 2</div></div>
-                <div class="photo-item"><div class="photo-placeholder">Photo 3</div></div>
-                <div class="photo-item"><div class="photo-placeholder">Photo 4</div></div>
-                <div class="photo-item"><div class="photo-placeholder">Photo 5</div></div>
-                <div class="photo-item"><div class="photo-placeholder">Photo 6</div></div>
-                <div class="photo-item"><div class="photo-placeholder">Photo 7</div></div>
-                <div class="photo-item"><div class="photo-placeholder">Photo 8</div></div>
+                <div class="photo-item">
+                    <div class="photo-placeholder">Photo 1</div>
+                    <div class="favorite-btn" onclick="toggleFavorite(this)"><i>favorite_border</i></div>
+                </div>
+                <div class="photo-item">
+                    <div class="photo-placeholder">Photo 2</div>
+                    <div class="favorite-btn active" onclick="toggleFavorite(this)"><i>favorite</i></div>
+                </div>
+                <div class="photo-item">
+                    <div class="photo-placeholder">Photo 3</div>
+                    <div class="favorite-btn" onclick="toggleFavorite(this)"><i>favorite_border</i></div>
+                </div>
+                <div class="photo-item">
+                    <div class="photo-placeholder">Photo 4</div>
+                    <div class="favorite-btn" onclick="toggleFavorite(this)"><i>favorite_border</i></div>
+                </div>
+                <div class="photo-item">
+                    <div class="photo-placeholder">Photo 5</div>
+                    <div class="favorite-btn active" onclick="toggleFavorite(this)"><i>favorite</i></div>
+                </div>
+                <div class="photo-item">
+                    <div class="photo-placeholder">Photo 6</div>
+                    <div class="favorite-btn" onclick="toggleFavorite(this)"><i>favorite_border</i></div>
+                </div>
+                <div class="photo-item">
+                    <div class="photo-placeholder">Photo 7</div>
+                    <div class="favorite-btn" onclick="toggleFavorite(this)"><i>favorite_border</i></div>
+                </div>
+                <div class="photo-item">
+                    <div class="photo-placeholder">Photo 8</div>
+                    <div class="favorite-btn" onclick="toggleFavorite(this)"><i>favorite_border</i></div>
+                </div>
             </div>
             
             <div class="bottom-nav">
@@ -367,8 +403,12 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
             
             /* Photo Grid */
             .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; padding: 16px; flex-grow: 1; margin-bottom: 60px; }
-            .photo-item { aspect-ratio: 1/1; }
-            .photo-placeholder { background-color: #e0e0e0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; color: #999; }
+            .photo-item { aspect-ratio: 1/1; position: relative; }
+            .photo-placeholder { background-color: #e0e0e0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; color: #999; border-radius: 8px; overflow: hidden; }
+            .favorite-btn { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.5); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: all 0.2s; }
+            .favorite-btn i { color: white; font-size: 18px; }
+            .favorite-btn.active i { color: #f44336; }
+            .favorite-btn:hover { background-color: rgba(255, 255, 255, 0.8); }
             
             /* Content Area */
             .content { padding: 16px; margin-bottom: 60px; }
