@@ -178,7 +178,9 @@ async function createNewCategory() {
             newChip.textContent = categoryName;
             
             // Insert before the + Add chip
-            categoryFilter.insertBefore(newChip, addChip);
+            if (categoryFilter && addChip) {
+                categoryFilter.insertBefore(newChip, addChip);
+            }
             
             // Add to category modal
             const categoryModal = document.getElementById('categoryModal');
@@ -194,7 +196,9 @@ async function createNewCategory() {
                 `;
                 
                 // Insert before save button
-                categoryModal.insertBefore(newOption, saveButton);
+                if (saveButton) {
+                    categoryModal.insertBefore(newOption, saveButton);
+                }
             }
             
             // Close the modal
