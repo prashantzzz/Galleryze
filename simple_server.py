@@ -29,6 +29,10 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
             self.send_error(HTTPStatus.NOT_FOUND, "Page not found")
     
     def get_home_page(self, filter_type="all"):
+        # Set which chip should be selected based on filter
+        all_selected = "selected" if filter_type == "all" else ""
+        favorites_selected = "selected" if filter_type == "favorites" else ""
+        
         return f"""
         <!DOCTYPE html>
         <html>
@@ -83,15 +87,7 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
                     
                     // If we're in favorites view, hide all non-favorite items
                     if (currentFilter === 'favorites') {{
-                        // Select the correct chip
-                        document.querySelectorAll('.chip').forEach(chip => {{
-                            chip.classList.remove('selected');
-                            if (chip.textContent === 'Favorites') {{
-                                chip.classList.add('selected');
-                            }}
-                        }});
-                        
-                        // Show only favorites
+                        // Show only favorites (already handled by server)
                         const photoItems = document.querySelectorAll('.photo-item');
                         photoItems.forEach(item => {{
                             if (item.getAttribute('data-favorite') !== 'true') {{
@@ -128,8 +124,8 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
             </nav>
             
             <div class="category-filter">
-                <span class="chip selected" onclick="navigateToFilter('all')">All Photos</span>
-                <span class="chip" onclick="navigateToFilter('favorites')">Favorites</span>
+                <span class="chip ${all_selected}" onclick="navigateToFilter('all')">All Photos</span>
+                <span class="chip ${favorites_selected}" onclick="navigateToFilter('favorites')">Favorites</span>
                 <span class="chip">Recent</span>
                 <span class="chip">Vacation</span>
                 <span class="chip">Family</span>
