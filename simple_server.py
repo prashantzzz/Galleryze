@@ -130,6 +130,7 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             email = data.get('email')
             user_id = data.get('userId')
             supabase_token = data.get('supabaseToken')
+            display_name = data.get('displayName') or email.split('@')[0]  # Use part before @ as fallback name
             
             # Verify that we have user ID and token from Supabase
             if not user_id or not supabase_token:
@@ -147,8 +148,8 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             self.send_response(HTTPStatus.OK)
             self.send_header('Content-type', 'application/json')
             
-            # Store user ID and token in session cookie
-            session_data = f"{user_id}:{supabase_token}"
+            # Store user ID, email, and display name in session cookie
+            session_data = f"{user_id}:{email}:{display_name}"
             self.send_header('Set-Cookie', f'session={session_data}; Path=/')
             
             self.end_headers()
@@ -320,14 +321,24 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     # Get user ID from parts
                     user_id = parts[0]
                     
-                    # For a real app, we would fetch this from Supabase
-                    # For demonstration purposes, we'll use the same user ID to return consistent user info
-                    # This ensures consistent user details across different parts of the app
+                    # Get user metadata from session cookie
+                    # In a more sophisticated implementation, this would validate the token
+                    # and fetch the latest user data from the database
+                    if len(parts) >= 3 and parts[2]:
+                        # If we have a display name stored in the session
+                        name = parts[2]
+                    else:
+                        # Fallback if no name is in the session
+                        name = f"User {user_id[:6]}"
+                    
+                    # Email from session if available (parts[1]) or generate one
+                    email = parts[1] if len(parts) >= 2 and parts[1] else f"{user_id[:6]}@galleryze.app"
+                    
                     return {
                         "id": user_id,
-                        "email": f"{user_id[:6]}@galleryze.app",
-                        "name": f"User {user_id[:6]}",
-                        "subscription_plan": "free"
+                        "email": email,
+                        "name": name,
+                        "subscription_plan": "free"  # Default to free plan
                     }
         
         # Fallback to default user data
@@ -382,13 +393,13 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
                         <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
                     </svg>
-                    All Photos
+                    All
                 </span>
                 <span class="chip ${favorites_selected}" onclick="navigateToFilter('favorites')">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                     </svg>
-                    Favorites
+                    Liked
                 </span>
                 <span class="chip" onclick="navigateToFilter('Recent')">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
@@ -396,11 +407,11 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     </svg>
                     Recent
                 </span>
-                <span class="chip" onclick="navigateToFilter('Vacation')">
+                <span class="chip" onclick="navigateToFilter('Trip')">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
                         <path d="M13.127 14.56l1.43-1.43 6.44 6.443L19.57 21l-6.44-6.44zM17.42 8.83l2.86-2.86c-3.95-3.95-10.35-3.96-14.3-.02 3.93-1.3 8.31-.25 11.44 2.88zM5.95 5.98c-3.94 3.95-3.93 10.35.02 14.3l2.86-2.86C5.7 14.29 4.65 9.91 5.95 5.98zM5.97 5.96l-.01.01c-.38 3.01 1.17 6.88 4.3 10.02l5.73-5.73c-3.13-3.13-7.01-4.68-10.02-4.3z"/>
                     </svg>
-                    Vacation
+                    Trip
                 </span>
                 <span class="chip" onclick="navigateToFilter('Family')">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
@@ -641,7 +652,7 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                                 <path d="M13.127 14.56l1.43-1.43 6.44 6.443L19.57 21l-6.44-6.44zM17.42 8.83l2.86-2.86c-3.95-3.95-10.35-3.96-14.3-.02 3.93-1.3 8.31-.25 11.44 2.88zM5.95 5.98c-3.94 3.95-3.93 10.35.02 14.3l2.86-2.86C5.7 14.29 4.65 9.91 5.95 5.98zM5.97 5.96l-.01.01c-.38 3.01 1.17 6.88 4.3 10.02l5.73-5.73c-3.13-3.13-7.01-4.68-10.02-4.3z"/>
                             </svg>
                         </div>
-                        <div class="category-name">Vacation</div>
+                        <div class="category-name">Trip</div>
                         <div class="category-actions">
                             <button class="icon-btn small"><i>edit</i></button>
                             <button class="icon-btn small"><i>delete</i></button>
@@ -870,6 +881,14 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                         }}
                         
                         if (data && data.user) {{
+                            // Get user display name from metadata if available
+                            let displayName = "";
+                            if (data.user.user_metadata && data.user.user_metadata.full_name) {{
+                                displayName = data.user.user_metadata.full_name;
+                            }} else {{
+                                displayName = email.split('@')[0]; // Fallback to username from email
+                            }}
+                            
                             // Successfully signed in with Supabase, now create a server session
                             const response = await fetch('/api/login', {{
                                 method: 'POST',
@@ -879,7 +898,8 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                                 body: JSON.stringify({{ 
                                     email, 
                                     userId: data.user.id,
-                                    supabaseToken: data.session.access_token 
+                                    supabaseToken: data.session.access_token,
+                                    displayName: displayName
                                 }})
                             }});
                             
@@ -1081,7 +1101,7 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     
                     try {{
                         // Register with Supabase Authentication
-                        const {{ data, error }} = await galleryzeApi.signUp(email, password);
+                        const {{ data, error }} = await galleryzeApi.signUp(email, password, name);
                         
                         if (error) {{
                             throw error;

@@ -15,10 +15,15 @@ const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 window.galleryzeApi = {};
 
 // Authentication functions
-galleryzeApi.signUp = async function(email, password) {
+galleryzeApi.signUp = async function(email, password, name) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
+    options: {
+      data: {
+        full_name: name
+      }
+    }
   });
   return { data, error };
 };
@@ -38,6 +43,16 @@ galleryzeApi.signOut = async function() {
 
 galleryzeApi.getCurrentUser = async function() {
   const { data: { user } } = await supabase.auth.getUser();
+  
+  // Return user with metadata
+  if (user && user.user_metadata && user.user_metadata.full_name) {
+    // If we have user metadata with full_name, use it
+    user.display_name = user.user_metadata.full_name;
+  } else if (user) {
+    // Fallback to email or random id if no name is available
+    user.display_name = user.email ? user.email.split('@')[0] : `User ${user.id.substring(0, 6)}`;
+  }
+  
   return user;
 };
 
