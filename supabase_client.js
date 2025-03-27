@@ -15,39 +15,12 @@ const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 window.galleryzeApi = {};
 
 // Authentication functions
-galleryzeApi.checkEmail = async function(email) {
-  try {
-    // Use Supabase auth to check if a user with this email exists
-    const { data, error } = await supabase
-      .from('users')
-      .select('email')
-      .eq('email', email)
-      .single();
-    
-    // If we get data back, the email exists
-    return { exists: !!data, error: null };
-  } catch (error) {
-    return { exists: false, error };
-  }
-};
-
-galleryzeApi.signUp = async function(email, password, name) {
-  // First register with Supabase Auth
-  const { data: authData, error: authError } = await supabase.auth.signUp({
+galleryzeApi.signUp = async function(email, password) {
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
   });
-  
-  if (authError) return { data: null, error: authError };
-  
-  // Then store the user profile in our database
-  const { data, error } = await supabase
-    .from('users')
-    .insert([
-      { email, name, password_hash: 'hashed_in_auth_service' }
-    ]);
-  
-  return { data: authData, error: error || authError };
+  return { data, error };
 };
 
 galleryzeApi.signIn = async function(email, password) {
