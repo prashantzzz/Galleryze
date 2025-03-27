@@ -736,132 +736,122 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                 body {{
                     margin: 0;
                     padding: 0;
-                    background: linear-gradient(135deg, #f5f5f5, #fdf4e7);
+                    background: linear-gradient(135deg, #f9f9f9, #fff6e9);
                     height: 100vh;
-                    font-family: sans-serif;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
-                    justify-content: space-between;
+                    justify-content: flex-start;
                 }}
                 
                 .app-icon-container {{
-                    margin-top: 60px;
+                    margin-top: 80px;
                     text-align: center;
+                    margin-bottom: 60px;
                 }}
                 
                 .app-icon {{
-                    width: 100px;
-                    height: 100px;
-                    margin-bottom: 10px;
+                    width: 80px;
+                    height: 80px;
+                    margin-bottom: 16px;
+                    border-radius: 22px;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
                 }}
                 
                 .app-name {{
-                    font-size: 24px;
-                    font-weight: 500;
+                    font-size: 22px;
+                    font-weight: 600;
                     margin-top: 10px;
                     color: #333;
                 }}
                 
                 .auth-title {{
-                    font-size: 28px;
-                    font-weight: 600;
+                    font-size: 26px;
+                    font-weight: 700;
                     margin-bottom: 30px;
                     text-align: center;
                 }}
                 
                 .auth-container {{
                     width: 85%;
-                    max-width: 400px;
+                    max-width: 360px;
                     margin: 0 auto;
                 }}
                 
                 .input-container {{
                     position: relative;
-                    margin-bottom: 20px;
+                    margin-bottom: 24px;
                 }}
                 
                 .auth-input {{
                     width: 100%;
-                    padding: 15px;
-                    border: 1px solid #ddd;
+                    padding: 16px;
+                    border: 1px solid #e5e5e5;
                     border-radius: 8px;
                     font-size: 16px;
-                    background-color: #f9f9f9;
+                    background-color: #f8f8f8;
+                    box-sizing: border-box;
                 }}
                 
                 .clear-btn {{
                     position: absolute;
-                    right: 10px;
+                    right: 12px;
                     top: 50%;
                     transform: translateY(-50%);
-                    background: #ddd;
+                    background: #e0e0e0;
                     border: none;
-                    width: 20px;
-                    height: 20px;
+                    width: 22px;
+                    height: 22px;
                     border-radius: 50%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     font-size: 14px;
-                    color: #777;
+                    color: #666;
                     cursor: pointer;
                 }}
                 
                 .continue-btn {{
                     width: 100%;
-                    padding: 15px;
+                    padding: 16px;
                     background: #000;
                     color: white;
                     border: none;
                     border-radius: 8px;
                     font-size: 16px;
+                    font-weight: 500;
                     cursor: pointer;
-                    margin-bottom: 15px;
+                    margin-bottom: 20px;
                 }}
                 
-                .divider {{
-                    display: flex;
-                    align-items: center;
+                .or-divider {{
                     text-align: center;
-                    margin: 20px 0;
-                }}
-                
-                .divider:before,
-                .divider:after {{
-                    content: '';
-                    flex: 1;
-                    border-bottom: 1px solid #eee;
-                }}
-                
-                .divider span {{
-                    padding: 0 10px;
                     color: #999;
+                    margin: 20px 0;
+                    font-size: 15px;
                 }}
                 
                 .social-btn {{
                     width: 100%;
-                    padding: 12px;
+                    padding: 14px;
                     background: white;
-                    border: 1px solid #ddd;
+                    border: 1px solid #e0e0e0;
                     border-radius: 8px;
                     font-size: 16px;
-                    margin-bottom: 15px;
+                    margin-bottom: 12px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     cursor: pointer;
-                }}
-                
-                .social-btn img {{
-                    width: 20px;
-                    margin-right: 10px;
+                    font-weight: 500;
                 }}
                 
                 .footer {{
+                    margin-top: auto;
                     margin-bottom: 30px;
-                    color: #777;
-                    font-size: 14px;
+                    color: #999;
+                    font-size: 13px;
                     text-align: center;
                 }}
                 
@@ -1099,12 +1089,10 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                         <button type="submit" id="emailContinueBtn" class="continue-btn">Continue</button>
                     </form>
                     
-                    <div class="divider">
-                        <span>or</span>
-                    </div>
+                    <div class="or-divider">or</div>
                     
                     <button class="social-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" style="margin-right: 10px">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="margin-right: 12px">
                             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
@@ -1114,8 +1102,8 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     </button>
                     
                     <button class="social-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" style="margin-right: 10px">
-                            <path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.12 0-.23-.02-.3-.03-.01-.06-.04-.22-.04-.39 0-1.15.572-2.27 1.206-2.98.804-.94 2.142-1.64 3.248-1.68.03.13.05.28.05.43zm4.565 15.71c-.03.07-.463 1.58-1.518 3.12-.945 1.34-1.94 2.71-3.43 2.71-1.517 0-1.9-.88-3.63-.88-1.698 0-2.302.91-3.67.91-1.377 0-2.332-1.26-3.428-2.8-1.287-1.82-2.323-4.63-2.323-7.28 0-4.28 2.797-6.55 5.552-6.55 1.448 0 2.675.95 3.6.95.865 0 2.222-1.01 3.902-1.01.613 0 2.886.06 4.374 2.19-.13.09-2.383 1.37-2.383 4.19 0 3.26 2.854 4.42 2.955 4.45z"/>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="margin-right: 12px">
+                            <path fill="#000" d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.12 0-.23-.02-.3-.03-.01-.06-.04-.22-.04-.39 0-1.15.572-2.27 1.206-2.98.804-.94 2.142-1.64 3.248-1.68.03.13.05.28.05.43zm4.565 15.71c-.03.07-.463 1.58-1.518 3.12-.945 1.34-1.94 2.71-3.43 2.71-1.517 0-1.9-.88-3.63-.88-1.698 0-2.302.91-3.67.91-1.377 0-2.332-1.26-3.428-2.8-1.287-1.82-2.323-4.63-2.323-7.28 0-4.28 2.797-6.55 5.552-6.55 1.448 0 2.675.95 3.6.95.865 0 2.222-1.01 3.902-1.01.613 0 2.886.06 4.374 2.19-.13.09-2.383 1.37-2.383 4.19 0 3.26 2.854 4.42 2.955 4.45z"/>
                         </svg>
                         Continue with Apple
                     </button>
@@ -1123,7 +1111,7 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                 
                 <!-- Login Step (for existing users) -->
                 <div id="loginStep">
-                    <button type="button" onclick="backToEmailStep()" style="background: none; border: none; font-size: 20px; cursor: pointer; margin-bottom: 20px;">←</button>
+                    <button type="button" onclick="backToEmailStep()" style="background: none; border: none; font-size: 20px; color: #555; cursor: pointer; margin-bottom: 24px; padding: 0;">←</button>
                     <h1 class="auth-title">Sign in</h1>
                     <form onsubmit="handleLogin(event)">
                         <input type="hidden" id="loginEmail">
@@ -1136,7 +1124,7 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                 
                 <!-- Signup Step (for new users) -->
                 <div id="signupStep">
-                    <button type="button" onclick="backToEmailStep()" style="background: none; border: none; font-size: 20px; cursor: pointer; margin-bottom: 20px;">←</button>
+                    <button type="button" onclick="backToEmailStep()" style="background: none; border: none; font-size: 20px; color: #555; cursor: pointer; margin-bottom: 24px; padding: 0;">←</button>
                     <h1 class="auth-title">Create your account</h1>
                     <form onsubmit="handleSignup(event)">
                         <input type="hidden" id="signupEmail">
