@@ -20,6 +20,20 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-type', 'text/html')
             self.end_headers()
             self.wfile.write(self.get_categories_page().encode())
+        elif self.path == '/new_galleryze_script.js':
+            # Serve our JavaScript file
+            self.send_response(HTTPStatus.OK)
+            self.send_header('Content-type', 'application/javascript')
+            self.end_headers()
+            with open('new_galleryze_script.js', 'rb') as file:
+                self.wfile.write(file.read())
+        elif self.path.startswith('/filter/'):
+            # Handle filtering by category
+            category = self.path.split('/')[2]
+            self.send_response(HTTPStatus.OK)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            self.wfile.write(self.get_home_page(category).encode())
         elif self.path == '/settings':
             self.send_response(HTTPStatus.OK)
             self.send_header('Content-type', 'text/html')
@@ -43,76 +57,7 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
             <style>
                 {self.get_styles()}
             </style>
-            <script>
-                // Save the favorites to localStorage so they persist
-                function toggleFavorite(element, photoId) {{
-                    element.classList.toggle('active');
-                    const photoItem = element.closest('.photo-item');
-                    
-                    if (element.classList.contains('active')) {{
-                        element.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="#f44336"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
-                        photoItem.setAttribute('data-favorite', 'true');
-                        
-                        // Store favorite status
-                        localStorage.setItem('photo_' + photoId + '_favorite', 'true');
-                    }} else {{
-                        element.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg>';
-                        photoItem.setAttribute('data-favorite', 'false');
-                        
-                        // Remove favorite status
-                        localStorage.removeItem('photo_' + photoId + '_favorite');
-                        
-                        // If we're in favorites view, hide this item
-                        const currentFilter = document.querySelector('.current-filter').getAttribute('data-filter');
-                        if (currentFilter === 'favorites') {{
-                            photoItem.style.display = 'none';
-                        }}
-                    }}
-                    
-                    return false;
-                }}
-                
-                // Navigate to different filters
-                function navigateToFilter(filter) {{
-                    if (filter === 'favorites') {{
-                        window.location.href = '/favorites';
-                    }} else {{
-                        window.location.href = '/';
-                    }}
-                }}
-                
-                // Apply filter when the page loads
-                window.addEventListener('DOMContentLoaded', function() {{
-                    const currentFilter = document.querySelector('.current-filter').getAttribute('data-filter');
-                    
-                    // If we're in favorites view, hide all non-favorite items
-                    if (currentFilter === 'favorites') {{
-                        // Show only favorites (already handled by server)
-                        const photoItems = document.querySelectorAll('.photo-item');
-                        photoItems.forEach(item => {{
-                            if (item.getAttribute('data-favorite') !== 'true') {{
-                                item.style.display = 'none';
-                            }}
-                        }});
-                    }}
-                    
-                    // Load saved favorites state from localStorage
-                    const photoItems = document.querySelectorAll('.photo-item');
-                    photoItems.forEach(item => {{
-                        const photoId = item.getAttribute('data-id');
-                        const isFavorite = localStorage.getItem('photo_' + photoId + '_favorite') === 'true';
-                        
-                        if (isFavorite) {{
-                            item.setAttribute('data-favorite', 'true');
-                            const favoriteBtn = item.querySelector('.favorite-btn');
-                            favoriteBtn.classList.add('active');
-                            favoriteBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="#f44336"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
-                        }} else if (currentFilter === 'favorites') {{
-                            item.style.display = 'none';
-                        }}
-                    }});
-                }});
-            </script>
+            <script src="/new_galleryze_script.js"></script>
         </head>
         <body>
             <nav class="top-nav">
@@ -126,45 +71,53 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
             <div class="category-filter">
                 <span class="chip ${all_selected}" onclick="navigateToFilter('all')">All Photos</span>
                 <span class="chip ${favorites_selected}" onclick="navigateToFilter('favorites')">Favorites</span>
-                <span class="chip">Recent</span>
-                <span class="chip">Vacation</span>
-                <span class="chip">Family</span>
-                <span class="chip">Food</span>
+                <span class="chip" onclick="navigateToFilter('Recent')">Recent</span>
+                <span class="chip" onclick="navigateToFilter('Vacation')">Vacation</span>
+                <span class="chip" onclick="navigateToFilter('Family')">Family</span>
+                <span class="chip" onclick="navigateToFilter('Food')">Food</span>
                 <span class="chip">+ Add</span>
             </div>
             <div class="current-filter" data-filter="${filter_type}" style="display:none;"></div>
             
             <div class="photo-grid" id="photo-grid">
-                <div class="photo-item" data-favorite="false" data-id="photo1">
+                <div class="photo-item" data-favorite="false" data-id="photo1" data-categories="Recent">
                     <div class="photo-placeholder">Photo 1</div>
+                    <div class="category-btn" onclick="openCategoryModal('photo1')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo1')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
-                <div class="photo-item" data-favorite="true" data-id="photo2">
+                <div class="photo-item" data-favorite="true" data-id="photo2" data-categories="Vacation">
                     <div class="photo-placeholder">Photo 2</div>
+                    <div class="category-btn" onclick="openCategoryModal('photo2')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn active" onclick="toggleFavorite(this, 'photo2')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="#f44336"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo3">
                     <div class="photo-placeholder">Photo 3</div>
+                    <div class="category-btn" onclick="openCategoryModal('photo3')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo3')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo4">
                     <div class="photo-placeholder">Photo 4</div>
+                    <div class="category-btn" onclick="openCategoryModal('photo4')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo4')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="true" data-id="photo5">
                     <div class="photo-placeholder">Photo 5</div>
+                    <div class="category-btn" onclick="openCategoryModal('photo5')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn active" onclick="toggleFavorite(this, 'photo5')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="#f44336"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo6">
                     <div class="photo-placeholder">Photo 6</div>
+                    <div class="category-btn" onclick="openCategoryModal('photo6')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo6')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo7">
                     <div class="photo-placeholder">Photo 7</div>
+                    <div class="category-btn" onclick="openCategoryModal('photo7')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo7')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo8">
                     <div class="photo-placeholder">Photo 8</div>
+                    <div class="category-btn" onclick="openCategoryModal('photo8')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo8')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
             </div>
@@ -183,6 +136,34 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
                     <span>Settings</span>
                 </a>
             </div>
+            
+            <!-- Category Modal -->
+            <div class="modal" id="categoryModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Photo Categories</h2>
+                        <button class="modal-close" onclick="closeCategoryModal()">&times;</button>
+                    </div>
+                    <div id="currentPhotoId" style="display: none;"></div>
+                    <div class="category-option">
+                        <input type="checkbox" id="category-Recent" class="category-checkbox" data-category="Recent">
+                        <label for="category-Recent">Recent</label>
+                    </div>
+                    <div class="category-option">
+                        <input type="checkbox" id="category-Vacation" class="category-checkbox" data-category="Vacation">
+                        <label for="category-Vacation">Vacation</label>
+                    </div>
+                    <div class="category-option">
+                        <input type="checkbox" id="category-Family" class="category-checkbox" data-category="Family">
+                        <label for="category-Family">Family</label>
+                    </div>
+                    <div class="category-option">
+                        <input type="checkbox" id="category-Food" class="category-checkbox" data-category="Food">
+                        <label for="category-Food">Food</label>
+                    </div>
+                    <button class="action-btn" onclick="saveCategories()">Save Categories</button>
+                </div>
+            </div>
         </body>
         </html>
         """
@@ -198,6 +179,7 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
             <style>
                 {self.get_styles()}
             </style>
+            <script src="/new_galleryze_script.js"></script>
         </head>
         <body>
             <nav class="top-nav">
@@ -298,6 +280,7 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
             <style>
                 {self.get_styles()}
             </style>
+            <script src="/new_galleryze_script.js"></script>
         </head>
         <body>
             <nav class="top-nav">
@@ -466,17 +449,32 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
             
             /* Category Filter */
             .category-filter { display: flex; overflow-x: auto; padding: 16px; gap: 8px; background-color: white; }
-            .chip { background-color: #f0f0f0; border-radius: 16px; padding: 4px 12px; font-size: 14px; white-space: nowrap; }
+            .chip { background-color: #f0f0f0; border-radius: 20px; padding: 10px 18px; font-size: 16px; white-space: nowrap; margin-right: 12px; cursor: pointer; display: inline-block; min-width: 100px; text-align: center; font-weight: 500; }
             .chip.selected { background-color: #2196f3; color: white; }
+            .chip:hover { background-color: #e0e0e0; transition: background-color 0.2s; }
             
             /* Photo Grid */
             .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; padding: 16px; flex-grow: 1; margin-bottom: 60px; }
-            .photo-item { aspect-ratio: 1/1; position: relative; }
+            .photo-item { aspect-ratio: 1/1; position: relative; cursor: pointer; }
             .photo-placeholder { background-color: #e0e0e0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; color: #999; border-radius: 8px; overflow: hidden; }
-            .favorite-btn { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.5); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: all 0.2s; }
+            .favorite-btn { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; border-radius: 50%; background-color: rgba(0, 0, 0, 0.3); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: all 0.2s; z-index: 2; }
             .favorite-btn i { color: white; font-size: 18px; }
             .favorite-btn.active i { color: #f44336; }
-            .favorite-btn:hover { background-color: rgba(255, 255, 255, 0.8); }
+            .favorite-btn:hover { background-color: rgba(0, 0, 0, 0.5); }
+            .category-btn { position: absolute; top: 8px; left: 8px; width: 32px; height: 32px; border-radius: 50%; background-color: rgba(0, 0, 0, 0.3); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: all 0.2s; z-index: 2; }
+            .category-btn i { color: white; font-size: 18px; }
+            .category-btn:hover { background-color: rgba(0, 0, 0, 0.5); }
+            
+            /* Modal */
+            .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 10; align-items: center; justify-content: center; }
+            .modal-content { background-color: white; border-radius: 8px; width: 90%; max-width: 400px; max-height: 80%; overflow-y: auto; padding: 20px; }
+            .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+            .modal-title { font-size: 18px; font-weight: 600; }
+            .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; }
+            .category-option { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #eee; }
+            .category-option:last-child { border-bottom: none; }
+            .category-checkbox { margin-right: 10px; }
+            .action-btn { background-color: #2196f3; color: white; border: none; border-radius: 4px; padding: 10px 15px; cursor: pointer; font-weight: 500; width: 100%; margin-top: 15px; }
             
             /* Content Area */
             .content { padding: 16px; margin-bottom: 60px; }
