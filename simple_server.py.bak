@@ -4,12 +4,10 @@ import os
 import json
 import urllib.parse
 from http import HTTPStatus, cookies
-try:
-    from dotenv import load_dotenv
-    # Load environment variables from .env file
-    load_dotenv()
-except ImportError:
-    print("python-dotenv not installed, using environment variables directly")
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -198,14 +196,9 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             }).encode())
         elif self.path == '/api/logout':
             # Process logout request
-            cookie = cookies.SimpleCookie()
-            cookie['session'] = ""
-            cookie['session']['path'] = '/'
-            cookie['session']['expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT'  # Expire the cookie
-            
             self.send_response(HTTPStatus.OK)
             self.send_header('Content-type', 'application/json')
-            self.send_header('Set-Cookie', cookie['session'].OutputString())
+            self.send_header('Set-Cookie', 'session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT')
             self.end_headers()
             self.wfile.write(json.dumps({"success": True, "message": "Logged out successfully"}).encode())
         elif self.path == '/api/categories':
@@ -291,7 +284,17 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     "id": str(hash(category_name) % 10000)  # Simple hash for demo purposes
                 }
             }).encode())
-        # No else here, as we've already handled all of our API endpoints
+        elif self.path == '/api/logout':
+            # Process the logout request
+            cookie = cookies.SimpleCookie()
+            cookie['session'] = ""
+            cookie['session']['expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT'  # Expire the cookie
+            
+            self.send_response(HTTPStatus.OK)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Set-Cookie', cookie['session'].OutputString())
+            self.end_headers()
+            self.wfile.write(json.dumps({"success": True, "message": "Logged out successfully"}).encode())
         else:
             self.send_error(HTTPStatus.NOT_FOUND, "Endpoint not found")
     
@@ -308,25 +311,8 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
         return False
     
     def get_user_info(self):
-        # Get session cookie
-        cookie_str = self.headers.get('Cookie')
-        if cookie_str:
-            cookie = cookies.SimpleCookie()
-            cookie.load(cookie_str)
-            if 'session' in cookie and cookie['session'].value:
-                # Session cookie is in format userId:token
-                parts = cookie['session'].value.split(':')
-                if len(parts) >= 1:
-                    # In a real app, we would fetch this info from Supabase
-                    # But for this demo we'll return a better user name
-                    return {
-                        "id": parts[0],
-                        "email": "example@galleryze.app",
-                        "name": "John Photographer",
-                        "subscription_plan": "free"
-                    }
-        
-        # Fallback to default user data
+        # This would normally fetch user info from Supabase
+        # For now, just return dummy data
         return {
             "id": "1",
             "email": "user@example.com",
@@ -401,44 +387,32 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo2')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo3" data-date="2022-12-05" data-size="800" data-categories="">
-                    <div class="photo-placeholder">
-                        <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #333;">3</span>
-                    </div>
+                    <div class="photo-placeholder">Photo 3</div>
                     <div class="category-btn" onclick="openCategoryModal('photo3')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo3')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo4" data-date="2023-07-22" data-size="1500" data-categories="">
-                    <div class="photo-placeholder">
-                        <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #333;">4</span>
-                    </div>
+                    <div class="photo-placeholder">Photo 4</div>
                     <div class="category-btn" onclick="openCategoryModal('photo4')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo4')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo5" data-date="2023-01-14" data-size="900" data-categories="">
-                    <div class="photo-placeholder">
-                        <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #333;">5</span>
-                    </div>
+                    <div class="photo-placeholder">Photo 5</div>
                     <div class="category-btn" onclick="openCategoryModal('photo5')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo5')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo6" data-date="2023-03-30" data-size="2100" data-categories="">
-                    <div class="photo-placeholder">
-                        <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #333;">6</span>
-                    </div>
+                    <div class="photo-placeholder">Photo 6</div>
                     <div class="category-btn" onclick="openCategoryModal('photo6')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo6')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo7" data-date="2022-10-09" data-size="1050" data-categories="">
-                    <div class="photo-placeholder">
-                        <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #333;">7</span>
-                    </div>
+                    <div class="photo-placeholder">Photo 7</div>
                     <div class="category-btn" onclick="openCategoryModal('photo7')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo7')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo8" data-date="2023-08-05" data-size="3000" data-categories="">
-                    <div class="photo-placeholder">
-                        <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #333;">8</span>
-                    </div>
+                    <div class="photo-placeholder">Photo 8</div>
                     <div class="category-btn" onclick="openCategoryModal('photo8')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo8')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
@@ -1057,10 +1031,7 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                 async function handleLogout() {{
                     try {{
                         // First sign out from Supabase
-                        const {{ error }} = await galleryzeApi.signOut();
-                        if (error) {{
-                            console.error('Supabase logout error:', error);
-                        }}
+                        await galleryzeApi.signOut();
                         
                         // Then clear session on server
                         const response = await fetch('/api/logout', {{
@@ -1073,7 +1044,6 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                         const result = await response.json();
                         
                         if (result.success) {{
-                            console.log('Logged out successfully');
                             window.location.href = '/login';
                         }} else {{
                             alert(result.message || 'Failed to logout');
@@ -1236,10 +1206,7 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     async function handleLogout() {{
                         try {{
                             // First sign out from Supabase
-                            const {{ error }} = await galleryzeApi.signOut();
-                            if (error) {{
-                                console.error('Supabase logout error:', error);
-                            }}
+                            await galleryzeApi.signOut();
                             
                             // Then clear session on server
                             const response = await fetch('/api/logout', {{
@@ -1251,7 +1218,6 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                             
                             const result = await response.json();
                             if (result.success) {{
-                                console.log('Logged out successfully');
                                 window.location.href = '/login';
                             }} else {{
                                 alert(result.message || 'Failed to sign out');
@@ -1447,7 +1413,7 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                 border-radius: 8px; 
                 overflow: hidden; 
                 font-size: 14px; 
-                background-image: linear-gradient(120deg, #e0f2f1 0%, #b2dfdb 50%, #80cbc4 100%);
+                background-image: linear-gradient(135deg, #f5f7fa 0%, #e4e8ed 100%);
                 box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
                 position: relative;
             }
