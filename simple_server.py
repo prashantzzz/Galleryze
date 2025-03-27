@@ -1648,23 +1648,41 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             /* Photo Grid */
             .photo-grid { 
                 display: grid; 
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
-                grid-auto-rows: 10px;
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+                grid-auto-rows: 8px;
                 grid-auto-flow: dense;
-                gap: 8px; 
+                gap: 12px; 
                 padding: 16px; 
                 flex-grow: 1; 
                 padding-bottom: 70px; 
+                max-width: 1200px;
+                margin: 0 auto;
             }
             .photo-item { position: relative; cursor: pointer; border-radius: 8px; overflow: hidden; }
-            .photo-item:nth-child(1) { grid-row-end: span 22; grid-column-end: span 1; }
-            .photo-item:nth-child(2) { grid-row-end: span 30; grid-column-end: span 1; }
-            .photo-item:nth-child(3) { grid-row-end: span 24; grid-column-end: span 1; }
-            .photo-item:nth-child(4) { grid-row-end: span 26; grid-column-end: span 1; }
-            .photo-item:nth-child(5) { grid-row-end: span 28; grid-column-end: span 1; }
-            .photo-item:nth-child(6) { grid-row-end: span 32; grid-column-end: span 1; }
-            .photo-item:nth-child(7) { grid-row-end: span 20; grid-column-end: span 1; }
-            .photo-item:nth-child(8) { grid-row-end: span 36; grid-column-end: span 1; }
+            /* 1:1 ratio square */
+            .photo-item:nth-child(1) { grid-row-end: span 25; grid-column-end: span 1; aspect-ratio: 1/1; }
+            /* 4:3 ratio landscape - spans 2 columns */
+            .photo-item:nth-child(2) { grid-row-end: span 24; grid-column-end: span 2; aspect-ratio: 4/3; }
+            /* 3:2 ratio portrait */
+            .photo-item:nth-child(3) { grid-row-end: span 30; grid-column-end: span 1; aspect-ratio: 2/3; }
+            /* 16:9 ratio landscape - spans 2 columns */
+            .photo-item:nth-child(4) { grid-row-end: span 18; grid-column-end: span 2; aspect-ratio: 16/9; }
+            /* 1:1 ratio square */
+            .photo-item:nth-child(5) { grid-row-end: span 25; grid-column-end: span 1; aspect-ratio: 1/1; }
+            /* 3:2 ratio landscape */
+            .photo-item:nth-child(6) { grid-row-end: span 20; grid-column-end: span 1; aspect-ratio: 3/2; }
+            /* 4:3 ratio portrait */
+            .photo-item:nth-child(7) { grid-row-end: span 30; grid-column-end: span 1; aspect-ratio: 3/4; }
+            /* 16:9 ratio portrait */
+            .photo-item:nth-child(8) { grid-row-end: span 32; grid-column-end: span 1; aspect-ratio: 9/16; }
+            
+            /* Adjust for mobile */
+            @media (max-width: 600px) {
+                .photo-item:nth-child(2), 
+                .photo-item:nth-child(4) {
+                    grid-column-end: span 1;
+                }
+            }
             .photo-placeholder { 
                 background-color: #f0f0f0; 
                 width: 100%; 
