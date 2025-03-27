@@ -382,13 +382,13 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
                         <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
                     </svg>
-                    All
+                    All Photos
                 </span>
                 <span class="chip ${favorites_selected}" onclick="navigateToFilter('favorites')">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                     </svg>
-                    Liked
+                    Favorites
                 </span>
                 <span class="chip" onclick="navigateToFilter('Recent')">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
@@ -396,11 +396,11 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     </svg>
                     Recent
                 </span>
-                <span class="chip" onclick="navigateToFilter('Trip')">
+                <span class="chip" onclick="navigateToFilter('Vacation')">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
                         <path d="M13.127 14.56l1.43-1.43 6.44 6.443L19.57 21l-6.44-6.44zM17.42 8.83l2.86-2.86c-3.95-3.95-10.35-3.96-14.3-.02 3.93-1.3 8.31-.25 11.44 2.88zM5.95 5.98c-3.94 3.95-3.93 10.35.02 14.3l2.86-2.86C5.7 14.29 4.65 9.91 5.95 5.98zM5.97 5.96l-.01.01c-.38 3.01 1.17 6.88 4.3 10.02l5.73-5.73c-3.13-3.13-7.01-4.68-10.02-4.3z"/>
                     </svg>
-                    Trip
+                    Vacation
                 </span>
                 <span class="chip" onclick="navigateToFilter('Family')">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
@@ -431,57 +431,57 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             
             <div class="photo-grid" id="photo-grid">
                 <div class="photo-item" data-favorite="false" data-id="photo1" data-categories="" data-date="2023-06-15" data-size="1200">
-                    <div class="photo-placeholder" style="background-image: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);">
+                    <div class="photo-placeholder">
                         <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #333;">1</span>
                     </div>
                     <div class="category-btn" onclick="openCategoryModal('photo1')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo1')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo2" data-categories="" data-date="2023-09-10" data-size="2400">
-                    <div class="photo-placeholder" style="background-image: linear-gradient(to top, #fbc2eb 0%, #a6c1ee 100%);">
+                    <div class="photo-placeholder">
                         <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #333;">2</span>
                     </div>
                     <div class="category-btn" onclick="openCategoryModal('photo2')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo2')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo3" data-date="2022-12-05" data-size="800" data-categories="">
-                    <div class="photo-placeholder" style="background-image: linear-gradient(to right, #ff8177 0%, #ff867a 0%, #ff8c7f 21%, #f99185 52%, #cf556c 78%, #b12a5b 100%);">
-                        <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #fff;">3</span>
+                    <div class="photo-placeholder">
+                        <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #333;">3</span>
                     </div>
                     <div class="category-btn" onclick="openCategoryModal('photo3')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo3')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo4" data-date="2023-07-22" data-size="1500" data-categories="">
-                    <div class="photo-placeholder" style="background-image: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);">
+                    <div class="photo-placeholder">
                         <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #333;">4</span>
                     </div>
                     <div class="category-btn" onclick="openCategoryModal('photo4')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo4')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo5" data-date="2023-01-14" data-size="900" data-categories="">
-                    <div class="photo-placeholder" style="background-image: linear-gradient(to top, #fdcbf1 0%, #fdcbf1 1%, #e6dee9 100%);">
+                    <div class="photo-placeholder">
                         <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #333;">5</span>
                     </div>
                     <div class="category-btn" onclick="openCategoryModal('photo5')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo5')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo6" data-date="2023-03-30" data-size="2100" data-categories="">
-                    <div class="photo-placeholder" style="background-image: linear-gradient(to right, #ffecd2 0%, #fcb69f 100%);">
+                    <div class="photo-placeholder">
                         <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #333;">6</span>
                     </div>
                     <div class="category-btn" onclick="openCategoryModal('photo6')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo6')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo7" data-date="2022-10-09" data-size="1050" data-categories="">
-                    <div class="photo-placeholder" style="background-image: linear-gradient(to right, #43e97b 0%, #38f9d7 100%);">
+                    <div class="photo-placeholder">
                         <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #333;">7</span>
                     </div>
                     <div class="category-btn" onclick="openCategoryModal('photo7')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo7')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo8" data-date="2023-08-05" data-size="3000" data-categories="">
-                    <div class="photo-placeholder" style="background-image: linear-gradient(to top, #30cfd0 0%, #330867 100%);">
-                        <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #fff;">8</span>
+                    <div class="photo-placeholder">
+                        <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #333;">8</span>
                     </div>
                     <div class="category-btn" onclick="openCategoryModal('photo8')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo8')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
@@ -513,8 +513,8 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                         <label for="category-Recent">Recent</label>
                     </div>
                     <div class="category-option">
-                        <input type="checkbox" id="category-Trip" class="category-checkbox" data-category="Trip">
-                        <label for="category-Trip">Trip</label>
+                        <input type="checkbox" id="category-Vacation" class="category-checkbox" data-category="Vacation">
+                        <label for="category-Vacation">Vacation</label>
                     </div>
                     <div class="category-option">
                         <input type="checkbox" id="category-Family" class="category-checkbox" data-category="Family">
@@ -610,7 +610,7 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                                 <path d="M22 16V4c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2zm-11-4l2.03 2.71L16 11l4 5H8l3-4zM2 6v14c0 1.1.9 2 2 2h14v-2H4V6H2z"/>
                             </svg>
                         </div>
-                        <div class="category-name">All</div>
+                        <div class="category-name">All Photos</div>
                         <div class="category-badge">Default</div>
                     </div>
                     
@@ -620,7 +620,7 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                             </svg>
                         </div>
-                        <div class="category-name">Liked</div>
+                        <div class="category-name">Favorites</div>
                         <div class="category-badge">Default</div>
                     </div>
                     
@@ -641,7 +641,7 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                                 <path d="M13.127 14.56l1.43-1.43 6.44 6.443L19.57 21l-6.44-6.44zM17.42 8.83l2.86-2.86c-3.95-3.95-10.35-3.96-14.3-.02 3.93-1.3 8.31-.25 11.44 2.88zM5.95 5.98c-3.94 3.95-3.93 10.35.02 14.3l2.86-2.86C5.7 14.29 4.65 9.91 5.95 5.98zM5.97 5.96l-.01.01c-.38 3.01 1.17 6.88 4.3 10.02l5.73-5.73c-3.13-3.13-7.01-4.68-10.02-4.3z"/>
                             </svg>
                         </div>
-                        <div class="category-name">Trip</div>
+                        <div class="category-name">Vacation</div>
                         <div class="category-actions">
                             <button class="icon-btn small"><i>edit</i></button>
                             <button class="icon-btn small"><i>delete</i></button>
@@ -1646,43 +1646,8 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             .chip:hover { background-color: #e0e0e0; transition: background-color 0.2s; }
             
             /* Photo Grid */
-            .photo-grid { 
-                display: grid; 
-                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
-                grid-auto-rows: 8px;
-                grid-auto-flow: dense;
-                gap: 12px; 
-                padding: 16px; 
-                flex-grow: 1; 
-                padding-bottom: 70px; 
-                max-width: 1200px;
-                margin: 0 auto;
-            }
-            .photo-item { position: relative; cursor: pointer; border-radius: 8px; overflow: hidden; }
-            /* 1:1 ratio square */
-            .photo-item:nth-child(1) { grid-row-end: span 25; grid-column-end: span 1; aspect-ratio: 1/1; }
-            /* 4:3 ratio landscape - spans 2 columns */
-            .photo-item:nth-child(2) { grid-row-end: span 24; grid-column-end: span 2; aspect-ratio: 4/3; }
-            /* 3:2 ratio portrait */
-            .photo-item:nth-child(3) { grid-row-end: span 30; grid-column-end: span 1; aspect-ratio: 2/3; }
-            /* 16:9 ratio landscape - spans 2 columns */
-            .photo-item:nth-child(4) { grid-row-end: span 18; grid-column-end: span 2; aspect-ratio: 16/9; }
-            /* 1:1 ratio square */
-            .photo-item:nth-child(5) { grid-row-end: span 25; grid-column-end: span 1; aspect-ratio: 1/1; }
-            /* 3:2 ratio landscape */
-            .photo-item:nth-child(6) { grid-row-end: span 20; grid-column-end: span 1; aspect-ratio: 3/2; }
-            /* 4:3 ratio portrait */
-            .photo-item:nth-child(7) { grid-row-end: span 30; grid-column-end: span 1; aspect-ratio: 3/4; }
-            /* 16:9 ratio portrait */
-            .photo-item:nth-child(8) { grid-row-end: span 32; grid-column-end: span 1; aspect-ratio: 9/16; }
-            
-            /* Adjust for mobile */
-            @media (max-width: 600px) {
-                .photo-item:nth-child(2), 
-                .photo-item:nth-child(4) {
-                    grid-column-end: span 1;
-                }
-            }
+            .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; padding: 16px; flex-grow: 1; padding-bottom: 70px; }
+            .photo-item { aspect-ratio: 1/1; position: relative; cursor: pointer; }
             .photo-placeholder { 
                 background-color: #f0f0f0; 
                 width: 100%; 
