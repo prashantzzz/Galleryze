@@ -401,7 +401,12 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     </svg>
                     Liked
                 </span>
-
+                <span class="chip" onclick="navigateToFilter('Recent')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
+                        <path d="M13 3a9 9 0 00-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0013 21a9 9 0 000-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+                    </svg>
+                    Recent
+                </span>
                 <span class="chip" onclick="navigateToFilter('Trip')">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
                         <path d="M13.127 14.56l1.43-1.43 6.44 6.443L19.57 21l-6.44-6.44zM17.42 8.83l2.86-2.86c-3.95-3.95-10.35-3.96-14.3-.02 3.93-1.3 8.31-.25 11.44 2.88zM5.95 5.98c-3.94 3.95-3.93 10.35.02 14.3l2.86-2.86C5.7 14.29 4.65 9.91 5.95 5.98zM5.97 5.96l-.01.01c-.38 3.01 1.17 6.88 4.3 10.02l5.73-5.73c-3.13-3.13-7.01-4.68-10.02-4.3z"/>
@@ -437,49 +442,57 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             
             <div class="photo-grid" id="photo-grid">
                 <div class="photo-item" data-favorite="false" data-id="photo1" data-categories="" data-date="2023-06-15" data-size="1200">
-                    <div class="photo-placeholder" data-number="1">
+                    <div class="photo-placeholder">
+                        <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #333;">1</span>
                     </div>
                     <div class="category-btn" onclick="openCategoryModal('photo1')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo1')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo2" data-categories="" data-date="2023-09-10" data-size="2400">
-                    <div class="photo-placeholder" data-number="2">
+                    <div class="photo-placeholder">
+                        <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #333;">2</span>
                     </div>
                     <div class="category-btn" onclick="openCategoryModal('photo2')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo2')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo3" data-date="2022-12-05" data-size="800" data-categories="">
-                    <div class="photo-placeholder" data-number="3">
+                    <div class="photo-placeholder">
+                        <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #333;">3</span>
                     </div>
                     <div class="category-btn" onclick="openCategoryModal('photo3')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo3')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo4" data-date="2023-07-22" data-size="1500" data-categories="">
-                    <div class="photo-placeholder" data-number="4">
+                    <div class="photo-placeholder">
+                        <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #333;">4</span>
                     </div>
                     <div class="category-btn" onclick="openCategoryModal('photo4')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo4')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo5" data-date="2023-01-14" data-size="900" data-categories="">
-                    <div class="photo-placeholder" data-number="5">
+                    <div class="photo-placeholder">
+                        <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #333;">5</span>
                     </div>
                     <div class="category-btn" onclick="openCategoryModal('photo5')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo5')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo6" data-date="2023-03-30" data-size="2100" data-categories="">
-                    <div class="photo-placeholder" data-number="6">
+                    <div class="photo-placeholder">
+                        <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #333;">6</span>
                     </div>
                     <div class="category-btn" onclick="openCategoryModal('photo6')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo6')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo7" data-date="2022-10-09" data-size="1050" data-categories="">
-                    <div class="photo-placeholder" data-number="7">
+                    <div class="photo-placeholder">
+                        <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #333;">7</span>
                     </div>
                     <div class="category-btn" onclick="openCategoryModal('photo7')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo7')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
                 </div>
                 <div class="photo-item" data-favorite="false" data-id="photo8" data-date="2023-08-05" data-size="3000" data-categories="">
-                    <div class="photo-placeholder" data-number="8">
+                    <div class="photo-placeholder">
+                        <span style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #333;">8</span>
                     </div>
                     <div class="category-btn" onclick="openCategoryModal('photo8')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-3v3h3v3h-3v3h-2v-3H9v-3h3V8H9V6h3V3h2v3h3v2z"/></svg></div>
                     <div class="favorite-btn" onclick="toggleFavorite(this, 'photo8')"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M0 0h24v24H0z" fill="none"/><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg></div>
@@ -507,7 +520,8 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     </div>
                     <div id="currentPhotoId" style="display: none;"></div>
                     <div class="category-option">
-
+                        <input type="checkbox" id="category-Recent" class="category-checkbox" data-category="Recent">
+                        <label for="category-Recent">Recent</label>
                     </div>
                     <div class="category-option">
                         <input type="checkbox" id="category-Vacation" class="category-checkbox" data-category="Vacation">
@@ -621,7 +635,16 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                         <div class="category-badge">Default</div>
                     </div>
                     
-
+                    <div class="category-item">
+                        <div class="category-icon purple">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+                                <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                        </div>
+                        <div class="category-name">Recent</div>
+                        <div class="category-badge">Default</div>
+                    </div>
                     
                     <div class="category-item">
                         <div class="category-icon orange">
@@ -1790,76 +1813,8 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
             .chip:hover { background-color: #e0e0e0; transition: background-color 0.2s; }
             
             /* Photo Grid */
-            .photo-grid { 
-                column-count: 2;
-                column-gap: 12px; 
-                padding: 16px; 
-                padding-bottom: 70px; 
-                max-width: 1200px;
-                margin: 0 auto;
-            }
-            
-            /* Responsive grid - 2 columns on mobile, 3-4 on larger screens */
-            @media (min-width: 768px) {
-                .photo-grid {
-                    column-count: 3;
-                    column-gap: 16px;
-                }
-            }
-            
-            @media (min-width: 1024px) {
-                .photo-grid {
-                    column-count: 4;
-                    column-gap: 20px;
-                }
-            }
-
-            .photo-item {
-                break-inside: avoid;
-                margin-bottom: 12px;
-                display: block;
-            }
-            
-            .photo-item { 
-                position: relative; 
-                cursor: pointer;
-                border-radius: 8px;
-                overflow: hidden;
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            }
-            
-            .photo-item:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-            }
-            
-            /* Create different aspect ratios */
-            .photo-item:nth-child(6n+1) { 
-                aspect-ratio: 3/2; /* Landscape */
-                grid-column: span 2;
-            }
-            
-            .photo-item:nth-child(6n+2) { 
-                aspect-ratio: 1/1; /* Square */
-            }
-            
-            .photo-item:nth-child(6n+3) { 
-                aspect-ratio: 1/1; /* Square */
-            }
-            
-            .photo-item:nth-child(6n+4) { 
-                aspect-ratio: 3/4; /* Portrait */
-            }
-            
-            .photo-item:nth-child(6n+5) { 
-                aspect-ratio: 1/1.5; /* Tall portrait */
-                grid-row: span 2;
-            }
-            
-            .photo-item:nth-child(6n+6) { 
-                aspect-ratio: 1/1; /* Square */
-            }
+            .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; padding: 16px; flex-grow: 1; padding-bottom: 70px; }
+            .photo-item { aspect-ratio: 1/1; position: relative; cursor: pointer; }
             .photo-placeholder { 
                 background-color: #f0f0f0; 
                 width: 100%; 
@@ -1868,56 +1823,26 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                 justify-content: center; 
                 align-items: center; 
                 color: #777; 
+                border-radius: 8px; 
                 overflow: hidden; 
                 font-size: 14px; 
+                background-image: linear-gradient(120deg, #e0f2f1 0%, #b2dfdb 50%, #80cbc4 100%);
+                box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
                 position: relative;
-                background-size: cover;
-                background-position: center;
             }
             
-            /* Different sample images for different positions in grid */
-            .photo-item:nth-child(6n+1) .photo-placeholder {
-                background-color: #426a5a;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='120' viewBox='0 0 200 120'%3E%3Crect width='200' height='120' fill='%23426a5a'/%3E%3Cpath d='M40 95 L70 60 L90 75 L140 30 L180 90 L40 90 Z' fill='%233a5f50'/%3E%3Ccircle cx='160' cy='30' r='15' fill='%23ffeb3b'/%3E%3C/svg%3E");
-            }
-            
-            .photo-item:nth-child(6n+2) .photo-placeholder {
-                background-color: #4caf50;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%234caf50'/%3E%3Cpath d='M0 70 L20 50 L35 60 L60 35 L100 70 L100 100 L0 100 Z' fill='%233d8b40'/%3E%3Cpath d='M60 30 C60 20 80 20 80 30 L80 40 L60 40 Z' fill='%23ffffff'/%3E%3C/svg%3E");
-            }
-            
-            .photo-item:nth-child(6n+3) .photo-placeholder {
-                background-color: #2196f3;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%232196f3'/%3E%3Cpath d='M0 85 L25 60 L40 70 L70 40 L100 70 L100 100 L0 100 Z' fill='%231a77c2'/%3E%3Cpath d='M80 25 C80 15 60 15 60 25' stroke='%23ffffff' stroke-width='2' fill='none'/%3E%3C/svg%3E");
-            }
-            
-            .photo-item:nth-child(6n+4) .photo-placeholder {
-                background-color: #03a9f4;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='75' height='100' viewBox='0 0 75 100'%3E%3Crect width='75' height='100' fill='%2303a9f4'/%3E%3Cpath d='M0 70 L20 50 L30 60 L50 40 L75 65 L75 100 L0 100 Z' fill='%230288c5'/%3E%3Ccircle cx='55' cy='25' r='10' fill='%23ffeb3b'/%3E%3C/svg%3E");
-            }
-            
-            .photo-item:nth-child(6n+5) .photo-placeholder {
-                background-color: #9c27b0;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='67' height='100' viewBox='0 0 67 100'%3E%3Crect width='67' height='100' fill='%239c27b0'/%3E%3Cpath d='M0 75 L15 55 L25 60 L45 30 L65 55 L67 75 L67 100 L0 100 Z' fill='%237b1fa2'/%3E%3Ccircle cx='50' cy='20' r='8' fill='%23ffeb3b'/%3E%3C/svg%3E");
-            }
-            
-            .photo-item:nth-child(6n+6) .photo-placeholder {
-                background-color: #ff9800;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23ff9800'/%3E%3Cpath d='M0 80 L30 50 L45 60 L75 30 L100 55 L100 100 L0 100 Z' fill='%23cc7a00'/%3E%3Ccircle cx='25' cy='30' r='10' fill='%23ffeb3b'/%3E%3C/svg%3E");
-            }
-            
-            /* Add photo number */
             .photo-placeholder::before {
-                content: attr(data-number);
+                content: '';
                 position: absolute;
-                bottom: 10px;
-                right: 10px;
-                background-color: rgba(0,0,0,0.5);
-                color: white;
-                border-radius: 12px;
-                padding: 2px 8px;
-                font-size: 12px;
-                font-weight: bold;
+                width: 60%;
+                height: 60%;
+                background-color: rgba(255,255,255,0.7);
+                border-radius: 4px;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 0 24 24' width='24' fill='%23999'%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 32px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             }
             .favorite-btn { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; border-radius: 50%; background-color: rgba(0, 0, 0, 0.3); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: all 0.2s; z-index: 2; }
             .favorite-btn i { color: white; font-size: 18px; }
