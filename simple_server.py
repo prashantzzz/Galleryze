@@ -2,6 +2,7 @@ import http.server
 import socketserver
 import os
 import json
+import time
 import urllib.parse
 from http import HTTPStatus, cookies
 try:
@@ -279,17 +280,19 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                 self.wfile.write(json.dumps({"success": False, "message": "Category name cannot be empty"}).encode())
                 return
             
-            # Here we would save to Supabase database
-            # For now, just return a success message
+            # This will be processed on the client side with galleryzeApi.createCategory
+            # We just need to return a success response here
             self.send_response(HTTPStatus.OK)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
+            # Use a timestamp for a more unique ID
+            category_id = f"{category_name.lower().replace(' ', '-')}-{int(time.time()) % 10000}"
             self.wfile.write(json.dumps({
                 "success": True, 
                 "message": "Category created successfully", 
                 "category": {
                     "name": category_name, 
-                    "id": str(hash(category_name) % 10000)  # Simple hash for demo purposes
+                    "id": category_id
                 }
             }).encode())
         elif self.path == '/api/categories/update':

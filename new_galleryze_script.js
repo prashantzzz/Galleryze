@@ -10,6 +10,61 @@ async function fetchCurrentUser() {
         if (data.user) {
             currentUser = data.user;
             console.log('Current user:', currentUser);
+            
+            // Load categories from Supabase user metadata if available
+            if (window.galleryzeApi && currentUser.id && currentUser.id !== 'guest') {
+                try {
+                    // Try to get saved categories from Supabase
+                    const categories = await galleryzeApi.getUserCategories();
+                    if (categories && categories.length > 0) {
+                        console.log('Loaded categories from Supabase:', categories);
+                        
+                        // Clear any old localStorage categories if we have Supabase data
+                        localStorage.removeItem('custom_categories');
+                        
+                        // Apply categories to UI (skip default ones that are already in the UI)
+                        const defaultCategoryNames = ['Trip', 'Family', 'Food', 'Nature'];
+                        const customCategories = categories.filter(cat => !defaultCategoryNames.includes(cat.name));
+                        
+                        if (customCategories.length > 0) {
+                            const categoryFilter = document.querySelector('.category-filter');
+                            const addChip = document.querySelector('.add-chip');
+                            const categoryModal = document.getElementById('categoryModal');
+                            const saveButton = categoryModal ? categoryModal.querySelector('.action-btn') : null;
+                            
+                            // Add custom categories to the UI
+                            customCategories.forEach(category => {
+                                // Add to filter chips if not already present
+                                const existingChip = document.querySelector(`.chip[onclick="navigateToFilter('${category.name}')"]`);
+                                if (!existingChip && categoryFilter && addChip) {
+                                    const newChip = document.createElement('span');
+                                    newChip.className = 'chip';
+                                    newChip.setAttribute('onclick', `navigateToFilter('${category.name}')`);
+                                    newChip.textContent = category.name;
+                                    categoryFilter.insertBefore(newChip, addChip);
+                                }
+                                
+                                // Add to category modal if not already present
+                                if (categoryModal && saveButton) {
+                                    const existingOption = document.getElementById(`category-${category.name}`);
+                                    if (!existingOption) {
+                                        const newOption = document.createElement('div');
+                                        newOption.className = 'category-option';
+                                        newOption.innerHTML = `
+                                            <input type="checkbox" id="category-${category.name}" class="category-checkbox" data-category="${category.name}">
+                                            <label for="category-${category.name}">${category.name}</label>
+                                        `;
+                                        categoryModal.insertBefore(newOption, saveButton);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading categories from Supabase:', error);
+                }
+            }
+            
             return currentUser;
         }
     } catch (error) {
@@ -211,6 +266,7 @@ async function updateCategory() {
     }
     
     try {
+        // First make the server request
         const response = await fetch('/api/categories/update', {
             method: 'POST',
             headers: {
@@ -225,6 +281,14 @@ async function updateCategory() {
         const result = await response.json();
         
         if (result.success) {
+            // Then update the category in Supabase user metadata
+            if (window.galleryzeApi) {
+                const updateResult = await galleryzeApi.updateCategory(categoryId, categoryName);
+                if (!updateResult.success) {
+                    console.error('Failed to update category in Supabase:', updateResult.error);
+                }
+            }
+            
             // Update category name in UI
             const categoryItem = document.querySelector(`.category-item[data-id="${categoryId}"]`);
             if (categoryItem) {
@@ -261,6 +325,7 @@ async function deleteCategory(categoryId, categoryName) {
     }
     
     try {
+        // First make the server request
         const response = await fetch('/api/categories/delete', {
             method: 'POST',
             headers: {
@@ -272,6 +337,14 @@ async function deleteCategory(categoryId, categoryName) {
         const result = await response.json();
         
         if (result.success) {
+            // Then delete the category in Supabase user metadata
+            if (window.galleryzeApi) {
+                const deleteResult = await galleryzeApi.deleteCategory(categoryId);
+                if (!deleteResult.success) {
+                    console.error('Failed to delete category in Supabase:', deleteResult.error);
+                }
+            }
+            
             // Remove category from UI
             const categoryItem = document.querySelector(`.category-item[data-id="${categoryId}"]`);
             if (categoryItem) {
@@ -304,6 +377,7 @@ async function createNewCategory() {
     }
     
     try {
+        // First make the HTTP request to the server
         const response = await fetch('/api/categories/create', {
             method: 'POST',
             headers: {
@@ -315,6 +389,14 @@ async function createNewCategory() {
         const result = await response.json();
         
         if (result.success) {
+            // Then create the category in Supabase user metadata
+            if (window.galleryzeApi) {
+                const createResult = await galleryzeApi.createCategory(categoryName);
+                if (!createResult.success) {
+                    console.error('Failed to save category to Supabase:', createResult.error);
+                }
+            }
+            
             // Add the new category to the category filter
             const categoryFilter = document.querySelector('.category-filter');
             const addChip = document.querySelector('.add-chip');
