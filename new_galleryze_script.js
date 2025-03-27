@@ -130,6 +130,164 @@ async function syncFavorites() {
     }
 }
 
+// Functions for custom category creation
+function openCreateCategoryModal() {
+    const modal = document.getElementById('createCategoryModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        // Clear the input field
+        document.getElementById('newCategoryName').value = '';
+    }
+}
+
+function closeCreateCategoryModal() {
+    const modal = document.getElementById('createCategoryModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+async function createNewCategory() {
+    const categoryName = document.getElementById('newCategoryName').value.trim();
+    
+    if (!categoryName) {
+        alert('Please enter a category name');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/categories/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ categoryName })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Add the new category to the category filter
+            const categoryFilter = document.querySelector('.category-filter');
+            const addChip = document.querySelector('.add-chip');
+            
+            // Create new chip for the category
+            const newChip = document.createElement('span');
+            newChip.className = 'chip';
+            newChip.setAttribute('onclick', `navigateToFilter('${categoryName}')`);
+            newChip.textContent = categoryName;
+            
+            // Insert before the + Add chip
+            categoryFilter.insertBefore(newChip, addChip);
+            
+            // Add to category modal
+            const categoryModal = document.getElementById('categoryModal');
+            if (categoryModal) {
+                const saveButton = categoryModal.querySelector('.action-btn');
+                
+                // Create new category option
+                const newOption = document.createElement('div');
+                newOption.className = 'category-option';
+                newOption.innerHTML = `
+                    <input type="checkbox" id="category-${categoryName}" class="category-checkbox" data-category="${categoryName}">
+                    <label for="category-${categoryName}">${categoryName}</label>
+                `;
+                
+                // Insert before save button
+                categoryModal.insertBefore(newOption, saveButton);
+            }
+            
+            // Close the modal
+            closeCreateCategoryModal();
+            
+            // Store the new category in localStorage as a fallback
+            const categories = JSON.parse(localStorage.getItem('custom_categories') || '[]');
+            if (!categories.includes(categoryName)) {
+                categories.push(categoryName);
+                localStorage.setItem('custom_categories', JSON.stringify(categories));
+            }
+            
+            alert(`Category '${categoryName}' created successfully!`);
+        } else {
+            alert(result.message || 'Failed to create category');
+        }
+    } catch (error) {
+        console.error('Error creating category:', error);
+        alert('An error occurred while creating the category. Please try again.');
+        
+        // Fallback to localStorage
+        const categories = JSON.parse(localStorage.getItem('custom_categories') || '[]');
+        if (!categories.includes(categoryName)) {
+            categories.push(categoryName);
+            localStorage.setItem('custom_categories', JSON.stringify(categories));
+            
+            // Add the new category to UI
+            // (Similar to above, but simplified for the fallback case)
+            alert(`Category '${categoryName}' created in local storage.`);
+            window.location.reload(); // Simple reload to show the new category
+        }
+    }
+}
+
+// Load custom categories on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we have custom categories in localStorage as a fallback
+    const categories = JSON.parse(localStorage.getItem('custom_categories') || '[]');
+    if (categories.length > 0) {
+        const categoryFilter = document.querySelector('.category-filter');
+        const addChip = document.querySelector('.add-chip');
+        const categoryModal = document.getElementById('categoryModal');
+        const saveButton = categoryModal ? categoryModal.querySelector('.action-btn') : null;
+        const categoryList = document.querySelector('.category-list');
+        
+        categories.forEach(category => {
+            // Add to filter chips
+            if (categoryFilter && addChip) {
+                const newChip = document.createElement('span');
+                newChip.className = 'chip';
+                newChip.setAttribute('onclick', `navigateToFilter('${category}')`);
+                newChip.textContent = category;
+                categoryFilter.insertBefore(newChip, addChip);
+            }
+            
+            // Add to category modal
+            if (categoryModal && saveButton) {
+                const newOption = document.createElement('div');
+                newOption.className = 'category-option';
+                newOption.innerHTML = `
+                    <input type="checkbox" id="category-${category}" class="category-checkbox" data-category="${category}">
+                    <label for="category-${category}">${category}</label>
+                `;
+                categoryModal.insertBefore(newOption, saveButton);
+            }
+            
+            // Add to categories page if we're on that page
+            if (categoryList && window.location.pathname.includes('/categories')) {
+                const randomColor = ['blue', 'red', 'purple', 'orange', 'green', 'amber']
+                    [Math.floor(Math.random() * 6)];
+                    
+                const randomIcon = ['image', 'photo_camera', 'portrait', 'landscape', 'circle', 'star']
+                    [Math.floor(Math.random() * 6)];
+                
+                const newCategoryItem = document.createElement('div');
+                newCategoryItem.className = 'category-item';
+                newCategoryItem.innerHTML = `
+                    <div class="category-icon ${randomColor}">
+                        <i>${randomIcon}</i>
+                    </div>
+                    <div class="category-name">${category}</div>
+                    <div class="category-actions">
+                        <button class="icon-btn small"><i>edit</i></button>
+                        <button class="icon-btn small"><i>delete</i></button>
+                    </div>
+                `;
+                
+                categoryList.appendChild(newCategoryItem);
+            }
+        });
+    }
+});
+
 // Category modal functions
 function openCategoryModal(photoId) {
     const modal = document.getElementById('categoryModal');
@@ -210,7 +368,7 @@ function navigateToFilter(filter) {
         if (currentFilterEl) {
             currentFilterEl.setAttribute('data-filter', 'favorites');
         }
-    } else if (['Recent', 'Vacation', 'Family', 'Food', 'Nature'].includes(filter)) {
+    } else if (filter !== 'all') {
         // Find and select the clicked chip
         const clickedChip = document.querySelector(`.chip[onclick="navigateToFilter('${filter}')"]`);
         if (clickedChip) {
@@ -276,7 +434,7 @@ function applyCurrentFilter() {
             const isFavorite = item.getAttribute('data-favorite') === 'true';
             item.style.display = isFavorite ? '' : 'none';
         });
-    } else if (currentFilter !== 'all' && ['Recent', 'Vacation', 'Family', 'Food', 'Nature'].includes(currentFilter)) {
+    } else if (currentFilter !== 'all') {
         filterByCategory(currentFilter);
     }
 }

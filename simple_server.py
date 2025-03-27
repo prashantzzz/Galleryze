@@ -126,10 +126,14 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
             data = json.loads(post_data.decode('utf-8'))
             
             # Process signup request
+            name = data.get('name')
             email = data.get('email')
             password = data.get('password')
             
-            # Here we would register with Supabase
+            # Set default subscription to 'free'
+            subscription_plan = 'free'
+            
+            # Here we would register with Supabase and store the user's name and subscription plan
             # For now, just return a success message
             self.send_response(HTTPStatus.OK)
             self.send_header('Content-type', 'application/json')
@@ -188,6 +192,43 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps({"success": True, "message": "Favorite status saved successfully"}).encode())
+        elif self.path == '/api/categories/create':
+            # Only process if user is authenticated
+            if not self.is_authenticated():
+                self.send_response(HTTPStatus.UNAUTHORIZED)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "message": "Not authenticated"}).encode())
+                return
+                
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            # Get category data
+            category_name = data.get('categoryName')
+            
+            # Validate the category name
+            if not category_name or len(category_name.strip()) == 0:
+                self.send_response(HTTPStatus.BAD_REQUEST)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "message": "Category name cannot be empty"}).encode())
+                return
+            
+            # Here we would save to Supabase database
+            # For now, just return a success message
+            self.send_response(HTTPStatus.OK)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "success": True, 
+                "message": "Category created successfully", 
+                "category": {
+                    "name": category_name, 
+                    "id": str(hash(category_name) % 10000)  # Simple hash for demo purposes
+                }
+            }).encode())
         else:
             self.send_error(HTTPStatus.NOT_FOUND, "Endpoint not found")
     
@@ -207,7 +248,8 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
         return {
             "id": "1",
             "email": "user@example.com",
-            "name": "Test User"
+            "name": "Test User",
+            "subscription_plan": "free"
         }
     
     def get_home_page(self, filter_type="all"):
@@ -257,7 +299,7 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
                 <span class="chip" onclick="navigateToFilter('Family')">Family</span>
                 <span class="chip" onclick="navigateToFilter('Food')">Food</span>
                 <span class="chip" onclick="navigateToFilter('Nature')">Nature</span>
-                <span class="chip">+ Add</span>
+                <span class="chip add-chip" onclick="openCreateCategoryModal()">+ Add</span>
             </div>
             <div class="current-filter" data-filter="${filter_type}" style="display:none;"></div>
             
@@ -379,6 +421,21 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
                     </div>
                 </div>
             </div>
+            
+            <!-- Create Category Modal -->
+            <div class="modal" id="createCategoryModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Create New Category</h2>
+                        <button class="modal-close" onclick="closeCreateCategoryModal()">&times;</button>
+                    </div>
+                    <div class="form-group">
+                        <label for="newCategoryName">Category Name</label>
+                        <input type="text" id="newCategoryName" placeholder="Enter category name..." required>
+                    </div>
+                    <button class="action-btn" onclick="createNewCategory()">Create Category</button>
+                </div>
+            </div>
         </body>
         </html>
         """
@@ -474,7 +531,22 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
                     </div>
                 </div>
                 
-                <button class="fab">+</button>
+                <button class="fab" onclick="openCreateCategoryModal()">+</button>
+            </div>
+            
+            <!-- Create Category Modal -->
+            <div class="modal" id="createCategoryModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Create New Category</h2>
+                        <button class="modal-close" onclick="closeCreateCategoryModal()">&times;</button>
+                    </div>
+                    <div class="form-group">
+                        <label for="newCategoryName">Category Name</label>
+                        <input type="text" id="newCategoryName" placeholder="Enter category name..." required>
+                    </div>
+                    <button class="action-btn" onclick="createNewCategory()">Create Category</button>
+                </div>
             </div>
             
             <div class="bottom-nav">
@@ -686,6 +758,7 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
                 async function handleSignup(event) {{
                     event.preventDefault();
                     
+                    const name = document.getElementById('name').value;
                     const email = document.getElementById('email').value;
                     const password = document.getElementById('password').value;
                     const confirmPassword = document.getElementById('confirmPassword').value;
@@ -701,7 +774,7 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
                             headers: {{
                                 'Content-Type': 'application/json'
                             }},
-                            body: JSON.stringify({{ email, password }})
+                            body: JSON.stringify({{ name, email, password }})
                         }});
                         
                         const result = await response.json();
@@ -727,6 +800,10 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
             <div class="auth-container">
                 <h2>Sign Up</h2>
                 <form id="signupForm" onsubmit="handleSignup(event)">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" required>
+                    </div>
                     <div class="form-group">
                         <label for="email">Email</label>
                         <input type="email" id="email" required>
@@ -922,6 +999,14 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
         """
         
     def get_settings_page(self):
+        user_info = self.get_user_info()
+        name = user_info['name']
+        email = user_info['email']
+        subscription_plan = user_info['subscription_plan']
+        
+        # Capitalize first letter of subscription plan for display
+        display_subscription = subscription_plan.capitalize()
+        
         return f"""
         <!DOCTYPE html>
         <html>
@@ -931,6 +1016,61 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <style>
                 {self.get_styles()}
+                
+                .user-profile-section {{
+                    background: #fff;
+                    border-radius: 8px;
+                    padding: 20px;
+                    margin-bottom: 20px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                }}
+                
+                .user-profile-header {{
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 15px;
+                }}
+                
+                .user-avatar {{
+                    width: 60px;
+                    height: 60px;
+                    border-radius: 50%;
+                    background: #e0e0e0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 24px;
+                    color: #666;
+                    margin-right: 15px;
+                }}
+                
+                .user-details h3 {{
+                    margin: 0 0 5px 0;
+                }}
+                
+                .user-email {{
+                    color: #666;
+                    margin: 0;
+                }}
+                
+                .subscription-badge {{
+                    display: inline-block;
+                    background: #f0f0f0;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    font-size: 14px;
+                    margin-top: 8px;
+                }}
+                
+                .subscription-badge.free {{
+                    background: #e8f5e9;
+                    color: #2e7d32;
+                }}
+                
+                .subscription-badge.pro {{
+                    background: #e3f2fd;
+                    color: #1565c0;
+                }}
             </style>
             <script src="/new_galleryze_script.js"></script>
         </head>
@@ -940,6 +1080,18 @@ class GalleryzeHandler(http.server.SimpleHTTPRequestHandler):
             </nav>
             
             <div class="content">
+                <div class="user-profile-section">
+                    <div class="user-profile-header">
+                        <div class="user-avatar">{name[0].upper()}</div>
+                        <div class="user-details">
+                            <h3>{name}</h3>
+                            <p class="user-email">{email}</p>
+                            <span class="subscription-badge {subscription_plan}">{display_subscription} Plan</span>
+                        </div>
+                    </div>
+                    <button class="btn-secondary">Edit Profile</button>
+                </div>
+                
                 <p class="subheader">App Settings</p>
                 
                 <div class="settings-section">
