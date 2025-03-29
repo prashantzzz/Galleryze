@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/category.dart';
 import '../models/photo_item.dart';
 import '../providers/photo_provider.dart';
 import '../providers/category_provider.dart';
@@ -16,7 +15,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String _selectedCategory = 'all';
-  bool _isLoading = false;
 
   @override
   void initState() {
@@ -48,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final photoProvider = Provider.of<PhotoProvider>(context, listen: false);
     final sortBy = photoProvider.sortBy;
     final ascending = photoProvider.sortAscending;
+    final sortChangeCounter = photoProvider.sortChangeCounter;
     
     filteredPhotos.sort((a, b) {
       int comparison;
@@ -72,14 +71,32 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('GalleryZen'),
+        title: const Text(
+          'GalleryZen',
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 18,
+            color: Colors.black87,
+            letterSpacing: 0.3,
+          ),
+        ),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        centerTitle: false,
         actions: [
           const SortDropdown(),
         ],
       ),
       body: Consumer<PhotoProvider>(
         builder: (context, photoProvider, child) {
+          // Force rebuild on sort changes
+          final sortBy = photoProvider.sortBy;
+          final sortAscending = photoProvider.sortAscending;
+          final sortChangeCounter = photoProvider.sortChangeCounter;
+          
           if (photoProvider.isLoading) {
             return const Center(
               child: CircularProgressIndicator(),
@@ -114,21 +131,37 @@ class _HomeScreenState extends State<HomeScreen> {
 
           return Column(
             children: [
-              // Category chips section without the duplicate sort button
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: Row(
-                  children: [
-                    ...Provider.of<CategoryProvider>(context).categories.map((category) => 
-                      _buildCategoryChip(
-                        category.id,
-                        category.name,
-                        category.icon,
-                        category.color,
-                      ),
+              // Category chips section with minimal design
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.03),
+                      offset: const Offset(0, 1),
+                      blurRadius: 2,
+                      spreadRadius: 0,
                     ),
                   ],
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      ...Provider.of<CategoryProvider>(context).categories.map((category) => 
+                        _buildCategoryChip(
+                          category.id,
+                          category.name,
+                          category.icon,
+                          category.color,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               // Photo grid
@@ -143,6 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       )
                     : PhotoGrid(
+                        key: ValueKey('photo_grid_${sortChangeCounter}_${_selectedCategory}'),
                         photos: _getFilteredAndSortedPhotos(photoProvider.photos, _selectedCategory),
                         onDragToCategory: (photoId, categoryId) {
                           Provider.of<PhotoProvider>(context, listen: false).addPhotoToCategory(photoId, categoryId);
@@ -160,29 +194,58 @@ class _HomeScreenState extends State<HomeScreen> {
     final isSelected = _selectedCategory.toLowerCase() == categoryId.toLowerCase();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: FilterChip(
-        avatar: Icon(
-          icon,
-          size: 18,
-          color: isSelected ? color : Colors.grey[600],
+      child: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              spreadRadius: 0.5,
+              blurRadius: 2,
+              offset: const Offset(0, 1),
+            ),
+          ],
         ),
-        label: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? color : Colors.black87,
-            fontSize: 14,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              setState(() {
+                _selectedCategory = categoryId;
+              });
+            },
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: isSelected ? Colors.grey[850] : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isSelected ? Colors.grey[850]! : Colors.grey[300]!,
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    icon,
+                    size: 16,
+                    color: isSelected ? Colors.white : Colors.grey[600],
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.grey[800],
+                      fontSize: 12,
+                      fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
-        selected: isSelected,
-        selectedColor: color.withOpacity(0.1),
-        backgroundColor: Colors.grey[200],
-        showCheckmark: false,
-        onSelected: (selected) {
-          setState(() {
-            _selectedCategory = categoryId;
-          });
-        },
       ),
     );
   }

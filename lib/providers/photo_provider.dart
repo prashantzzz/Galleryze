@@ -19,6 +19,10 @@ class PhotoProvider extends ChangeNotifier {
 
   String _sortBy = 'date';
   bool _sortAscending = false;
+  
+  // Add a key for forcing UI rebuilds
+  int _sortChangeCounter = 0;
+  int get sortChangeCounter => _sortChangeCounter;
 
   String get sortBy => _sortBy;
   bool get sortAscending => _sortAscending;
@@ -146,7 +150,7 @@ class PhotoProvider extends ChangeNotifier {
         case 'size':
           // Sort by file size
           comparison = a.size.compareTo(b.size);
-          print('Comparing sizes: ${a.size} vs ${b.size} = $comparison');
+          // print('Comparing sizes: ${a.size} vs ${b.size} = $comparison');
           break;
         default:
           comparison = 0;
@@ -166,6 +170,9 @@ class PhotoProvider extends ChangeNotifier {
   }
 
   void setSortBy(String sortBy, bool ascending) {
+    print('setSortBy called with: sortBy=$sortBy, ascending=$ascending');
+    print('Before change: _sortBy=$_sortBy, _sortAscending=$_sortAscending');
+    
     _sortBy = sortBy;
     _sortAscending = ascending;
     
@@ -176,8 +183,16 @@ class PhotoProvider extends ChangeNotifier {
       _sortOption = ascending ? SortOption.sizeAsc : SortOption.sizeDesc;
     }
     
+    print('After change: _sortBy=$_sortBy, _sortAscending=$_sortAscending, _sortOption=$_sortOption');
+    
     _applySorting();
+    
+    // Increment counter to force UI rebuilds
+    _sortChangeCounter++;
+    
     notifyListeners();
+    
+    print('Sorting applied and listeners notified');
   }
 
   void toggleSortDirection() {

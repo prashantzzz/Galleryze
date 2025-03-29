@@ -33,6 +33,17 @@ class _PhotoTileState extends State<PhotoTile> {
     super.initState();
     _loadThumbnail();
   }
+  
+  @override
+  void didUpdateWidget(PhotoTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    // If the photo has changed or its favorite status has changed, reload the thumbnail
+    if (widget.photo.id != oldWidget.photo.id || 
+        widget.photo.isFavorite != oldWidget.photo.isFavorite) {
+      _loadThumbnail();
+    }
+  }
 
   Future<void> _loadThumbnail() async {
     if (mounted) {

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../models/photo_item.dart';
 import 'photo_tile.dart';
-import '../screens/photo_view_screen.dart';
 
 class PhotoGrid extends StatelessWidget {
   final List<PhotoItem> photos;
@@ -21,18 +19,23 @@ class PhotoGrid extends StatelessWidget {
     }
 
     return GridView.builder(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
+        childAspectRatio: 1.0,
       ),
       itemCount: photos.length,
       itemBuilder: (context, index) {
         final photo = photos[index];
-        return PhotoTile(
-          photo: photo,
-          onDragToCategory: onDragToCategory,
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: PhotoTile(
+            key: ValueKey('photo_${photo.id}'),
+            photo: photo,
+            onDragToCategory: onDragToCategory,
+          ),
         );
       },
     );
