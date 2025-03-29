@@ -18,7 +18,7 @@ class PhotoProvider extends ChangeNotifier {
   SortOption _sortOption = SortOption.dateDesc;
   SortOption get sortOption => _sortOption;
 
-  String _sortBy = 'date'; // 'date', 'name', 'size'
+  String _sortBy = 'date';
   bool _sortAscending = false;
 
   String get sortBy => _sortBy;
@@ -104,6 +104,27 @@ class PhotoProvider extends ChangeNotifier {
   // Set sort option and apply sorting
   void setSortOption(SortOption option) {
     _sortOption = option;
+    
+    // Update the string-based sort properties for the new system
+    switch (option) {
+      case SortOption.dateAsc:
+        _sortBy = 'date';
+        _sortAscending = true;
+        break;
+      case SortOption.dateDesc:
+        _sortBy = 'date';
+        _sortAscending = false;
+        break;
+      case SortOption.sizeAsc:
+        _sortBy = 'size';
+        _sortAscending = true;
+        break;
+      case SortOption.sizeDesc:
+        _sortBy = 'size';
+        _sortAscending = false;
+        break;
+    }
+    
     _applySorting();
     notifyListeners();
   }
@@ -112,24 +133,50 @@ class PhotoProvider extends ChangeNotifier {
   void _applySorting() {
     if (_photos.isEmpty) return;
     
-    switch (_sortOption) {
-      case SortOption.dateAsc:
-        _photos.sort((a, b) => a.createDateTime.compareTo(b.createDateTime));
-        break;
-      case SortOption.dateDesc:
-        _photos.sort((a, b) => b.createDateTime.compareTo(a.createDateTime));
-        break;
-      case SortOption.sizeAsc:
-        _photos.sort((a, b) => a.size.compareTo(b.size));
-        break;
-      case SortOption.sizeDesc:
-        _photos.sort((a, b) => b.size.compareTo(a.size));
-        break;
+    print('Applying sorting: by $_sortBy, ascending: $_sortAscending');
+    
+    _photos.sort((a, b) {
+      int comparison;
+      
+      switch (_sortBy) {
+        case 'date':
+          // Sort by creation date
+          comparison = a.createDateTime.compareTo(b.createDateTime);
+          print('Comparing dates: ${a.createDateTime} vs ${b.createDateTime} = $comparison');
+          break;
+        case 'size':
+          // Sort by file size
+          comparison = a.size.compareTo(b.size);
+          print('Comparing sizes: ${a.size} vs ${b.size} = $comparison');
+          break;
+        default:
+          comparison = 0;
+      }
+      
+      // Apply sort direction
+      return _sortAscending ? comparison : -comparison;
+    });
+    
+    // Debug - print first few photos after sorting
+    if (_photos.isNotEmpty) {
+      print('After sorting, first photo: ${_photos[0].title}, date: ${_photos[0].createDateTime}, size: ${_photos[0].size}');
+      if (_photos.length > 1) {
+        print('Second photo: ${_photos[1].title}, date: ${_photos[1].createDateTime}, size: ${_photos[1].size}');
+      }
     }
   }
 
-  void setSortBy(String sortBy) {
+  void setSortBy(String sortBy, bool ascending) {
     _sortBy = sortBy;
+    _sortAscending = ascending;
+    
+    // Update the SortOption enum for compatibility
+    if (sortBy == 'date') {
+      _sortOption = ascending ? SortOption.dateAsc : SortOption.dateDesc;
+    } else if (sortBy == 'size') {
+      _sortOption = ascending ? SortOption.sizeAsc : SortOption.sizeDesc;
+    }
+    
     _applySorting();
     notifyListeners();
   }

@@ -27,55 +27,6 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _showSortOptions(BuildContext context) {
-    final photoProvider = Provider.of<PhotoProvider>(context, listen: false);
-
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.arrow_upward),
-                title: const Text('Date (Newest first)'),
-                onTap: () {
-                  photoProvider.setSortOption(SortOption.dateDesc);
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.arrow_downward),
-                title: const Text('Date (Oldest first)'),
-                onTap: () {
-                  photoProvider.setSortOption(SortOption.dateAsc);
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.arrow_upward),
-                title: const Text('Size (Largest first)'),
-                onTap: () {
-                  photoProvider.setSortOption(SortOption.sizeDesc);
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.arrow_downward),
-                title: const Text('Size (Smallest first)'),
-                onTap: () {
-                  photoProvider.setSortOption(SortOption.sizeAsc);
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   // Get filtered and sorted photos based on category
   List<PhotoItem> _getFilteredAndSortedPhotos(List<PhotoItem> allPhotos, String categoryId) {
     if (allPhotos.isEmpty) {
@@ -92,22 +43,28 @@ class _HomeScreenState extends State<HomeScreen> {
       filteredPhotos = allPhotos.where((photo) => photo.isInCategory(categoryId)).toList();
     }
 
-    // Then sort the filtered photos
+    // Use the PhotoProvider's current sort settings 
+    // (the provider already sorts its photos, but we need to sort our filtered subset)
     final photoProvider = Provider.of<PhotoProvider>(context, listen: false);
-    switch (photoProvider.sortOption) {
-      case SortOption.dateAsc:
-        filteredPhotos.sort((a, b) => a.createDateTime.compareTo(b.createDateTime));
-        break;
-      case SortOption.dateDesc:
-        filteredPhotos.sort((a, b) => b.createDateTime.compareTo(a.createDateTime));
-        break;
-      case SortOption.sizeAsc:
-        filteredPhotos.sort((a, b) => a.size.compareTo(b.size));
-        break;
-      case SortOption.sizeDesc:
-        filteredPhotos.sort((a, b) => b.size.compareTo(a.size));
-        break;
-    }
+    final sortBy = photoProvider.sortBy;
+    final ascending = photoProvider.sortAscending;
+    
+    filteredPhotos.sort((a, b) {
+      int comparison;
+      
+      switch (sortBy) {
+        case 'date':
+          comparison = a.createDateTime.compareTo(b.createDateTime);
+          break;
+        case 'size':
+          comparison = a.size.compareTo(b.size);
+          break;
+        default:
+          comparison = 0;
+      }
+      
+      return ascending ? comparison : -comparison;
+    });
 
     return filteredPhotos;
   }
@@ -157,33 +114,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
           return Column(
             children: [
-              // Category selector with sort button
-              Container(
-                height: 50,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+              // Category chips section without the duplicate sort button
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: Row(
                   children: [
-                    // Categories list
-                    Expanded(
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: [
-                          ...Provider.of<CategoryProvider>(context).categories.map((category) => 
-                            _buildCategoryChip(
-                              category.id,
-                              category.name,
-                              category.icon,
-                              category.color,
-                            ),
-                          ),
-                        ],
+                    ...Provider.of<CategoryProvider>(context).categories.map((category) => 
+                      _buildCategoryChip(
+                        category.id,
+                        category.name,
+                        category.icon,
+                        category.color,
                       ),
-                    ),
-                    // Sort button
-                    IconButton(
-                      icon: const Icon(Icons.sort),
-                      onPressed: () => _showSortOptions(context),
-                      tooltip: 'Sort photos',
                     ),
                   ],
                 ),

@@ -7,36 +7,60 @@ class SortDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<String>(
+    return PopupMenuButton<Map<String, bool>>(
       icon: const Icon(Icons.sort),
-      onSelected: (value) {
-        final provider = context.read<PhotoProvider>();
-        switch (value) {
-          case 'date':
-            provider.setSortBy('date');
-            break;
-          case 'name':
-            provider.setSortBy('name');
-            break;
-          case 'size':
-            provider.setSortBy('size');
-            break;
-        }
-      },
+      tooltip: 'Sort photos',
       itemBuilder: (context) => [
+        // Date sorting options
         const PopupMenuItem(
-          value: 'date',
-          child: Text('Sort by Date'),
+          value: {'date': true},
+          child: Row(
+            children: [
+              Icon(Icons.arrow_upward),
+              SizedBox(width: 8),
+              Text('Date (Oldest first)'),
+            ],
+          ),
         ),
         const PopupMenuItem(
-          value: 'name',
-          child: Text('Sort by Name'),
+          value: {'date': false},
+          child: Row(
+            children: [
+              Icon(Icons.arrow_downward),
+              SizedBox(width: 8),
+              Text('Date (Newest first)'),
+            ],
+          ),
+        ),
+        const PopupMenuDivider(),
+        // Size sorting options
+        const PopupMenuItem(
+          value: {'size': true},
+          child: Row(
+            children: [
+              Icon(Icons.arrow_upward),
+              SizedBox(width: 8),
+              Text('Size (Smallest first)'),
+            ],
+          ),
         ),
         const PopupMenuItem(
-          value: 'size',
-          child: Text('Sort by Size'),
+          value: {'size': false},
+          child: Row(
+            children: [
+              Icon(Icons.arrow_downward),
+              SizedBox(width: 8),
+              Text('Size (Largest first)'),
+            ],
+          ),
         ),
       ],
+      onSelected: (Map<String, bool> value) {
+        final provider = context.read<PhotoProvider>();
+        final sortBy = value.keys.first;
+        final ascending = value.values.first;
+        provider.setSortBy(sortBy, ascending);
+      },
     );
   }
 } 
