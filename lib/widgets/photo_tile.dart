@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/photo_item.dart';
@@ -7,12 +8,14 @@ class PhotoTile extends StatefulWidget {
   final PhotoItem photo;
   final double aspectRatio;
   final Function(String, String)? onDragToCategory;
+  final VoidCallback? onTap;
 
   const PhotoTile({
     Key? key,
     required this.photo,
     this.aspectRatio = 1.0,
     this.onDragToCategory,
+    this.onTap,
   }) : super(key: key);
 
   @override
@@ -22,102 +25,57 @@ class PhotoTile extends StatefulWidget {
 class _PhotoTileState extends State<PhotoTile> {
   @override
   Widget build(BuildContext context) {
-    return LongPressDraggable<String>(
-      data: widget.photo.id,
-      feedback: Container(
-        width: 100,
-        height: 100,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.5),
-              blurRadius: 10.0,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(10.0),
-          child: FutureBuilder<dynamic>(
+    return GestureDetector(
+      onTap: () {
+        _showPhotoDetails(context);
+      },
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          FutureBuilder<Uint8List?>(
             future: widget.photo.thumbData,
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done && 
-                  snapshot.hasData) {
-                return Image.memory(
-                  snapshot.data!,
-                  fit: BoxFit.cover,
-                );
-              } else {
-                return Container(
-                  color: Colors.grey[300],
-                  child: const Center(
-                    child: CircularProgressIndicator(),
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
                   ),
                 );
               }
+
+              if (snapshot.hasError || !snapshot.hasData) {
+                return const Center(
+                  child: Icon(Icons.error_outline, color: Colors.red),
+                );
+              }
+
+              return Hero(
+                tag: 'photo_${widget.photo.id}',
+                child: FadeInImage(
+                  placeholder: MemoryImage(snapshot.data!),
+                  image: MemoryImage(snapshot.data!),
+                  fit: BoxFit.cover,
+                  fadeInDuration: const Duration(milliseconds: 300),
+                  fadeOutDuration: const Duration(milliseconds: 300),
+                  imageErrorBuilder: (context, error, stackTrace) {
+                    return const Center(
+                      child: Icon(Icons.error_outline, color: Colors.red),
+                    );
+                  },
+                ),
+              );
             },
           ),
-        ),
-      ),
-      child: Stack(
-        children: [
-          AspectRatio(
-            aspectRatio: widget.aspectRatio,
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 2.0),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4.0),
-                color: Colors.grey[200],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(4.0),
-                child: GestureDetector(
-                  onTap: () {
-                    _showPhotoDetails(context);
-                  },
-                  child: Hero(
-                    tag: 'photo_${widget.photo.id}',
-                    child: FutureBuilder<dynamic>(
-                      future: widget.photo.thumbData,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done && 
-                            snapshot.hasData) {
-                          return Image.memory(
-                            snapshot.data!,
-                            fit: BoxFit.cover,
-                          );
-                        } else {
-                          return Container(
-                            color: Colors.grey[300],
-                            child: const Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          // Favorite badge
           if (widget.photo.isFavorite)
-            Positioned(
-              top: 4,
-              right: 4,
-              child: Container(
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.favorite,
-                  color: Colors.red,
-                  size: 16,
-                ),
+            const Positioned(
+              top: 8,
+              right: 8,
+              child: Icon(
+                Icons.favorite,
+                color: Colors.red,
+                size: 24,
               ),
             ),
         ],

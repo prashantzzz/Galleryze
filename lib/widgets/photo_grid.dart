@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../models/photo_item.dart';
 import 'photo_tile.dart';
+import '../screens/photo_view_screen.dart';
 
 class PhotoGrid extends StatelessWidget {
   final List<PhotoItem> photos;
@@ -19,27 +20,24 @@ class PhotoGrid extends StatelessWidget {
       return _buildEmptyState();
     }
 
-    return DragTarget<String>(
-      onAccept: (categoryId) {
-        // This is for receiving a category being dragged to a photo
-        // Not implemented in this version
-      },
-      builder: (context, candidateData, rejectedData) {
-        return MasonryGridView.count(
-          crossAxisCount: 2,
-          mainAxisSpacing: 4,
-          crossAxisSpacing: 4,
-          padding: const EdgeInsets.all(4),
-          itemCount: photos.length,
-          itemBuilder: (context, index) {
-            final photo = photos[index];
-            // Alternate aspect ratios for a more interesting grid
-            final aspectRatio = index % 3 == 0 ? 0.8 : (index % 5 == 0 ? 1.5 : 1.0);
-            
-            return PhotoTile(
-              photo: photo,
-              aspectRatio: aspectRatio,
-              onDragToCategory: onDragToCategory,
+    return GridView.builder(
+      padding: const EdgeInsets.all(8),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        mainAxisSpacing: 8,
+        crossAxisSpacing: 8,
+      ),
+      itemCount: photos.length,
+      itemBuilder: (context, index) {
+        final photo = photos[index];
+        return PhotoTile(
+          photo: photo,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PhotoViewScreen(photo: photo),
+              ),
             );
           },
         );
