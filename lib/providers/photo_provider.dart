@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/photo_item.dart';
-import '../models/web_asset_entity.dart';
 import '../services/web_photo_service.dart';
 
 enum SortOption { dateAsc, dateDesc, sizeAsc, sizeDesc }
@@ -142,7 +141,7 @@ class PhotoProvider extends ChangeNotifier {
         case 'date':
           // Sort by creation date
           comparison = a.createDateTime.compareTo(b.createDateTime);
-          print('Comparing dates: ${a.createDateTime} vs ${b.createDateTime} = $comparison');
+          // print('Comparing dates: ${a.createDateTime} vs ${b.createDateTime} = $comparison');
           break;
         case 'size':
           // Sort by file size
@@ -158,12 +157,12 @@ class PhotoProvider extends ChangeNotifier {
     });
     
     // Debug - print first few photos after sorting
-    if (_photos.isNotEmpty) {
-      print('After sorting, first photo: ${_photos[0].title}, date: ${_photos[0].createDateTime}, size: ${_photos[0].size}');
-      if (_photos.length > 1) {
-        print('Second photo: ${_photos[1].title}, date: ${_photos[1].createDateTime}, size: ${_photos[1].size}');
-      }
-    }
+    // if (_photos.isNotEmpty) {
+    //   print('After sorting, first photo: ${_photos[0].title}, date: ${_photos[0].createDateTime}, size: ${_photos[0].size}');
+    //   if (_photos.length > 1) {
+    //     print('Second photo: ${_photos[1].title}, date: ${_photos[1].createDateTime}, size: ${_photos[1].size}');
+    //   }
+    // }
   }
 
   void setSortBy(String sortBy, bool ascending) {
