@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-// Removed photo_manager import for web compatibility
-import 'dart:typed_data';
 import '../models/photo_item.dart';
 import '../providers/photo_provider.dart';
 
@@ -22,18 +20,6 @@ class PhotoTile extends StatefulWidget {
 }
 
 class _PhotoTileState extends State<PhotoTile> {
-  late Future<Uint8List?> _thumbnailFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadThumbnail();
-  }
-
-  void _loadThumbnail() {
-    _thumbnailFuture = widget.photo.thumbData;
-  }
-
   @override
   Widget build(BuildContext context) {
     return LongPressDraggable<String>(
@@ -53,11 +39,11 @@ class _PhotoTileState extends State<PhotoTile> {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(10.0),
-          child: FutureBuilder<Uint8List?>(
-            future: _thumbnailFuture,
+          child: FutureBuilder<dynamic>(
+            future: widget.photo.thumbData,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done && 
-                  snapshot.data != null) {
+                  snapshot.hasData) {
                 return Image.memory(
                   snapshot.data!,
                   fit: BoxFit.cover,
@@ -66,7 +52,7 @@ class _PhotoTileState extends State<PhotoTile> {
                 return Container(
                   color: Colors.grey[300],
                   child: const Center(
-                    child: Icon(Icons.image, color: Colors.grey),
+                    child: CircularProgressIndicator(),
                   ),
                 );
               }
@@ -86,301 +72,118 @@ class _PhotoTileState extends State<PhotoTile> {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(4.0),
-                child: FutureBuilder<Uint8List?>(
-                  future: _thumbnailFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done && 
-                        snapshot.data != null) {
-                      return GestureDetector(
-                        onTap: () {
-                          _showPhotoDetails(context);
-                        },
-                        child: Hero(
-                          tag: 'photo_${widget.photo.id}',
-                          child: Image.memory(
+                child: GestureDetector(
+                  onTap: () {
+                    _showPhotoDetails(context);
+                  },
+                  child: Hero(
+                    tag: 'photo_${widget.photo.id}',
+                    child: FutureBuilder<dynamic>(
+                      future: widget.photo.thumbData,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done && 
+                            snapshot.hasData) {
+                          return Image.memory(
                             snapshot.data!,
                             fit: BoxFit.cover,
-                            width: double.infinity,
-                            height: double.infinity,
-                          ),
-                        ),
-                      );
-                    } else {
-                      return const Center(
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.0,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
-                        ),
-                      );
-                    }
-                  },
+                          );
+                        } else {
+                          return Container(
+                            color: Colors.grey[300],
+                            child: const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
-          Positioned(
-            top: 8.0,
-            right: 8.0,
-            child: GestureDetector(
-              onTap: () {
-                final photoProvider = Provider.of<PhotoProvider>(
-                  context, 
-                  listen: false,
-                );
-                photoProvider.toggleFavorite(widget.photo.id);
-              },
+          // Favorite badge
+          if (widget.photo.isFavorite)
+            Positioned(
+              top: 4,
+              right: 4,
               child: Container(
-                padding: const EdgeInsets.all(4.0),
+                padding: const EdgeInsets.all(2),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(12.0),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  widget.photo.isFavorite 
-                      ? Icons.favorite 
-                      : Icons.favorite_border,
-                  color: widget.photo.isFavorite 
-                      ? Colors.red 
-                      : Colors.white,
-                  size: 20.0,
+                child: const Icon(
+                  Icons.favorite,
+                  color: Colors.red,
+                  size: 16,
                 ),
               ),
             ),
-          ),
         ],
       ),
     );
   }
 
+  // Show photo details (full screen)
   void _showPhotoDetails(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.9,
-        maxChildSize: 0.95,
-        minChildSize: 0.5,
-        builder: (context, scrollController) {
-          return Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(16.0),
-                topRight: Radius.circular(16.0),
-              ),
-            ),
-            child: Column(
-              children: [
-                Container(
-                  width: 40.0,
-                  height: 5.0,
-                  margin: const EdgeInsets.symmetric(vertical: 8.0),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2.5),
-                  ),
-                ),
-                Expanded(
-                  child: ListView(
-                    controller: scrollController,
-                    children: [
-                      FutureBuilder<Uint8List?>(
-                        future: widget.photo.thumbData,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.done && 
-                              snapshot.data != null) {
-                            return Hero(
-                              tag: 'photo_${widget.photo.id}',
-                              child: Image.memory(
-                                snapshot.data!,
-                                fit: BoxFit.cover,
-                              ),
-                            );
-                          } else {
-                            return Container(
-                              height: MediaQuery.of(context).size.width * 1.2,
-                              color: Colors.grey[200],
-                              child: const Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Photo Details',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 16.0),
-                            _buildDetailItem(
-                              'Date',
-                              _formatDate(widget.photo.createDateTime),
-                            ),
-                            const Divider(),
-                            _buildDetailItem(
-                              'Size',
-                              _formatFileSize(widget.photo.size),
-                            ),
-                            const Divider(),
-                            _buildDetailItem(
-                              'Categories',
-                              widget.photo.categories.isEmpty
-                                  ? 'None'
-                                  : widget.photo.categories.join(', '),
-                            ),
-                            const SizedBox(height: 24.0),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                _buildActionButton(
-                                  icon: Icons.favorite,
-                                  label: widget.photo.isFavorite 
-                                      ? 'Remove Favorite' 
-                                      : 'Add to Favorites',
-                                  color: widget.photo.isFavorite 
-                                      ? Colors.red 
-                                      : Colors.black,
-                                  onTap: () {
-                                    final photoProvider = Provider.of<PhotoProvider>(
-                                      context, 
-                                      listen: false,
-                                    );
-                                    photoProvider.toggleFavorite(widget.photo.id);
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                                _buildActionButton(
-                                  icon: Icons.edit,
-                                  label: 'Edit Categories',
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                    _showCategoriesDialog(context);
-                                  },
-                                ),
-                                _buildActionButton(
-                                  icon: Icons.share,
-                                  label: 'Share',
-                                  onTap: () {
-                                    // Implement share functionality
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Share functionality coming soon!'),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => _PhotoDetailsScreen(photo: widget.photo),
       ),
     );
   }
+}
 
-  Widget _buildDetailItem(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.grey,
-            ),
-          ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+class _PhotoDetailsScreen extends StatelessWidget {
+  final PhotoItem photo;
 
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    Color color = Colors.black,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10.0),
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: color),
-          ),
-          const SizedBox(height: 6.0),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: color,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  const _PhotoDetailsScreen({required this.photo});
 
-  void _showCategoriesDialog(BuildContext context) {
-    // Implement a dialog to edit photo categories
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Categories'),
-        content: const Text(
-          'Drag and drop this photo to a category on the home screen to add it to that category.',
-        ),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+          Consumer<PhotoProvider>(
+            builder: (context, photoProvider, child) {
+              return IconButton(
+                icon: Icon(
+                  photo.isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  photoProvider.toggleFavorite(photo.id);
+                },
+              );
+            },
           ),
         ],
       ),
+      body: Center(
+        child: Hero(
+          tag: 'photo_${photo.id}',
+          child: FutureBuilder<dynamic>(
+            future: photo.thumbData,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done && 
+                  snapshot.hasData) {
+                return Image.memory(
+                  snapshot.data!,
+                  fit: BoxFit.contain,
+                );
+              } else {
+                return const Center(
+                  child: CircularProgressIndicator(color: Colors.white),
+                );
+              }
+            },
+          ),
+        ),
+      ),
     );
-  }
-
-  String _formatDate(DateTime dateTime) {
-    return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
-  }
-
-  String _formatFileSize(int bytes) {
-    if (bytes < 1024) {
-      return '$bytes B';
-    } else if (bytes < 1024 * 1024) {
-      return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    } else {
-      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-    }
   }
 }

@@ -1,9 +1,9 @@
 import 'dart:typed_data';
+import 'package:flutter/services.dart';
 import 'web_asset_entity.dart';
-import 'package:http/http.dart' as http;
 
 class PhotoItem {
-  final WebAssetEntity _asset; // Using WebAssetEntity for all platforms for simplicity
+  final WebAssetEntity _asset;
   bool isFavorite;
   Set<String> categories;
   Uint8List? _cachedThumbData;
@@ -25,11 +25,12 @@ class PhotoItem {
     if (_cachedThumbData != null) return _cachedThumbData;
     
     try {
-      final response = await http.get(Uri.parse(_asset.url));
-      if (response.statusCode == 200) {
-        _cachedThumbData = response.bodyBytes;
-        return _cachedThumbData;
-      }
+      print('Loading image from asset: ${_asset.url}');
+      // Load asset image data
+      _cachedThumbData = await rootBundle.load(_asset.url)
+          .then((byteData) => byteData.buffer.asUint8List());
+      print('Successfully loaded image: ${_asset.url}');
+      return _cachedThumbData;
     } catch (e) {
       print('Error loading image: $e');
     }
@@ -38,11 +39,10 @@ class PhotoItem {
   
   // Fetch original image data
   Future<Uint8List?> get originBytes async {
-    // Use the same data as thumbnail for simplicity
     return thumbData;
   }
 
-  // URL for web assets
+  // Asset path for local images
   String get url => _asset.url;
 
   // Toggle favorite status
@@ -62,6 +62,6 @@ class PhotoItem {
 
   // Check if photo is in category
   bool isInCategory(String category) {
-    return categories.contains(category);
+    return categories.any((c) => c.toLowerCase() == category.toLowerCase());
   }
 }

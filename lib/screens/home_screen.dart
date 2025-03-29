@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/category.dart';
+import '../models/photo_item.dart';
 import '../providers/photo_provider.dart';
 import '../providers/category_provider.dart';
 import '../widgets/photo_grid.dart';
+import '../widgets/sort_dropdown.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -19,92 +21,220 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadPhotos();
+    // Load photos after the widget is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<PhotoProvider>().loadPhotos();
+    });
   }
 
-  Future<void> _loadPhotos() async {
-    setState(() {
-      _isLoading = true;
-    });
+  void _showSortOptions(BuildContext context) {
+    final photoProvider = Provider.of<PhotoProvider>(context, listen: false);
 
-    try {
-      await Provider.of<PhotoProvider>(context, listen: false).loadPhotos();
-    } catch (e) {
-      // Handle errors
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading photos: $e')),
-      );
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.arrow_upward),
+                title: const Text('Date (Newest first)'),
+                onTap: () {
+                  photoProvider.setSortOption(SortOption.dateDesc);
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.arrow_downward),
+                title: const Text('Date (Oldest first)'),
+                onTap: () {
+                  photoProvider.setSortOption(SortOption.dateAsc);
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.arrow_upward),
+                title: const Text('Size (Largest first)'),
+                onTap: () {
+                  photoProvider.setSortOption(SortOption.sizeDesc);
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.arrow_downward),
+                title: const Text('Size (Smallest first)'),
+                onTap: () {
+                  photoProvider.setSortOption(SortOption.sizeAsc);
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // Get filtered and sorted photos based on category
+  List<PhotoItem> _getFilteredAndSortedPhotos(List<PhotoItem> allPhotos, String categoryId) {
+    if (allPhotos.isEmpty) {
+      return [];
     }
+    
+    // First filter photos based on category
+    List<PhotoItem> filteredPhotos;
+    if (categoryId.toLowerCase() == 'all') {
+      filteredPhotos = allPhotos;
+    } else if (categoryId.toLowerCase() == 'favorites') {
+      filteredPhotos = allPhotos.where((photo) => photo.isFavorite).toList();
+    } else {
+      filteredPhotos = allPhotos.where((photo) => photo.isInCategory(categoryId)).toList();
+    }
+
+    // Then sort the filtered photos
+    final photoProvider = Provider.of<PhotoProvider>(context, listen: false);
+    switch (photoProvider.sortOption) {
+      case SortOption.dateAsc:
+        filteredPhotos.sort((a, b) => a.createDateTime.compareTo(b.createDateTime));
+        break;
+      case SortOption.dateDesc:
+        filteredPhotos.sort((a, b) => b.createDateTime.compareTo(a.createDateTime));
+        break;
+      case SortOption.sizeAsc:
+        filteredPhotos.sort((a, b) => a.size.compareTo(b.size));
+        break;
+      case SortOption.sizeDesc:
+        filteredPhotos.sort((a, b) => b.size.compareTo(a.size));
+        break;
+    }
+
+    return filteredPhotos;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Galleryze'),
+        title: const Text('GalleryZen'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadPhotos,
-          ),
+          const SortDropdown(),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Consumer<PhotoProvider>(
-              builder: (context, photoProvider, child) {
-                final photos = photoProvider.photos;
-                return Column(
+      body: Consumer<PhotoProvider>(
+        builder: (context, photoProvider, child) {
+          if (photoProvider.isLoading) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          if (photoProvider.error != null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    photoProvider.error!,
+                    style: const TextStyle(color: Colors.red),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => photoProvider.loadPhotos(),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          if (photoProvider.photos.isEmpty) {
+            return const Center(
+              child: Text('No photos found'),
+            );
+          }
+
+          return Column(
+            children: [
+              // Category selector with sort button
+              Container(
+                height: 50,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Row(
                   children: [
-                    // Category selector
-                    Container(
-                      height: 50,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                    // Categories list
+                    Expanded(
                       child: ListView(
                         scrollDirection: Axis.horizontal,
                         children: [
-                          _buildCategoryChip('all', 'All Photos'),
-                          _buildCategoryChip('favorites', 'Favorites'),
-                          _buildCategoryChip('recent', 'Recent'),
+                          ...Provider.of<CategoryProvider>(context).categories.map((category) => 
+                            _buildCategoryChip(
+                              category.id,
+                              category.name,
+                              category.icon,
+                              category.color,
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                    // Photo grid
-                    Expanded(
-                      child: photos.isEmpty
-                          ? Center(
-                              child: Text(
-                                _selectedCategory == 'favorites'
-                                    ? 'No favorite photos yet'
-                                    : 'No photos in this category',
-                                style: TextStyle(color: Colors.grey[600]),
-                              ),
-                            )
-                          : PhotoGrid(
-                              photos: photos,
-                              onDragToCategory: (photoId, categoryId) {
-                                photoProvider.addPhotoToCategory(photoId, categoryId);
-                              },
-                            ),
+                    // Sort button
+                    IconButton(
+                      icon: const Icon(Icons.sort),
+                      onPressed: () => _showSortOptions(context),
+                      tooltip: 'Sort photos',
                     ),
                   ],
-                );
-              },
-            ),
+                ),
+              ),
+              // Photo grid
+              Expanded(
+                child: _getFilteredAndSortedPhotos(photoProvider.photos, _selectedCategory).isEmpty
+                    ? Center(
+                        child: Text(
+                          _selectedCategory == 'favorites'
+                              ? 'No favorite photos yet'
+                              : 'No photos in this category',
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                      )
+                    : PhotoGrid(
+                        photos: _getFilteredAndSortedPhotos(photoProvider.photos, _selectedCategory),
+                        onDragToCategory: (photoId, categoryId) {
+                          Provider.of<PhotoProvider>(context, listen: false).addPhotoToCategory(photoId, categoryId);
+                        },
+                      ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 
-  Widget _buildCategoryChip(String categoryId, String label) {
-    final isSelected = _selectedCategory == categoryId;
+  Widget _buildCategoryChip(String categoryId, String label, IconData icon, Color color) {
+    final isSelected = _selectedCategory.toLowerCase() == categoryId.toLowerCase();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: FilterChip(
-        label: Text(label),
+        avatar: Icon(
+          icon,
+          size: 18,
+          color: isSelected ? color : Colors.grey[600],
+        ),
+        label: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? color : Colors.black87,
+            fontSize: 14,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
         selected: isSelected,
+        selectedColor: color.withOpacity(0.1),
+        backgroundColor: Colors.grey[200],
+        showCheckmark: false,
         onSelected: (selected) {
           setState(() {
             _selectedCategory = categoryId;

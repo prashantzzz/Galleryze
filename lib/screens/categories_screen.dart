@@ -9,7 +9,7 @@ class CategoriesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final categoryProvider = Provider.of<CategoryProvider>(context);
-    final categories = categoryProvider.categories;
+    final categories = categoryProvider.categories.where((c) => c.id != 'all').toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -121,19 +121,19 @@ class CategoriesScreen extends StatelessWidget {
             Wrap(
               spacing: 10,
               children: [
-                _colorOption(Colors.blue, selectedColor, (color) {
+                _buildColorOption(Colors.blue, selectedColor, (color) {
                   selectedColor = color;
                 }),
-                _colorOption(Colors.red, selectedColor, (color) {
+                _buildColorOption(Colors.red, selectedColor, (color) {
                   selectedColor = color;
                 }),
-                _colorOption(Colors.green, selectedColor, (color) {
+                _buildColorOption(Colors.green, selectedColor, (color) {
                   selectedColor = color;
                 }),
-                _colorOption(Colors.orange, selectedColor, (color) {
+                _buildColorOption(Colors.orange, selectedColor, (color) {
                   selectedColor = color;
                 }),
-                _colorOption(Colors.purple, selectedColor, (color) {
+                _buildColorOption(Colors.purple, selectedColor, (color) {
                   selectedColor = color;
                 }),
               ],
@@ -144,19 +144,19 @@ class CategoriesScreen extends StatelessWidget {
             Wrap(
               spacing: 15,
               children: [
-                _iconOption(Icons.folder, selectedIcon, (icon) {
+                _buildIconOption(Icons.folder, selectedIcon, (icon) {
                   selectedIcon = icon;
                 }),
-                _iconOption(Icons.favorite, selectedIcon, (icon) {
+                _buildIconOption(Icons.favorite, selectedIcon, (icon) {
                   selectedIcon = icon;
                 }),
-                _iconOption(Icons.star, selectedIcon, (icon) {
+                _buildIconOption(Icons.star, selectedIcon, (icon) {
                   selectedIcon = icon;
                 }),
-                _iconOption(Icons.photo, selectedIcon, (icon) {
+                _buildIconOption(Icons.photo, selectedIcon, (icon) {
                   selectedIcon = icon;
                 }),
-                _iconOption(Icons.movie, selectedIcon, (icon) {
+                _buildIconOption(Icons.movie, selectedIcon, (icon) {
                   selectedIcon = icon;
                 }),
               ],
@@ -214,19 +214,19 @@ class CategoriesScreen extends StatelessWidget {
             Wrap(
               spacing: 10,
               children: [
-                _colorOption(Colors.blue, selectedColor, (color) {
+                _buildColorOption(Colors.blue, selectedColor, (color) {
                   selectedColor = color;
                 }),
-                _colorOption(Colors.red, selectedColor, (color) {
+                _buildColorOption(Colors.red, selectedColor, (color) {
                   selectedColor = color;
                 }),
-                _colorOption(Colors.green, selectedColor, (color) {
+                _buildColorOption(Colors.green, selectedColor, (color) {
                   selectedColor = color;
                 }),
-                _colorOption(Colors.orange, selectedColor, (color) {
+                _buildColorOption(Colors.orange, selectedColor, (color) {
                   selectedColor = color;
                 }),
-                _colorOption(Colors.purple, selectedColor, (color) {
+                _buildColorOption(Colors.purple, selectedColor, (color) {
                   selectedColor = color;
                 }),
               ],
@@ -237,19 +237,19 @@ class CategoriesScreen extends StatelessWidget {
             Wrap(
               spacing: 15,
               children: [
-                _iconOption(Icons.folder, selectedIcon, (icon) {
+                _buildIconOption(Icons.folder, selectedIcon, (icon) {
                   selectedIcon = icon;
                 }),
-                _iconOption(Icons.favorite, selectedIcon, (icon) {
+                _buildIconOption(Icons.favorite, selectedIcon, (icon) {
                   selectedIcon = icon;
                 }),
-                _iconOption(Icons.star, selectedIcon, (icon) {
+                _buildIconOption(Icons.star, selectedIcon, (icon) {
                   selectedIcon = icon;
                 }),
-                _iconOption(Icons.photo, selectedIcon, (icon) {
+                _buildIconOption(Icons.photo, selectedIcon, (icon) {
                   selectedIcon = icon;
                 }),
-                _iconOption(Icons.movie, selectedIcon, (icon) {
+                _buildIconOption(Icons.movie, selectedIcon, (icon) {
                   selectedIcon = icon;
                 }),
               ],
@@ -307,7 +307,7 @@ class CategoriesScreen extends StatelessWidget {
     );
   }
 
-  Widget _colorOption(Color color, Color selectedColor, Function(Color) onSelect) {
+  Widget _buildColorOption(Color color, Color selectedColor, Function(Color) onSelect) {
     final isSelected = color.value == selectedColor.value;
     return GestureDetector(
       onTap: () => onSelect(color),
@@ -335,7 +335,7 @@ class CategoriesScreen extends StatelessWidget {
     );
   }
 
-  Widget _iconOption(IconData icon, IconData selectedIcon, Function(IconData) onSelect) {
+  Widget _buildIconOption(IconData icon, IconData selectedIcon, Function(IconData) onSelect) {
     final isSelected = icon.codePoint == selectedIcon.codePoint;
     return GestureDetector(
       onTap: () => onSelect(icon),
@@ -345,6 +345,10 @@ class CategoriesScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected ? Colors.blue.withOpacity(0.2) : Colors.transparent,
           shape: BoxShape.circle,
+          border: Border.all(
+            color: isSelected ? Colors.blue : Colors.transparent,
+            width: 2,
+          ),
         ),
         child: Center(
           child: Icon(

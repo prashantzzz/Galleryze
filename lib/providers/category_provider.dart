@@ -14,25 +14,47 @@ class CategoryProvider extends ChangeNotifier {
     // In a real app, these might be loaded from SharedPreferences
     _categories = Category.getDefaultCategories();
     
-    // Add a few custom categories for demonstration
+    // Add custom categories
     _categories.addAll([
       Category(
-        id: 'vacation',
-        name: 'Vacation',
-        icon: Icons.beach_access,
+        id: 'docs',
+        name: 'Docs',
+        icon: Icons.description,
         color: Colors.orange,
+        isDefault: true,
+        isEditable: false,
       ),
       Category(
-        id: 'family',
-        name: 'Family',
+        id: 'people',
+        name: 'People',
         icon: Icons.family_restroom,
         color: Colors.green,
+        isDefault: true,
+        isEditable: false,
+      ),
+      Category(
+        id: 'pet',
+        name: 'Pet',
+        icon: Icons.pets,
+        color: Colors.purple,
+        isDefault: true,
+        isEditable: false,
+      ),
+      Category(
+        id: 'nature',
+        name: 'Nature',
+        icon: Icons.landscape,
+        color: Colors.teal,
+        isDefault: true,
+        isEditable: false,
       ),
       Category(
         id: 'food',
         name: 'Food',
         icon: Icons.restaurant,
         color: Colors.amber,
+        isDefault: true,
+        isEditable: false,
       ),
     ]);
     notifyListeners();

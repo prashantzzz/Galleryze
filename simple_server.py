@@ -506,6 +506,12 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     </svg>
                     Nature
                 </span>
+                <span class="chip" onclick="navigateToFilter('Docs')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
+                        <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                    </svg>
+                    Docs
+                </span>
                 <span class="chip add-chip" onclick="openCreateCategoryModal()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px;">
                         <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
@@ -613,6 +619,10 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                     <div class="category-option">
                         <input type="checkbox" id="category-Nature" class="category-checkbox" data-category="Nature">
                         <label for="category-Nature">Nature</label>
+                    </div>
+                    <div class="category-option">
+                        <input type="checkbox" id="category-Docs" class="category-checkbox" data-category="Docs">
+                        <label for="category-Docs">Docs</label>
                     </div>
                     <button class="action-btn" onclick="saveCategories()">Save Categories</button>
                 </div>
@@ -770,6 +780,19 @@ window.SUPABASE_KEY = '{os.environ.get('SUPABASE_KEY')}';
                         <div class="category-actions">
                             <button class="icon-btn small" onclick="openEditCategoryModal('Nature', 'nature-1004')"><i>edit</i></button>
                             <button class="icon-btn small" onclick="deleteCategory('nature-1004', 'Nature')"><i>delete</i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="category-item" data-id="docs-1001">
+                        <div class="category-icon orange">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                            </svg>
+                        </div>
+                        <div class="category-name">Docs</div>
+                        <div class="category-actions">
+                            <button class="icon-btn small" onclick="openEditCategoryModal('Docs', 'docs-1001')"><i>edit</i></button>
+                            <button class="icon-btn small" onclick="deleteCategory('docs-1001', 'Docs')"><i>delete</i></button>
                         </div>
                     </div>
                 </div>

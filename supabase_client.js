@@ -16,7 +16,7 @@ window.galleryzeApi = {};
 
 // Default categories to set up for new users
 const DEFAULT_CATEGORIES = [
-  { id: 'trip-1001', name: 'Trip', icon: 'orange' },
+  { id: 'docs-1001', name: 'Docs', icon: 'orange' },
   { id: 'family-1002', name: 'Family', icon: 'green' },
   { id: 'food-1003', name: 'Food', icon: 'amber' },
   { id: 'nature-1004', name: 'Nature', icon: 'green' }

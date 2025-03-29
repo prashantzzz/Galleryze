@@ -71,7 +71,7 @@ class Category {
     return [
       Category(
         id: 'all',
-        name: 'All Photos',
+        name: 'All',
         icon: Icons.photo_library,
         color: Colors.blue,
         isDefault: true,
@@ -79,17 +79,9 @@ class Category {
       ),
       Category(
         id: 'favorites',
-        name: 'Favorites',
+        name: 'Liked',
         icon: Icons.favorite,
         color: Colors.red,
-        isDefault: true,
-        isEditable: false,
-      ),
-      Category(
-        id: 'recent',
-        name: 'Recent',
-        icon: Icons.access_time,
-        color: Colors.purple,
         isDefault: true,
         isEditable: false,
       ),
