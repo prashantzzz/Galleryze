@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:typed_data';
 import 'web_asset_entity.dart';
 import 'package:http/http.dart' as http;

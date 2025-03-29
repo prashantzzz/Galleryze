@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/photo_provider.dart';
 import 'providers/category_provider.dart';
-import 'screens/home_screen.dart';
+import 'screens/main_screen.dart';
 
 class GalleryzeApp extends StatelessWidget {
   const GalleryzeApp({Key? key}) : super(key: key);
@@ -25,7 +25,7 @@ class GalleryzeApp extends StatelessWidget {
             elevation: 0,
           ),
         ),
-        home: const HomeScreen(),
+        home: const MainScreen(),
       ),
     );
   }

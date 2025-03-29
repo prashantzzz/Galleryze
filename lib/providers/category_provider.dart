@@ -84,4 +84,17 @@ class CategoryProvider extends ChangeNotifier {
       return null;
     }
   }
+  
+  // Add a new category from name and icon
+  void addCategoryFromNameAndIcon(String name, IconData icon) {
+    final category = Category(
+      id: name.toLowerCase().replaceAll(' ', '_'),
+      name: name,
+      icon: icon,
+      color: Colors.blue, // Default color
+      isDefault: false,
+      isEditable: true,
+    );
+    addCategory(category);
+  }
 }

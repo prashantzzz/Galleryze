@@ -6,6 +6,7 @@ class Category {
   final IconData icon;
   final Color color;
   final bool isDefault;
+  final bool isEditable;
 
   const Category({
     required this.id,
@@ -13,6 +14,7 @@ class Category {
     required this.icon,
     required this.color,
     this.isDefault = false,
+    this.isEditable = true,
   });
 
   // Create a copy of this category with new values
@@ -22,6 +24,7 @@ class Category {
     IconData? icon,
     Color? color,
     bool? isDefault,
+    bool? isEditable,
   }) {
     return Category(
       id: id ?? this.id,
@@ -29,6 +32,7 @@ class Category {
       icon: icon ?? this.icon,
       color: color ?? this.color,
       isDefault: isDefault ?? this.isDefault,
+      isEditable: isEditable ?? this.isEditable,
     );
   }
 
@@ -44,6 +48,7 @@ class Category {
       ),
       color: Color(json['colorValue'] as int),
       isDefault: json['isDefault'] as bool? ?? false,
+      isEditable: json['isEditable'] as bool? ?? true,
     );
   }
 
@@ -57,6 +62,7 @@ class Category {
       'iconFontPackage': icon.fontPackage,
       'colorValue': color.value,
       'isDefault': isDefault,
+      'isEditable': isEditable,
     };
   }
 
@@ -69,6 +75,7 @@ class Category {
         icon: Icons.photo_library,
         color: Colors.blue,
         isDefault: true,
+        isEditable: false,
       ),
       Category(
         id: 'favorites',
@@ -76,6 +83,7 @@ class Category {
         icon: Icons.favorite,
         color: Colors.red,
         isDefault: true,
+        isEditable: false,
       ),
       Category(
         id: 'recent',
@@ -83,6 +91,7 @@ class Category {
         icon: Icons.access_time,
         color: Colors.purple,
         isDefault: true,
+        isEditable: false,
       ),
     ];
   }

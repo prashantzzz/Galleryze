@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 class PermissionsHandler {
   // Request permission to access device photos
   static Future<bool> requestPermission() async {

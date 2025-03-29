@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/photo_provider.dart';
-import '../providers/category_provider.dart';
 import '../models/category.dart';
+import '../models/photo_item.dart';
+import '../providers/category_provider.dart';
+import '../providers/photo_provider.dart';
 import '../widgets/photo_grid.dart';
 
 class CategoryScreen extends StatefulWidget {
@@ -307,7 +308,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   ),
                 )
               : PhotoGrid(
-                  photos: photos,
+                  photos: photos.map((photo) => photo as PhotoItem).toList(),
                   onDragToCategory: (photoId, categoryId) {
                     photoProvider.addPhotoToCategory(photoId, categoryId);
                   },
@@ -339,7 +340,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
             onPressed: () {
               if (nameController.text.isNotEmpty) {
                 final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
-                categoryProvider.addCategory(nameController.text, Icons.folder);
+                categoryProvider.addCategoryFromNameAndIcon(nameController.text, Icons.folder);
                 Navigator.pop(context);
               }
             },
@@ -372,10 +373,10 @@ class _CategoryScreenState extends State<CategoryScreen> {
             onPressed: () {
               if (nameController.text.isNotEmpty) {
                 final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
-                categoryProvider.updateCategory(
-                  category.id,
+                final updatedCategory = category.copyWith(
                   name: nameController.text,
                 );
+                categoryProvider.updateCategory(updatedCategory);
                 Navigator.pop(context);
               }
             },
