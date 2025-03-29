@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/photo_item.dart';
 import '../providers/photo_provider.dart';
-import '../screens/full_image_view.dart';
+import '../screens/photo_view_screen.dart';
 
 class PhotoTile extends StatefulWidget {
   final PhotoItem photo;
@@ -24,6 +24,43 @@ class PhotoTile extends StatefulWidget {
 }
 
 class _PhotoTileState extends State<PhotoTile> {
+  Uint8List? _thumbnail;
+  bool _isLoading = true;
+  bool _hasError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadThumbnail();
+  }
+
+  Future<void> _loadThumbnail() async {
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+        _hasError = false;
+      });
+    }
+
+    try {
+      final thumbData = await widget.photo.thumbData;
+      if (mounted) {
+        setState(() {
+          _thumbnail = thumbData;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading thumbnail: $e');
+      if (mounted) {
+        setState(() {
+          _hasError = true;
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -31,59 +68,62 @@ class _PhotoTileState extends State<PhotoTile> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => FullImageView(photo: widget.photo),
+            builder: (context) => PhotoViewScreen(photo: widget.photo),
           ),
         );
       },
       child: Stack(
         fit: StackFit.expand,
         children: [
-          FutureBuilder<Uint8List?>(
-            future: widget.photo.thumbData,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                );
-              }
-
-              if (snapshot.hasError || !snapshot.hasData) {
-                return const Center(
-                  child: Icon(Icons.error_outline, color: Colors.red),
-                );
-              }
-
-              return Hero(
-                tag: 'photo_${widget.photo.id}',
-                child: FadeInImage(
-                  placeholder: MemoryImage(snapshot.data!),
-                  image: MemoryImage(snapshot.data!),
-                  fit: BoxFit.cover,
-                  fadeInDuration: const Duration(milliseconds: 300),
-                  fadeOutDuration: const Duration(milliseconds: 300),
-                  imageErrorBuilder: (context, error, stackTrace) {
-                    return const Center(
-                      child: Icon(Icons.error_outline, color: Colors.red),
-                    );
-                  },
-                ),
-              );
-            },
-          ),
-          if (widget.photo.isFavorite)
-            const Positioned(
-              top: 8,
-              right: 8,
-              child: Icon(
-                Icons.favorite,
-                color: Colors.red,
-                size: 24,
+          // Thumbnail image
+          if (_isLoading)
+            const Center(
+              child: SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            )
+          else if (_hasError) 
+            const Center(
+              child: Icon(Icons.error_outline, color: Colors.red),
+            )
+          else
+            Hero(
+              tag: 'photo_${widget.photo.id}',
+              child: Image.memory(
+                _thumbnail!,
+                fit: BoxFit.cover,
               ),
             ),
+
+          // Like button in top right corner
+          Positioned(
+            top: 4,
+            right: 4,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.5),
+                shape: BoxShape.circle,
+              ),
+              child: Consumer<PhotoProvider>(
+                builder: (context, photoProvider, child) {
+                  return IconButton(
+                    icon: Icon(
+                      widget.photo.isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: Colors.white,
+                    ),
+                    iconSize: 22,
+                    padding: const EdgeInsets.all(8),
+                    constraints: const BoxConstraints(),
+                    onPressed: () {
+                      photoProvider.toggleFavorite(widget.photo.id);
+                    },
+                  );
+                },
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -94,9 +134,9 @@ class _PhotoTileState extends State<PhotoTile> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => _PhotoDetailsScreen(photo: widget.photo),
-      ),
-    );
-  }
+                              ),
+                            );
+                          }
 }
 
 class _PhotoDetailsScreen extends StatelessWidget {

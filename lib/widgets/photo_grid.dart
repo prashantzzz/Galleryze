@@ -32,14 +32,7 @@ class PhotoGrid extends StatelessWidget {
         final photo = photos[index];
         return PhotoTile(
           photo: photo,
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PhotoViewScreen(photo: photo),
-              ),
-            );
-          },
+          onDragToCategory: onDragToCategory,
         );
       },
     );

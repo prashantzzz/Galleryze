@@ -100,11 +100,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   ElevatedButton(
                     onPressed: () => photoProvider.loadPhotos(),
                     child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            );
-          }
+          ),
+        ],
+      ),
+    );
+  }
 
           if (photoProvider.photos.isEmpty) {
             return const Center(
