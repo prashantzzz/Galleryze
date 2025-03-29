@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/photo_item.dart';
 import '../providers/photo_provider.dart';
+import '../screens/full_image_view.dart';
 
 class PhotoTile extends StatefulWidget {
   final PhotoItem photo;
@@ -27,7 +28,12 @@ class _PhotoTileState extends State<PhotoTile> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        _showPhotoDetails(context);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FullImageView(photo: widget.photo),
+          ),
+        );
       },
       child: Stack(
         fit: StackFit.expand,
