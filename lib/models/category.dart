@@ -69,7 +69,7 @@ class Category {
   // Default categories
   static List<Category> getDefaultCategories() {
     return [
-      Category(
+      const Category(
         id: 'all',
         name: 'All',
         icon: Icons.photo_library,
@@ -77,7 +77,7 @@ class Category {
         isDefault: true,
         isEditable: false,
       ),
-      Category(
+      const Category(
         id: 'favorites',
         name: 'Liked',
         icon: Icons.favorite,

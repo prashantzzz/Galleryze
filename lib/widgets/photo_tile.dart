@@ -112,27 +112,21 @@ class _PhotoTileState extends State<PhotoTile> {
           Positioned(
             top: 4,
             right: 4,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.5),
-                shape: BoxShape.circle,
-              ),
-              child: Consumer<PhotoProvider>(
-                builder: (context, photoProvider, child) {
-                  return IconButton(
-                    icon: Icon(
-                      widget.photo.isFavorite ? Icons.favorite : Icons.favorite_border,
-                      color: Colors.white,
-                    ),
-                    iconSize: 22,
-                    padding: const EdgeInsets.all(8),
-                    constraints: const BoxConstraints(),
-                    onPressed: () {
-                      photoProvider.toggleFavorite(widget.photo.id);
-                    },
-                  );
-                },
-              ),
+            child: Consumer<PhotoProvider>(
+              builder: (context, photoProvider, child) {
+                return IconButton(
+                  icon: Icon(
+                    widget.photo.isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: Colors.white,
+                  ),
+                  iconSize: 22,
+                  padding: const EdgeInsets.all(8),
+                  constraints: const BoxConstraints(),
+                  onPressed: () {
+                    photoProvider.toggleFavorite(widget.photo.id);
+                  },
+                );
+              },
             ),
           ),
         ],

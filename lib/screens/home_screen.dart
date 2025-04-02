@@ -86,8 +86,8 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         centerTitle: false,
-        actions: [
-          const SortDropdown(),
+        actions: const [
+          SortDropdown(),
         ],
       ),
       body: Consumer<PhotoProvider>(
@@ -176,7 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       )
                     : PhotoGrid(
-                        key: ValueKey('photo_grid_${sortChangeCounter}_${_selectedCategory}'),
+                        key: ValueKey('photo_grid_${sortChangeCounter}_$_selectedCategory'),
                         photos: _getFilteredAndSortedPhotos(photoProvider.photos, _selectedCategory),
                         onDragToCategory: (photoId, categoryId) {
                           Provider.of<PhotoProvider>(context, listen: false).addPhotoToCategory(photoId, categoryId);

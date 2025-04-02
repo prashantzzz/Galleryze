@@ -23,7 +23,7 @@ class ThumbnailService {
       final Uint8List originalBytes = imageData.buffer.asUint8List();
 
       // Compress the image
-      final Uint8List? compressedImage = await FlutterImageCompress.compressWithList(
+      final Uint8List compressedImage = await FlutterImageCompress.compressWithList(
         originalBytes,
         minHeight: THUMBNAIL_SIZE,
         minWidth: THUMBNAIL_SIZE,

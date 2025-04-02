@@ -22,8 +22,8 @@ class PhotoGrid extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
+        mainAxisSpacing: 4,
+        crossAxisSpacing: 4,
         childAspectRatio: 1.0,
       ),
       itemCount: photos.length,

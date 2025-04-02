@@ -16,7 +16,7 @@ class CategoryProvider extends ChangeNotifier {
     
     // Add custom categories
     _categories.addAll([
-      Category(
+      const Category(
         id: 'docs',
         name: 'Docs',
         icon: Icons.description,
@@ -24,7 +24,7 @@ class CategoryProvider extends ChangeNotifier {
         isDefault: true,
         isEditable: false,
       ),
-      Category(
+      const Category(
         id: 'people',
         name: 'People',
         icon: Icons.family_restroom,
@@ -32,7 +32,7 @@ class CategoryProvider extends ChangeNotifier {
         isDefault: true,
         isEditable: false,
       ),
-      Category(
+      const Category(
         id: 'pet',
         name: 'Pet',
         icon: Icons.pets,
@@ -40,7 +40,7 @@ class CategoryProvider extends ChangeNotifier {
         isDefault: true,
         isEditable: false,
       ),
-      Category(
+      const Category(
         id: 'nature',
         name: 'Nature',
         icon: Icons.landscape,
@@ -48,7 +48,7 @@ class CategoryProvider extends ChangeNotifier {
         isDefault: true,
         isEditable: false,
       ),
-      Category(
+      const Category(
         id: 'food',
         name: 'Food',
         icon: Icons.restaurant,
