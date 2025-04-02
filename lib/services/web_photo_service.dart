@@ -1,9 +1,21 @@
 import '../models/web_asset_entity.dart';
 import 'package:flutter/services.dart' show rootBundle, ByteData;
 import 'dart:convert';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 /// Service for fetching photos on web platform
 class WebPhotoService {
+  /// Clear cached thumbnails
+  static Future<void> clearCache() async {
+    try {
+      final cache = DefaultCacheManager();
+      await cache.emptyCache();
+      print('Thumbnail cache cleared');
+    } catch (e) {
+      print('Error clearing cache: $e');
+    }
+  }
+
   /// Get a list of sample photos for web demo
   static Future<List<WebAssetEntity>> getSamplePhotos() async {
     final List<WebAssetEntity> photos = [];
@@ -24,8 +36,22 @@ class WebPhotoService {
 
       print('Found ${testImages.length} images in test directory');
 
-      for (int i = 0; i < testImages.length; i++) {
-        final assetPath = testImages[i];
+      // Verify each image actually exists by trying to load it
+      List<String> validImages = [];
+      for (final imagePath in testImages) {
+        try {
+          // Try to load the image - this will throw if it doesn't exist
+          await rootBundle.load(imagePath);
+          validImages.add(imagePath);
+        } catch (e) {
+          print('Image $imagePath no longer exists, skipping');
+        }
+      }
+      
+      print('Verified ${validImages.length} images exist');
+
+      for (int i = 0; i < validImages.length; i++) {
+        final assetPath = validImages[i];
         final filename = assetPath.split('/').last;
         final now = DateTime.now();
         final creationDate = now.subtract(Duration(days: i * 2));

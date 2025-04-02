@@ -86,8 +86,14 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         centerTitle: false,
-        actions: const [
-          SortDropdown(),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              context.read<PhotoProvider>().refreshImages();
+            },
+          ),
+          const SortDropdown(),
         ],
       ),
       body: Consumer<PhotoProvider>(
@@ -194,55 +200,51 @@ class _HomeScreenState extends State<HomeScreen> {
     final isSelected = _selectedCategory.toLowerCase() == categoryId.toLowerCase();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              spreadRadius: 0.5,
-              blurRadius: 2,
-              offset: const Offset(0, 1),
-            ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () {
-              setState(() {
-                _selectedCategory = categoryId;
-              });
-            },
-            borderRadius: BorderRadius.circular(16),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: isSelected ? Colors.grey[850] : Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: isSelected ? Colors.grey[850]! : Colors.grey[300]!,
-                  width: 1,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            setState(() {
+              _selectedCategory = categoryId;
+            });
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: isSelected ? Colors.grey[850] : Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isSelected ? Colors.grey[850]! : Colors.grey[300]!,
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.06),
+                  spreadRadius: 0,
+                  blurRadius: 3,
+                  offset: const Offset(0, 1.5),
                 ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    icon,
-                    size: 16,
-                    color: isSelected ? Colors.white : Colors.grey[600],
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  size: 16,
+                  color: isSelected ? Colors.white : Colors.grey[600],
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : Colors.grey[800],
+                    fontSize: 12,
+                    fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
                   ),
-                  const SizedBox(width: 6),
-                  Text(
-                    label,
-                    style: TextStyle(
-                      color: isSelected ? Colors.white : Colors.grey[800],
-                      fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

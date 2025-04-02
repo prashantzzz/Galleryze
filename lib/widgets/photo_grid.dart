@@ -20,21 +20,25 @@ class PhotoGrid extends StatelessWidget {
 
     return GridView.builder(
       padding: const EdgeInsets.all(16),
+      physics: const BouncingScrollPhysics(),
+      cacheExtent: 500, // Cache more items for smoother scrolling
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
-        mainAxisSpacing: 4,
-        crossAxisSpacing: 4,
+        mainAxisSpacing: 1,
+        crossAxisSpacing: 1,
         childAspectRatio: 1.0,
       ),
       itemCount: photos.length,
       itemBuilder: (context, index) {
         final photo = photos[index];
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: PhotoTile(
-            key: ValueKey('photo_${photo.id}'),
-            photo: photo,
-            onDragToCategory: onDragToCategory,
+        return RepaintBoundary(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: PhotoTile(
+              key: ValueKey('photo_${photo.id}'),
+              photo: photo,
+              onDragToCategory: onDragToCategory,
+            ),
           ),
         );
       },

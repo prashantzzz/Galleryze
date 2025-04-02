@@ -30,6 +30,14 @@ class PhotoItem {
     if (_cachedThumbData != null) return _cachedThumbData;
     
     try {
+      // First check if the asset file exists
+      try {
+        await rootBundle.load(url);
+      } catch (e) {
+        print('Asset $url no longer exists, cannot generate thumbnail');
+        return null;
+      }
+      
       _cachedThumbData = await ThumbnailService.generateThumbnail(_asset.url);
       return _cachedThumbData;
     } catch (e) {

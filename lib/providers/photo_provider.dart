@@ -28,7 +28,10 @@ class PhotoProvider extends ChangeNotifier {
   bool get sortAscending => _sortAscending;
 
   // Initialize and load photos from web service
-  Future<void> loadPhotos() async {
+  Future<void> loadPhotos({bool forceRefresh = false}) async {
+    // If photos are already loaded and not forcing refresh, don't reload
+    if (_photos.isNotEmpty && !forceRefresh) return;
+    
     if (_isLoading) return;
     
     _isLoading = true;
@@ -36,6 +39,13 @@ class PhotoProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      if (forceRefresh) {
+        // Clear thumbnail cache to ensure we're showing the latest images
+        await WebPhotoService.clearCache();
+        // Clear existing photos
+        _photos.clear();
+      }
+      
       final webAssets = await WebPhotoService.getSamplePhotos();
       _photos = webAssets.map((asset) => PhotoItem(webAsset: asset)).toList();
       _applySorting();
@@ -136,7 +146,7 @@ class PhotoProvider extends ChangeNotifier {
   void _applySorting() {
     if (_photos.isEmpty) return;
     
-    print('Applying sorting: by $_sortBy, ascending: $_sortAscending');
+    // print('Applying sorting: by $_sortBy, ascending: $_sortAscending');
     
     _photos.sort((a, b) {
       int comparison;
@@ -199,5 +209,74 @@ class PhotoProvider extends ChangeNotifier {
     _sortAscending = !_sortAscending;
     _applySorting();
     notifyListeners();
+  }
+
+  // Refresh images but preserve metadata like favorites and categories
+  Future<void> refreshImages() async {
+    if (_isLoading) return;
+    
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      // Clear thumbnail cache to ensure we're showing the latest images
+      await WebPhotoService.clearCache();
+      
+      // Get the existing photo metadata (favorites, categories)
+      Map<String, Map<String, dynamic>> photoMetadataByFilename = {};
+      
+      // Store metadata by filename for easier matching
+      for (var photo in _photos) {
+        String filename = photo.title; // Use the filename as key
+        photoMetadataByFilename[filename] = {
+          'isFavorite': photo.isFavorite,
+          'categories': Set<String>.from(photo.categories), // Create a copy of the set
+        };
+      }
+      
+      // Debug
+      // print('Saved metadata for ${photoMetadataByFilename.length} existing photos');
+      // photoMetadataByFilename.forEach((filename, data) {
+      //   print('- $filename: favorite=${data['isFavorite']}, categories=${data['categories']}');
+      // });
+      
+      // Get the new photos
+      final webAssets = await WebPhotoService.getSamplePhotos();
+      print('Loaded ${webAssets.length} photos from WebPhotoService');
+      
+      // Create new photo items with updated metadata
+      List<PhotoItem> newPhotos = [];
+      
+      for (var asset in webAssets) {
+        // Create a new photo item
+        var photo = PhotoItem(webAsset: asset);
+        
+        // Match by filename
+        if (photoMetadataByFilename.containsKey(photo.title)) {
+          // Restore metadata for existing photos
+          var metadata = photoMetadataByFilename[photo.title]!;
+          photo.isFavorite = metadata['isFavorite'] as bool;
+          photo.categories = metadata['categories'] as Set<String>;
+          // print('Restored metadata for ${photo.title}: favorite=${photo.isFavorite}, categories=${photo.categories}');
+        } else {
+          // This is a new photo
+          print('New photo detected: ${photo.title}');
+        }
+        
+        newPhotos.add(photo);
+      }
+      
+      // Replace photos collection
+      _photos = newPhotos;
+      
+      _applySorting();
+      _error = null;
+    } catch (e) {
+      _error = 'Failed to load photos: $e';
+      print('Error refreshing images: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }
