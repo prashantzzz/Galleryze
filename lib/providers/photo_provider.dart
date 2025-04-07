@@ -180,8 +180,8 @@ class PhotoProvider extends ChangeNotifier {
   }
 
   void setSortBy(String sortBy, bool ascending) {
-    print('setSortBy called with: sortBy=$sortBy, ascending=$ascending');
-    print('Before change: _sortBy=$_sortBy, _sortAscending=$_sortAscending');
+    // print('setSortBy called with: sortBy=$sortBy, ascending=$ascending');
+    // print('Before change: _sortBy=$_sortBy, _sortAscending=$_sortAscending');
     
     _sortBy = sortBy;
     _sortAscending = ascending;
@@ -193,7 +193,7 @@ class PhotoProvider extends ChangeNotifier {
       _sortOption = ascending ? SortOption.sizeAsc : SortOption.sizeDesc;
     }
     
-    print('After change: _sortBy=$_sortBy, _sortAscending=$_sortAscending, _sortOption=$_sortOption');
+    // print('After change: _sortBy=$_sortBy, _sortAscending=$_sortAscending, _sortOption=$_sortOption');
     
     _applySorting();
     
