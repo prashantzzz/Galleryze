@@ -5,6 +5,7 @@ import '../providers/photo_provider.dart';
 import '../providers/category_provider.dart';
 import '../widgets/photo_grid.dart';
 import '../widgets/sort_dropdown.dart';
+import '../widgets/auto_categorize_button.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -94,6 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
           const SortDropdown(),
+          const AutoCategorizeButton(),
         ],
       ),
       body: Consumer<PhotoProvider>(

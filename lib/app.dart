@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'providers/photo_provider.dart';
 import 'providers/category_provider.dart';
+import 'providers/image_classifier_provider.dart';
 import 'screens/main_screen.dart';
 
 class GalleryzeApp extends StatelessWidget {
@@ -14,6 +15,11 @@ class GalleryzeApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => PhotoProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
+        ChangeNotifierProxyProvider<PhotoProvider, ImageClassifierProvider>(
+          create: (context) => ImageClassifierProvider(Provider.of<PhotoProvider>(context, listen: false)),
+          update: (context, photoProvider, previous) => 
+            previous ?? ImageClassifierProvider(photoProvider),
+        ),
       ],
       child: MaterialApp(
         title: 'Galleryze',

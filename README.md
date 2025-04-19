@@ -1,6 +1,7 @@
-# workspace
+# Galleryze
 
-A new Flutter project.
+A gallery App for android/IOS
+![Screenshot](ss.jpg)
 
 ## Getting Started
 
