@@ -17,8 +17,8 @@ class CategoryProvider extends ChangeNotifier {
     // Add custom categories
     _categories.addAll([
       const Category(
-        id: 'docs',
-        name: 'Docs',
+        id: 'documents',
+        name: 'Documents',
         icon: Icons.description,
         color: Colors.orange,
         isDefault: true,
@@ -33,8 +33,8 @@ class CategoryProvider extends ChangeNotifier {
         isEditable: false,
       ),
       const Category(
-        id: 'pet',
-        name: 'Pet',
+        id: 'animals',
+        name: 'Animals',
         icon: Icons.pets,
         color: Colors.purple,
         isDefault: true,
@@ -53,6 +53,14 @@ class CategoryProvider extends ChangeNotifier {
         name: 'Food',
         icon: Icons.restaurant,
         color: Colors.amber,
+        isDefault: true,
+        isEditable: false,
+      ),
+      const Category(
+        id: 'others',
+        name: 'Others',
+        icon: Icons.label,
+        color: Colors.grey,
         isDefault: true,
         isEditable: false,
       ),

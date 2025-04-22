@@ -1,5 +1,8 @@
+import 'dart:io';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import '../models/photo_item.dart';
+import '../models/web_asset_entity.dart';
 import '../services/web_photo_service.dart';
 
 enum SortOption { dateAsc, dateDesc, sizeAsc, sizeDesc }
@@ -277,6 +280,66 @@ class PhotoProvider extends ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  // Add a new photo from a local file
+  void addPhotoFromFile(File file, String category) {
+    try {
+      // Generate a unique ID
+      final id = 'local_${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(10000)}';
+      
+      // Get the file name
+      final fileName = file.path.split('/').last;
+      
+      // Create a WebAssetEntity
+      final webAsset = WebAssetEntity(
+        id: id,
+        title: fileName,
+        createDateTime: DateTime.now(),
+        modifiedDateTime: DateTime.now(),
+        width: 800,  // Default size since we can't easily get dimensions
+        height: 600, // Default size since we can't easily get dimensions
+        size: file.lengthSync(), // Get actual file size
+        mimeType: _getMimeType(fileName),
+        url: file.path,
+      );
+      
+      // Create a PhotoItem
+      final photoItem = PhotoItem(
+        webAsset: webAsset,
+        isFavorite: false,
+        categories: {category},
+      );
+      
+      // Add to photos collection
+      _photos.add(photoItem);
+      
+      print('Added new photo from file: $fileName with ID: $id to category: $category');
+      
+      // Apply sorting and notify listeners
+      _applySorting();
+      notifyListeners();
+    } catch (e) {
+      print('Error adding photo from file: $e');
+    }
+  }
+  
+  // Helper to get MIME type from file extension
+  String _getMimeType(String fileName) {
+    final extension = fileName.toLowerCase().split('.').last;
+    switch (extension) {
+      case 'jpg':
+      case 'jpeg':
+        return 'image/jpeg';
+      case 'png':
+        return 'image/png';
+      case 'gif':
+        return 'image/gif';
+      case 'bmp':
+        return 'image/bmp';
+      default:
+        return 'image/jpeg';
     }
   }
 }

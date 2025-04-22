@@ -3,9 +3,11 @@ import 'package:provider/provider.dart';
 import '../models/photo_item.dart';
 import '../providers/photo_provider.dart';
 import '../providers/category_provider.dart';
+import '../providers/image_classifier_provider.dart';
 import '../widgets/photo_grid.dart';
 import '../widgets/sort_dropdown.dart';
 import '../widgets/auto_categorize_button.dart';
+import '../widgets/image_classifier_status_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -24,6 +26,11 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<PhotoProvider>().loadPhotos();
     });
+  }
+
+  // Force UI refresh when classification completes
+  void _refreshUI() {
+    setState(() {});
   }
 
   // Get filtered and sorted photos based on category
@@ -92,10 +99,20 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.refresh),
             onPressed: () {
               context.read<PhotoProvider>().refreshImages();
+              _refreshUI();
             },
           ),
           const SortDropdown(),
-          const AutoCategorizeButton(),
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: Consumer<ImageClassifierProvider>(
+              builder: (context, provider, child) {
+                return AutoCategorizeButton(
+                  onClassificationCompleted: _refreshUI,
+                );
+              },
+            ),
+          ),
         ],
       ),
       body: Consumer<PhotoProvider>(
@@ -172,6 +189,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
+              // Add the image classifier status widget
+              const ImageClassifierStatusWidget(),
               // Photo grid
               Expanded(
                 child: _getFilteredAndSortedPhotos(photoProvider.photos, _selectedCategory).isEmpty

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/services.dart';
 import 'web_asset_entity.dart';
 import '../services/thumbnail_service.dart';
@@ -30,15 +31,25 @@ class PhotoItem {
     if (_cachedThumbData != null) return _cachedThumbData;
     
     try {
-      // First check if the asset file exists
-      try {
-        await rootBundle.load(url);
-      } catch (e) {
-        print('Asset $url no longer exists, cannot generate thumbnail');
-        return null;
+      // Check if this is a local file or an asset
+      if (url.startsWith('/')) {
+        // Local file
+        final file = File(url);
+        if (!await file.exists()) {
+          print('File does not exist: $url');
+          return null;
+        }
+      } else {
+        // Asset - check if it exists
+        try {
+          await rootBundle.load(url);
+        } catch (e) {
+          print('Asset $url no longer exists, cannot generate thumbnail');
+          return null;
+        }
       }
       
-      _cachedThumbData = await ThumbnailService.generateThumbnail(_asset.url);
+      _cachedThumbData = await ThumbnailService.generateThumbnail(url);
       return _cachedThumbData;
     } catch (e) {
       print('Error loading thumbnail: $e');
@@ -51,9 +62,22 @@ class PhotoItem {
     if (_cachedFullData != null) return _cachedFullData;
     
     try {
-      final ByteData data = await rootBundle.load(_asset.url);
-      _cachedFullData = data.buffer.asUint8List();
-      return _cachedFullData;
+      if (url.startsWith('/')) {
+        // Local file
+        final file = File(url);
+        if (await file.exists()) {
+          _cachedFullData = await file.readAsBytes();
+          return _cachedFullData;
+        } else {
+          print('File does not exist: $url');
+          return null;
+        }
+      } else {
+        // Asset
+        final ByteData data = await rootBundle.load(url);
+        _cachedFullData = data.buffer.asUint8List();
+        return _cachedFullData;
+      }
     } catch (e) {
       print('Error loading full image: $e');
       return null;

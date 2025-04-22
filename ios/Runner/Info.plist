@@ -48,8 +48,10 @@
 	
 	<!-- Photo library permissions -->
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Galleryze needs access to your photo library to display and organize your photos into categories.</string>
+	<string>Galleryze needs access to your photo library to display, organize, and classify your photos using ML Kit.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Galleryze needs permission to save edited photos to your library.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Galleryze needs access to your camera to capture photos for ML Kit image classification.</string>
 </dict>
 </plist>
