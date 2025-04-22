@@ -98,9 +98,9 @@ class ImageClassifierService {
   
   // Map JSON file categories to app categories
   String _mapCategoryToAppCategory(String jsonCategory) {
-    if (jsonCategory == 'Documents') return 'Documents';
+    if (jsonCategory == 'Document') return 'Documents';
     if (jsonCategory == 'People') return 'People';
-    if (jsonCategory == 'Animals') return 'Animals';
+    if (jsonCategory == 'Animal') return 'Animals';
     if (jsonCategory == 'Nature') return 'Nature';
     if (jsonCategory == 'Food') return 'Food';
     return 'Others';
@@ -189,10 +189,47 @@ class ImageClassifierService {
         final topLabel = labels.first;
         print('DEBUG: Top label for $fileName: ${topLabel.label} (${(topLabel.confidence * 100).toStringAsFixed(1)}%)');
         
-        // Map the label to one of our categories
-        final category = _findCategoryForLabel(topLabel.label);
-        print('DEBUG: Final category for $fileName: $category');
-        return category;
+        // NEW LOGIC: Check the first 5 labels for a non-"Others" category
+        final int labelsToCheck = labels.length > 5 ? 5 : labels.length;
+        String finalCategory = 'Others';
+        
+        // First, specifically check for People category in top 5
+        bool foundPeople = false;
+        for (int i = 0; i < labelsToCheck; i++) {
+          final currentLabel = labels[i];
+          final currentCategory = _findCategoryForLabel(currentLabel.label);
+          
+          if (currentCategory == 'People') {
+            finalCategory = 'People';
+            foundPeople = true;
+            print('DEBUG: Found People category from label #${i+1}: ${currentLabel.label}');
+            break;
+          }
+        }
+        
+        // If People not found, then use existing logic for finding first non-Others
+        if (!foundPeople) {
+          for (int i = 0; i < labelsToCheck; i++) {
+            final currentLabel = labels[i];
+            final currentCategory = _findCategoryForLabel(currentLabel.label);
+            
+            // If we find a non-Others category, use it and break
+            if (currentCategory != 'Others') {
+              finalCategory = currentCategory;
+              print('DEBUG: Using non-Others category from label #${i+1}: ${currentLabel.label} -> $finalCategory');
+              break;
+            }
+          }
+        }
+        
+        // If no non-Others category found in top 5, use the category of the top label
+        if (finalCategory == 'Others') {
+          finalCategory = _findCategoryForLabel(topLabel.label);
+          print('DEBUG: No non-Others category found in top 5 labels, using top label category: $finalCategory');
+        }
+        
+        print('DEBUG: Final category for $fileName: $finalCategory');
+        return finalCategory;
       }
       
       print('DEBUG: No labels found, returning "Others"');

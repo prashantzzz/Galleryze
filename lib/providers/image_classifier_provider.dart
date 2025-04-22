@@ -410,6 +410,12 @@ class ImageClassifierProvider extends ChangeNotifier {
     }
   }
   
+  // Clear any error message
+  void clearError() {
+    _error = null;
+    notifyListeners();
+  }
+  
   // Dispose resources
   @override
   void dispose() {

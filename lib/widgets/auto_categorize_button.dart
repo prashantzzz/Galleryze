@@ -104,48 +104,36 @@ class AutoCategorizeButton extends StatelessWidget {
           ),
         ),
         const PopupMenuItem<String>(
-          value: 'reset',
+          value: 'resetAll',
           child: Row(
             children: [
               Icon(Icons.refresh, size: 18),
               SizedBox(width: 8),
-              Text('Reset Classification History'),
-            ],
-          ),
-        ),
-        const PopupMenuItem<String>(
-          value: 'resetjson',
-          child: Row(
-            children: [
-              Icon(Icons.update, size: 18),
-              SizedBox(width: 8),
-              Text('Reclassify After JSON Update'),
+              Text('Reset All'),
             ],
           ),
         ),
       ],
-    ).then((value) async {
-      if (value == 'reset') {
-        await _resetClassificationTimestamp(context);
+    ).then((String? value) async {
+      if (value == 'resetAll') {
+        await _resetAll(context);
       } else if (value == 'diag') {
         await _runDiagnosticSearch(context);
       } else if (value == 'custom') {
         await _enterCustomDirectory(context);
-      } else if (value == 'resetjson') {
-        await _reclassifyAfterJsonUpdate(context);
       }
     });
   }
   
-  Future<void> _resetClassificationTimestamp(BuildContext context) async {
+  Future<void> _resetAll(BuildContext context) async {
     try {
       // Show a dialog to confirm
       final bool confirm = await showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Reset Classification History'),
+          title: const Text('Reset All'),
           content: const Text(
-            'This will clear the timestamp record and force all images to be re-classified on the next scan. Continue?'
+            'This will reset all classification history and reload JSON mappings. All images will be re-classified on the next scan. Continue?'
           ),
           actions: [
             TextButton(
@@ -164,20 +152,24 @@ class AutoCategorizeButton extends StatelessWidget {
         // Reset the checkpoint
         await ImageClassifierService.resetCheckpoint();
         
+        // Restart the image classifier to reload JSON
+        final classifierProvider = Provider.of<ImageClassifierProvider>(context, listen: false);
+        await classifierProvider.restartClassifier();
+        
         // Show confirmation
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Classification history has been reset. All images will be re-classified on next scan.'),
+            content: Text('Classification history and JSON mappings have been reset. All images will be re-classified on next scan.'),
             backgroundColor: Colors.green,
             duration: Duration(seconds: 3),
           ),
         );
       }
     } catch (e) {
-      print('DEBUG ERROR: Failed to reset classification timestamp: $e');
+      print('DEBUG ERROR: Failed to reset all: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error resetting classification history: $e'),
+          content: Text('Error resetting all: $e'),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 3),
         ),
@@ -834,58 +826,6 @@ class AutoCategorizeButton extends StatelessWidget {
           ),
         );
       }
-    }
-  }
-
-  Future<void> _reclassifyAfterJsonUpdate(BuildContext context) async {
-    try {
-      // Show a dialog to confirm
-      final bool confirm = await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Reclassify After JSON Update'),
-          content: const Text(
-            'This will reload the updated image_labelling_classes.json file and reclassify all images using the new category mappings. Continue?'
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Reclassify'),
-            ),
-          ],
-        ),
-      ) ?? false;
-      
-      if (confirm) {
-        // Reset the checkpoint to force reprocessing
-        await ImageClassifierService.resetCheckpoint();
-        
-        // Restart the image classifier to reload JSON
-        final classifierProvider = Provider.of<ImageClassifierProvider>(context, listen: false);
-        await classifierProvider.restartClassifier();
-        
-        // Show confirmation
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('JSON mappings reloaded. Classification will use updated categories on next scan.'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 3),
-          ),
-        );
-      }
-    } catch (e) {
-      print('DEBUG ERROR: Failed to reclassify after JSON update: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error reclassifying after JSON update: $e'),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
-        ),
-      );
     }
   }
 }
