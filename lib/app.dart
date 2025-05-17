@@ -5,9 +5,29 @@ import 'providers/photo_provider.dart';
 import 'providers/category_provider.dart';
 import 'providers/image_classifier_provider.dart';
 import 'screens/main_screen.dart';
+import 'services/device_photo_service.dart';
 
-class GalleryzeApp extends StatelessWidget {
+class GalleryzeApp extends StatefulWidget {
   const GalleryzeApp({Key? key}) : super(key: key);
+
+  @override
+  _GalleryzeAppState createState() => _GalleryzeAppState();
+}
+
+class _GalleryzeAppState extends State<GalleryzeApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Request permissions after a short delay to ensure the app is fully loaded
+    Future.delayed(const Duration(milliseconds: 500), () {
+      _requestPermissions();
+    });
+  }
+
+  Future<void> _requestPermissions() async {
+    // Request photo permissions
+    await DevicePhotoService.requestStoragePermission(context);
+  }
 
   @override
   Widget build(BuildContext context) {

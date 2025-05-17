@@ -25,20 +25,20 @@ class WebPhotoService {
       final manifestContent = await rootBundle.loadString('AssetManifest.json');
       final Map<String, dynamic> manifestMap = json.decode(manifestContent);
       
-      // Filter for images in the test directory
-      final testImages = manifestMap.keys
-          .where((String key) => key.startsWith('test/') && 
+      // Filter for images in the assets directory
+      final assetImages = manifestMap.keys
+          .where((String key) => key.startsWith('assets/') && 
               (key.toLowerCase().endsWith('.jpg') || 
                key.toLowerCase().endsWith('.jpeg') ||
                key.toLowerCase().endsWith('.png')))
           .toList()
         ..sort((a, b) => b.compareTo(a)); // Sort newest first
 
-      print('Found ${testImages.length} images in test directory');
+      print('Found ${assetImages.length} images in assets directory');
 
       // Verify each image actually exists by trying to load it
       List<String> validImages = [];
-      for (final imagePath in testImages) {
+      for (final imagePath in assetImages) {
         try {
           // Try to load the image - this will throw if it doesn't exist
           await rootBundle.load(imagePath);
@@ -76,7 +76,7 @@ class WebPhotoService {
 
       print('Created ${photos.length} local photo entities');
     } catch (e) {
-      print('Error loading images from test directory: $e');
+      print('Error loading images from assets directory: $e');
     }
     
     return photos;

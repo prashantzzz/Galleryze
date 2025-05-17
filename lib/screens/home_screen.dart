@@ -8,6 +8,8 @@ import '../widgets/photo_grid.dart';
 import '../widgets/sort_dropdown.dart';
 import '../widgets/auto_categorize_button.dart';
 import '../widgets/image_classifier_status_widget.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -24,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     // Load photos after the widget is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PhotoProvider>().loadPhotos();
+      context.read<PhotoProvider>().loadPhotos(context: context);
     });
   }
 
@@ -97,9 +99,33 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () {
-              context.read<PhotoProvider>().refreshImages();
-              _refreshUI();
+            onPressed: () async {
+              // Show reset confirmation dialog
+              final bool shouldReset = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Reset Options'),
+                  content: const Text('Do you want to reset all categories and reload photos?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text('Just Refresh'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: const Text('Reset All'),
+                    ),
+                  ],
+                ),
+              ) ?? false;
+              
+              if (shouldReset) {
+                await _resetAll(context);
+              } else {
+                // Just refresh photos
+                context.read<PhotoProvider>().loadPhotos(forceRefresh: true, context: context);
+                _refreshUI();
+              }
             },
           ),
           const SortDropdown(),
@@ -140,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () => photoProvider.loadPhotos(),
+                    onPressed: () => photoProvider.loadPhotos(context: context),
                     child: const Text('Retry'),
           ),
         ],
@@ -149,8 +175,34 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
           if (photoProvider.photos.isEmpty) {
-            return const Center(
-              child: Text('No photos found'),
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.photo_library_outlined,
+                    size: 64,
+                    color: Colors.grey,
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No photos found',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Please grant storage permission to view your photos',
+                    style: TextStyle(color: Colors.grey[600]),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: () => photoProvider.loadPhotos(context: context, forceRefresh: true),
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Refresh'),
+                  ),
+                ],
+              ),
             );
           }
 
@@ -195,11 +247,31 @@ class _HomeScreenState extends State<HomeScreen> {
               Expanded(
                 child: _getFilteredAndSortedPhotos(photoProvider.photos, _selectedCategory).isEmpty
                     ? Center(
-                        child: Text(
-                          _selectedCategory == 'favorites'
-                              ? 'No favorite photos yet'
-                              : 'No photos in this category',
-                          style: TextStyle(color: Colors.grey[600]),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              _selectedCategory == 'favorites' ? Icons.favorite_border : Icons.photo_library_outlined,
+                              size: 48,
+                              color: Colors.grey,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              _selectedCategory == 'favorites'
+                                ? 'No favorite photos yet'
+                                : 'No photos in this category',
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+                            _selectedCategory == 'favorites'
+                              ? Text(
+                                  'Tap the heart icon on photos to add them to favorites',
+                                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                                  textAlign: TextAlign.center,
+                                )
+                              : const SizedBox.shrink(),
+                          ],
                         ),
                       )
                     : PhotoGrid(
@@ -215,6 +287,68 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
     );
+  }
+
+  // Reset all categories and reload photos
+  Future<void> _resetAll(BuildContext context) async {
+    try {
+      // Show a loading indicator
+      final scaffoldMessenger = ScaffoldMessenger.of(context);
+      scaffoldMessenger.showSnackBar(
+        const SnackBar(
+          content: Text('Resetting all categories...'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      
+      // Reset the image classifier provider
+      final classifierProvider = Provider.of<ImageClassifierProvider>(context, listen: false);
+      await classifierProvider.resetClassifier();
+      
+      // Reset the photo provider (clear categories)
+      final photoProvider = Provider.of<PhotoProvider>(context, listen: false);
+      await photoProvider.resetCategories();
+      
+      // Clear the application support directory
+      try {
+        final appDir = await getApplicationSupportDirectory();
+        final mlKitDir = Directory('${appDir.path}/ml_kit');
+        if (await mlKitDir.exists()) {
+          await mlKitDir.delete(recursive: true);
+          print('DEBUG: Deleted ML Kit directory');
+        }
+      } catch (e) {
+        print('DEBUG: Error clearing ML Kit directory: $e');
+        // Continue even if this fails
+      }
+      
+      // Reload photos
+      await photoProvider.loadPhotos(forceRefresh: true, context: context);
+      
+      // Show success message
+      if (context.mounted) {
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(
+            content: Text('All categories have been reset'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+      
+      // Refresh the UI
+      _refreshUI();
+    } catch (e) {
+      print('DEBUG: Error in resetAll: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error resetting categories: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildCategoryChip(String categoryId, String label, IconData icon, Color color) {

@@ -36,13 +36,13 @@ class ImageClassifierService {
       print('DEBUG: Starting ImageClassifierService initialization');
       
       // Initialize the ML Kit Image Labeler with default options
-      final options = ImageLabelerOptions(confidenceThreshold: 0.7);
+      final options = ImageLabelerOptions(confidenceThreshold: 0.5);
       _imageLabeler = ImageLabeler(options: options);
       
       // Load category mappings from asset
       print('DEBUG: Loading category mappings from asset');
       try {
-        final String jsonString = await rootBundle.loadString('test/image_labelling_classes.json');
+        final String jsonString = await rootBundle.loadString('assets/image_labelling_classes.json');
         print('DEBUG: Category mappings JSON loaded, size: ${jsonString.length}');
         _categoryMappings = jsonDecode(jsonString);
         print('DEBUG: Category mappings decoded, number of categories: ${_categoryMappings.keys.length}');

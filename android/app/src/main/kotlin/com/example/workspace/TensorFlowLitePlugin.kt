@@ -20,7 +20,6 @@ class TensorFlowLitePlugin : FlutterPlugin, MethodCallHandler {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "com.galleryze/tflite")
         channel.setMethodCallHandler(this)
     }
-
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
             "loadModels" -> {

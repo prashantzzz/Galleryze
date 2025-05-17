@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../models/photo_item.dart';
 import '../models/web_asset_entity.dart';
+import '../services/device_photo_service.dart';
 import '../services/web_photo_service.dart';
 
 enum SortOption { dateAsc, dateDesc, sizeAsc, sizeDesc }
@@ -30,8 +31,8 @@ class PhotoProvider extends ChangeNotifier {
   String get sortBy => _sortBy;
   bool get sortAscending => _sortAscending;
 
-  // Initialize and load photos from web service
-  Future<void> loadPhotos({bool forceRefresh = false}) async {
+  // Initialize and load photos from device storage
+  Future<void> loadPhotos({bool forceRefresh = false, BuildContext? context}) async {
     // If photos are already loaded and not forcing refresh, don't reload
     if (_photos.isNotEmpty && !forceRefresh) return;
     
@@ -42,15 +43,32 @@ class PhotoProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      // Request storage permission
+      final hasPermission = await DevicePhotoService.requestStoragePermission(context);
+      
+      if (!hasPermission) {
+        _error = 'Storage permission denied';
+        print('Storage permission denied');
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+      
       if (forceRefresh) {
-        // Clear thumbnail cache to ensure we're showing the latest images
-        await WebPhotoService.clearCache();
         // Clear existing photos
         _photos.clear();
       }
       
-      final webAssets = await WebPhotoService.getSamplePhotos();
-      _photos = webAssets.map((asset) => PhotoItem(webAsset: asset)).toList();
+      // Get photos from device storage
+      final deviceAssets = await DevicePhotoService.getDevicePhotos(limit: 500);
+      
+      // Convert to PhotoItem objects
+      _photos = deviceAssets.map((asset) => PhotoItem(webAsset: asset)).toList();
+      
+      if (_photos.isEmpty) {
+        print('No device photos found');
+      }
+      
       _applySorting();
       _error = null;
     } catch (e) {
@@ -64,7 +82,32 @@ class PhotoProvider extends ChangeNotifier {
 
   // Load more photos (for pagination)
   Future<void> loadMorePhotos() async {
-    // Implementation for loading more photos when reaching the end of the list
+    if (_isLoading) return;
+    
+    _isLoading = true;
+    notifyListeners();
+    
+    try {
+      // Get current photo count
+      final currentCount = _photos.length;
+      
+      // Load more photos with pagination
+      final moreAssets = await DevicePhotoService.getDevicePhotos(
+        limit: 100,
+        offset: currentCount,
+      );
+      
+      if (moreAssets.isNotEmpty) {
+        final morePhotos = moreAssets.map((asset) => PhotoItem(webAsset: asset)).toList();
+        _photos.addAll(morePhotos);
+        _applySorting();
+      }
+    } catch (e) {
+      print('Error loading more photos: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   // Toggle favorite status
@@ -103,6 +146,11 @@ class PhotoProvider extends ChangeNotifier {
   void addPhotoToCategory(String photoId, String category) {
     final index = _photos.indexWhere((photo) => photo.id == photoId);
     if (index != -1) {
+      // If adding a non-Others category, remove the Others category if it exists
+      if (category != 'Others' && _photos[index].categories.contains('Others')) {
+        _photos[index].removeFromCategory('Others');
+        print('Removed "Others" category from photo $photoId when adding to $category');
+      }
       _photos[index].addToCategory(category);
       notifyListeners();
     }
@@ -341,5 +389,20 @@ class PhotoProvider extends ChangeNotifier {
       default:
         return 'image/jpeg';
     }
+  }
+  
+  // Clear all photo categories
+  void clearAllCategories() {
+    for (var photo in _photos) {
+      photo.categories.clear();
+    }
+    print('Cleared all categories for all ${_photos.length} photos');
+    notifyListeners();
+  }
+  
+  // Reset all categories and return a Future for async compatibility
+  Future<void> resetCategories() async {
+    clearAllCategories();
+    return Future.value();
   }
 }

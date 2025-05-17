@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/category.dart';
 import '../providers/category_provider.dart';
+import '../providers/photo_provider.dart';
 
 class CategoriesScreen extends StatelessWidget {
   const CategoriesScreen({Key? key}) : super(key: key);
@@ -9,6 +10,7 @@ class CategoriesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final categoryProvider = Provider.of<CategoryProvider>(context);
+    final photoProvider = Provider.of<PhotoProvider>(context);
     final categories = categoryProvider.categories.where((c) => c.id != 'all').toList();
 
     return Scaffold(
@@ -35,62 +37,29 @@ class CategoriesScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Expanded(
-              child: ListView.builder(
-                itemCount: categories.length,
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 1.0,
+                ),
+                itemCount: categories.length + 1, // +1 for the add category tile
                 itemBuilder: (context, index) {
+                  // Last item is the add category tile
+                  if (index == categories.length) {
+                    return _buildAddCategoryTile(context);
+                  }
+                  
                   final category = categories[index];
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: category.color,
-                        child: Icon(
-                          category.icon,
-                          color: Colors.white,
-                        ),
-                      ),
-                      title: Text(
-                        category.name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      trailing: category.isDefault
-                          ? const Chip(
-                              label: Text('Default'),
-                              backgroundColor: Colors.grey,
-                              labelStyle: TextStyle(color: Colors.white),
-                            )
-                          : Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.edit),
-                                  onPressed: () {
-                                    _showEditCategoryDialog(context, category);
-                                  },
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  onPressed: () {
-                                    _showDeleteConfirmation(context, category);
-                                  },
-                                ),
-                              ],
-                            ),
-                    ),
-                  );
+                  final photoCount = photoProvider.getPhotosByCategory(category.id).length;
+                  
+                  return _buildCategoryTile(context, category, photoCount);
                 },
               ),
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showAddCategoryDialog(context);
-        },
-        child: const Icon(Icons.add),
       ),
     );
   }
@@ -303,6 +272,124 @@ class CategoriesScreen extends StatelessWidget {
             child: const Text('Delete'),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryTile(BuildContext context, Category category, int photoCount) {
+    return GestureDetector(
+      onTap: () {
+        if (!category.isDefault && category.isEditable) {
+          _showEditCategoryDialog(context, category);
+        }
+      },
+      onLongPress: () {
+        if (!category.isDefault && category.isEditable) {
+          _showDeleteConfirmation(context, category);
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: category.color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: category.color.withOpacity(0.3),
+            width: 1,
+          ),
+        ),
+        child: Stack(
+          children: [
+            // Center icon
+            Center(
+              child: Icon(
+                category.icon,
+                color: category.color,
+                size: 48,
+              ),
+            ),
+            
+            // Category name at the bottom
+            Positioned(
+              bottom: 12,
+              left: 12,
+              child: Text(
+                category.name,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: category.color.withOpacity(0.8),
+                ),
+              ),
+            ),
+            
+            // Photo count at the bottom right
+            Positioned(
+              bottom: 12,
+              right: 12,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: category.color.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  photoCount.toString(),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: category.color,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ),
+            
+            // Edit button for custom categories
+            if (!category.isDefault && category.isEditable)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.8),
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    icon: const Icon(Icons.edit, size: 16),
+                    onPressed: () {
+                      _showEditCategoryDialog(context, category);
+                    },
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddCategoryTile(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        _showAddCategoryDialog(context);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.grey.withOpacity(0.3),
+            width: 1,
+          ),
+        ),
+        child: const Center(
+          child: Icon(
+            Icons.add_circle_outline,
+            color: Colors.grey,
+            size: 48,
+          ),
+        ),
       ),
     );
   }

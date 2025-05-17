@@ -416,6 +416,24 @@ class ImageClassifierProvider extends ChangeNotifier {
     notifyListeners();
   }
   
+  // Reset the classifier and clear cached data
+  Future<void> resetClassifier() async {
+    try {
+      print('DEBUG: Resetting image classifier');
+      // Reset the service
+      await ImageClassifierService.resetCheckpoint();
+      
+      // Restart the classifier
+      await restartClassifier();
+      
+      print('DEBUG: Image classifier successfully reset');
+    } catch (e) {
+      print('DEBUG ERROR: Failed to reset classifier: $e');
+      _error = 'Failed to reset classifier: $e';
+      throw Exception('Failed to reset classifier: $e');
+    }
+  }
+  
   // Dispose resources
   @override
   void dispose() {
